@@ -42,7 +42,7 @@ Before starting, ensure you have:
       ```
 
 6. **Set Up Paymongo API Keys**:
-    - Sign up for a Paymongo account and obtain your API keys from the Paymongo dashboard.
+    - Sign up for a [Paymongo](https://www.paymongo.com/) account and obtain your API keys from the Paymongo dashboard.
     - Add your Paymongo API keys to your `.env` file:
       ```env
       PAYMONGO_PUBLIC_KEY=your_public_key
@@ -50,7 +50,7 @@ Before starting, ensure you have:
       ```
 
 7. **Set Up Pusher API Keys**:
-    - Create a Pusher account and create an application to get your Pusher app credentials.
+    - Create a [Pusher](https://pusher.com/) account and create an application to get your Pusher app credentials.
     - Add your Pusher API keys to your `.env` file:
       ```env
       PUSHER_APP_ID=your_app_id
@@ -60,9 +60,12 @@ Before starting, ensure you have:
       ```
 
 8. **Run the App**:
-    - Start the Laravel server:
+    - Start the Laravel server by running the following command in a terminal:
       ```
       php artisan serve
+      ```
+    - In another terminal, compile your assets and watch for changes with:
+      ```
       npm run dev
       ```
 
