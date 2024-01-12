@@ -1,7 +1,7 @@
-# Hashi - ACLC Web Payment App
+# <img src="public/bridge.svg" style="height: 30px;"> Hashi - ACLC Web Payment App
 
 ## Introduction
-Welcome to the Hashi development guide, the unofficial web payment app of AMA Computer Learning Center Iriga (ACLC). This README provides instructions for setting up Laravel Jetstream with Vue, configuring the project for VSCode environments, and tips for debugging and development.
+Welcome to the Hashi development guide, the unofficial web payment app of AMA Computer Learning Center Iriga (ACLC). This README provides instructions for setting up Laravel Jetstream with Vue, configuring the project for VSCode environments, and tips for debugging and development, as well as integrating Paymongo and Pusher for payment processing and real-time interactions.
 
 ## Prerequisites
 Before starting, ensure you have:
@@ -17,7 +17,7 @@ Before starting, ensure you have:
 1. **Clone the Repository**:
     - Use Git to clone the Hashi project:
       ```
-      git clone https://github.com/aclc-iriga/bscs4-capstone-2024/hashi
+      git clone https://github.com/ronhedwigzape/hashi
       ```
 
 2. **Open the Project**:
@@ -41,7 +41,25 @@ Before starting, ensure you have:
       php artisan key:generate
       ```
 
-6. **Run the App**:
+6. **Set Up Paymongo API Keys**:
+    - Sign up for a Paymongo account and obtain your API keys from the Paymongo dashboard.
+    - Add your Paymongo API keys to your `.env` file:
+      ```env
+      PAYMONGO_PUBLIC_KEY=your_public_key
+      PAYMONGO_SECRET_KEY=your_secret_key
+      ```
+
+7. **Set Up Pusher API Keys**:
+    - Create a Pusher account and create an application to get your Pusher app credentials.
+    - Add your Pusher API keys to your `.env` file:
+      ```env
+      PUSHER_APP_ID=your_app_id
+      PUSHER_APP_KEY=your_app_key
+      PUSHER_APP_SECRET=your_app_secret
+      PUSHER_APP_CLUSTER=your_app_cluster
+      ```
+
+8. **Run the App**:
     - Start the Laravel server:
       ```
       php artisan serve
@@ -80,4 +98,4 @@ Before starting, ensure you have:
 4. **Viewing Output and Logs**:
     - Monitor the output and logs in the VSCode console.
 
-Following these steps should get you set up for VSCode/PHPStorm development environments for the Hashi app.
+Following these steps should get you set up for VSCode/PHPStorm development environments for the Hashi app, including the integration of Paymongo and Pusher for handling payments and real-time features.
