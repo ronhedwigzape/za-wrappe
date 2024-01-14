@@ -31,11 +31,14 @@ export const useStore = defineStore('store', {
     actions: {
         // Define a method to get headers to ensure they are evaluated at runtime
         getHeaders() {
+            const secretKey = import.meta.env.VITE_PAYMONGO_SECRET_KEY;
+            const base64SecretKey = btoa(secretKey + ':'); // Base64 encode the secret key
             return {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + process.env.PAYMONGO_SECRET_KEY,
+                'Authorization': `Basic ${base64SecretKey}`,
             };
         },
+
 
         listenForLinkUpdates() {
             window.Echo.channel('links')
@@ -117,19 +120,53 @@ export const useStore = defineStore('store', {
                 });
                 this.links.push(data);
             } catch (error) {
-                console.error(`Error creating link: ${error}`);
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.error(error.response.data);
+                    console.error(error.response.status);
+                    console.error(error.response.headers);
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error(error.request);
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error('Error', error.message);
+                }
             }
         },
 
         /************************************************************************************************
-         * Retrieves all link records from the Paymongo API.
+         * Retrieves all link records from the Paymongo API by reference numbers.
          */
         listAllLinks: async function () {
+            const referenceNumbers = [
+                'myTijiN',
+                'gZuNLSQ',
+                'tdiLxGK',
+                'FPsc6Pj',
+                'SpYF7Sd',
+                'A8xN8WQ',
+                'TqzyLCQ',
+                '7DUbu1j',
+                'oG2nEUk',
+                '8svkEfL'
+            ];
+
             try {
-                const { data } = await axios.get('https://api.paymongo.com/v1/links', { headers: this.getHeaders() });
-                this.links = data;
+                // Clear the current links array
+                this.links = [];
+
+                // Fetch each link by reference number and add to the links array
+                for (const reference of referenceNumbers) {
+                    const response = await axios.get(`https://api.paymongo.com/v1/links?reference_number=${reference}`, {
+                        headers: this.getHeaders()
+                    });
+                    // Assuming the response data structure is an object with a 'data' array
+                    this.links.push(...response.data.data); // Use spread operator to add all links
+                }
             } catch (error) {
-                console.error(`Error listing links: ${error}`);
+                console.error(`Error listing links by reference numbers: ${error}`);
             }
         },
 

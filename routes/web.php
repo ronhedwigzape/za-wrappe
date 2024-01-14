@@ -44,7 +44,20 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
+
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::get('/payments', function () {
+        return Inertia::render('Payments');
+    })->name('payments');
+
+    Route::get('/financial-reports', function () {
+        return Inertia::render('FinancialReports');
+    })->name('financial-reports');
+
+    Route::get('/notifications', function () {
+        return Inertia::render('Notifications');
+    })->name('notifications');
 });
