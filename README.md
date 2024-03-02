@@ -1,7 +1,7 @@
-# <img src="public/bridge.svg" style="height: 30px;"> Hashi - ACLC Web Payment App
+# <img src="public/FastFoodSharp.svg" style="height: 30px;"> Za-Wrappe Food and Drink Web Payment and Ordering App
 
 ## Introduction
-Welcome to the Hashi development guide, the unofficial web payment app of AMA Computer Learning Center Iriga (ACLC). This README provides instructions for setting up Laravel Jetstream with Vue, configuring the project for VSCode environments, and tips for debugging and development, as well as integrating Paymongo and Pusher for payment processing and real-time interactions.
+Welcome to the unofficial web payment and ordering app of Za-Wrappe. This README provides instructions for setting up Laravel Jetstream with Vue, configuring the project for VSCode environments, and tips for debugging and development, as well as integrating Paymongo and Pusher for payment processing and real-time interactions.
 
 ## Prerequisites
 Before starting, ensure you have:
@@ -17,7 +17,7 @@ Before starting, ensure you have:
 1. **Clone the Repository**:
     - Use Git to clone the Hashi project:
       ```
-      git clone https://github.com/ronhedwigzape/hashi
+      git clone https://github.com/ronhedwigzape/za-wrappe
       ```
 
 2. **Open the Project**:
