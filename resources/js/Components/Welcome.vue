@@ -8,11 +8,14 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
             <ApplicationLogo class="block h-12 w-auto" />
 
             <h1 class="mt-8 text-2xl font-medium text-gray-900">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                Welcome to your Jetstream application!
             </h1>
 
             <p class="mt-6 text-gray-500 leading-relaxed">
-               Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem cum eius hic natus quasi quis quod ratione repellat? Aliquam aliquid expedita, hic inventore natus non officiis perferendis sed ullam unde vel voluptatem? Atque consectetur, cumque ipsa praesentium repellendus soluta unde!
+                Laravel Jetstream provides a beautiful, robust starting point for your next Laravel application. Laravel is designed
+                to help you build your application using a development environment that is simple, powerful, and enjoyable. We believe
+                you should love expressing your creativity through programming, so we have spent time carefully crafting the Laravel
+                ecosystem to be a breath of fresh air. We hope you love it.
             </p>
         </div>
 

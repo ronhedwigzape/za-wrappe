@@ -7,10 +7,6 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import Footer from '@/Components/Footer.vue';
-import NotificationIcon from "@/Components/NotificationIcon.vue";
-import { FacebookMessenger } from '@vicons/fa';
-import { Icon } from '@vicons/utils';
 
 defineProps({
     title: String,
@@ -29,8 +25,6 @@ const switchToTeam = (team) => {
 const logout = () => {
     router.post(route('logout'));
 };
-
-const showChat = ref(false);
 </script>
 
 <template>
@@ -54,42 +48,8 @@ const showChat = ref(false);
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <!-- Dashboard -->
-                                <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
-                                >
+                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
-                                </NavLink>
-                                <!-- Payments   -->
-                                <NavLink
-                                    :href="route('payments')"
-                                    :active="route().current('payments')"
-                                >
-                                    Payments
-                                </NavLink>
-                                <!-- Financial Reports -->
-                                <NavLink
-                                    v-if="$page.props.auth.user.user_type === 'officer' || $page.props.auth.user.user_type === 'staff'"
-                                    :href="route('financial-reports')"
-                                    :active="route().current('financial-reports')"
-                                >
-                                    Financial Reports
-                                </NavLink>
-                                <!-- Notifications -->
-                                <NavLink
-                                    :href="route('notifications')"
-                                    :active="route().current('notifications')"
-                                >
-                                    <NotificationIcon/>
-                                </NavLink>
-                                <!--  -->
-                                <NavLink
-                                    v-if="$page.props.auth.user.user_type === ''"
-                                    :href="route('')"
-                                    :active="route().current('')"
-                                >
-
                                 </NavLink>
                             </div>
                         </div>
@@ -231,35 +191,8 @@ const showChat = ref(false);
                 <!-- Responsive Navigation Menu -->
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')">
+                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink
-                            :href="route('payments')"
-                            :active="route().current('payments')">
-                            Payments
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink
-                            v-if="$page.props.auth.user.user_type === 'officer' || $page.props.auth.user.user_type === 'staff'"
-                            :href="route('financial-reports')"
-                            :active="route().current('financial-reports')">
-                            Financial Reports
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink
-                            :href="route('notifications')"
-                            :active="route().current('notifications')">
-                            <NotificationIcon/>
                         </ResponsiveNavLink>
                     </div>
 
@@ -351,54 +284,6 @@ const showChat = ref(false);
             <main>
                 <slot />
             </main>
-
-            <Footer/>
         </div>
     </div>
-    <!--   Sample Messenger Chat Box UI-->
-    <div class="fixed bottom-8 right-8 flex flex-col items-end">
-        <transition name="slide-fade">
-            <div v-if="showChat" class="w-72 p-4 bg-white rounded-lg shadow-xl flex flex-col mb-4">
-                <div class="flex justify-between items-center border-b pb-3 mb-3">
-                    <span class="text-lg font-semibold">Support Chat</span>
-                    <button @click="showChat = false" class="focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex-1 overflow-y-auto mb-4 space-y-2">
-                    <!-- Dummy chat messages -->
-                    <div class="text-sm text-gray-600">Welcome to ACLC Iriga Payments Support!</div>
-                    <div class="text-sm text-gray-600">How can we assist you today?</div>
-                    <!-- User's message -->
-                    <div class="text-sm text-blue-600 self-end">I have a question about admissions.</div>
-                    <!-- Support's reply -->
-                    <div class="text-sm text-gray-600">Sure, we're here to help! What would you like to know?</div>
-                </div>
-                <div>
-                    <input type="text" placeholder="Type your message..." class="w-full p-2 border rounded-lg focus:outline-none" />
-                </div>
-            </div>
-        </transition>
-        <button
-            class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full focus:outline-none transition shadow-lg flex items-center justify-center"
-            style="width: 50px; height: 50px;"
-        @click="showChat = !showChat"
-        >
-        <Icon class="text-3xl">
-            <FacebookMessenger/>
-        </Icon>
-        </button>
-    </div>
 </template>
-<style>
-/* Add custom transition for the chatbox */
-.slide-fade-enter-active, .slide-fade-leave-active {
-    transition: all .3s ease;
-}
-.slide-fade-enter-from, .slide-fade-leave-to {
-    transform: translateY(10px);
-    opacity: 0;
-}
-</style>

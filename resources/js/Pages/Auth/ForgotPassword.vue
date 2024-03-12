@@ -6,7 +6,6 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import {NFormItem, NInput, NButton} from "naive-ui";
 
 defineProps({
     status: String,
@@ -38,24 +37,24 @@ const submit = () => {
         </div>
 
         <form @submit.prevent="submit">
-            <NFormItem label="Email" path="email">
-                <NInput
+            <div>
+                <InputLabel for="email" value="Email" />
+                <TextInput
                     id="email"
-                    v-model:value="form.email"
+                    v-model="form.email"
+                    type="email"
+                    class="mt-1 block w-full"
                     required
                     autofocus
                     autocomplete="username"
-                    @keyup.enter="submit"
                 />
-                <template>
-                    <div v-if="form.errors.email" class="mt-2 text-sm text-red-600">{{ form.errors.email }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.email" />
+            </div>
 
             <div class="flex items-center justify-end mt-4">
-                <NButton ghost type="info" :class="{ 'opacity-25': form.processing }" :disabled="form.processing" :loading="form.processing" @click.prevent="submit">
+                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Email Password Reset Link
-                </NButton>
+                </PrimaryButton>
             </div>
         </form>
     </AuthenticationCard>
