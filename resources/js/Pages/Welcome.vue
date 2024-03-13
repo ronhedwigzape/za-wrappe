@@ -1,4 +1,5 @@
 <script setup>
+import { SfButton } from '@storefront-ui/vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
@@ -22,7 +23,7 @@ defineProps({
         </div>
 
         <div class="max-w-7xl mx-auto p-6 lg:p-8">
-
+            <SfButton class="w-full"> Hello </SfButton>
         </div>
     </div>
 </template>
