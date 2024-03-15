@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { SfButton } from '@storefront-ui/vue';
 import { Head, Link } from '@inertiajs/vue3';
 
@@ -12,29 +12,45 @@ defineProps({
     <Head title="Welcome" />
 
     <div class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-center bg-gray-100 selection:bg-red-500 selection:text-white">
-        <div v-if="canLogin" class="sm:fixed sm:top-0 sm:end-0 p-6 text-end z-10">
-            <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</Link>
-
-            <template v-else>
-                <Link :href="route('login')" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</Link>
-
-                <Link v-if="canRegister" :href="route('register')" class="ms-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</Link>
-            </template>
-        </div>
-
         <div class="max-w-7xl mx-auto p-6 lg:p-8">
-            <SfButton class="w-full"> Hello </SfButton>
+            <div class="relative min-h-[600px]">
+                <picture>
+                    <source srcset="https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/hero-bg.png" media="(min-width: 768px)" />
+                    <img
+                        src=""
+                        class="absolute w-full h-full z-[-1] md:object-cover"
+                        alt="hero"
+                    />
+                </picture>
+                <div class="md:flex md:flex-row-reverse md:justify-center max-w[1536px] mx-auto md:min-h-[600px]">
+                    <div class="flex flex-col md:basis-2/4 md:items-stretch md:overflow-hidden">
+                        <img
+                            src=""
+                            alt="Headphones"
+                            class="h-full object-cover object-left"
+                        />
+                    </div>
+                    <div class="p-4 md:p-10 md:max-w-[768px] md:flex md:flex-col md:justify-center md:items-start md:basis-2/4">
+                        <p class="typography-text-xs md:typography-text-sm font-bold tracking-widest text-neutral-500 uppercase">
+                            Feel the music
+                        </p>
+                        <h1 class="typography-display-2 md:typography-display-1 md:leading-[67.5px] font-bold mt-2 mb-4">
+                            New Wireless Pro
+                        </h1>
+                        <p class="typography-text-base md:typography-text-lg">
+                            Spatial audio. Adjustable ear cups. On-device controls. All-day battery.
+                        </p>
+                        <div class="flex flex-col md:flex-row gap-4 mt-6">
+                            <SfButton size="lg"> Order now </SfButton>
+                            <SfButton size="lg" variant="secondary" class="bg-white"> Show more </SfButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <style>
-.bg-dots-darker {
-    background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(0,0,0,0.07)'/%3E%3C/svg%3E");
-}
-@media (prefers-color-scheme: dark) {
-    .dark\:bg-dots-lighter {
-        background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
-    }
-}
+
 </style>
