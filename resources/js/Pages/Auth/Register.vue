@@ -2,23 +2,19 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import { NFormItem, NInput, NButton, NCheckbox, NRadio, NRadioGroup } from 'naive-ui';
-
-defineProps({
-    canResetPassword: Boolean,
-    status: String,
-});
+import Checkbox from '@/Components/Checkbox.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const form = useForm({
     name: '',
     email: '',
-    user_type: '',
     password: '',
     password_confirmation: '',
     terms: false,
 });
-
-const userTypes = ['student', 'officer', 'staff'];
 
 const submit = () => {
     form.post(route('register'), {
@@ -36,84 +32,69 @@ const submit = () => {
         </template>
 
         <form @submit.prevent="submit">
-            <NFormItem label="User Type">
-                <NRadioGroup v-model:value="form.user_type" name="user_type">
-                    <NRadio v-for="type in userTypes" :key="type" :value="type" :label="type" />
-                </NRadioGroup>
-                <template #feedback>
-                    <div v-if="form.errors.user_type" class="mt-2 text-sm text-red-600">{{ form.errors.user_type }}</div>
-                </template>
-            </NFormItem>
-
-            <NFormItem label="Name">
-                <NInput
+            <div>
+                <InputLabel for="name" value="Name" />
+                <TextInput
                     id="name"
-                    v-model:value="form.name"
+                    v-model="form.name"
                     type="text"
+                    class="mt-1 block w-full"
                     required
                     autofocus
                     autocomplete="name"
-                    @keyup.enter="submit"
                 />
-                <template #feedback>
-                    <div v-if="form.errors.name" class="mt-2 text-sm text-red-600">{{ form.errors.name }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.name" />
+            </div>
 
-            <NFormItem label="Email">
-                <NInput
+            <div class="mt-4">
+                <InputLabel for="email" value="Email" />
+                <TextInput
                     id="email"
-                    v-model:value="form.email"
+                    v-model="form.email"
                     type="email"
+                    class="mt-1 block w-full"
                     required
                     autocomplete="username"
-                    @keyup.enter="submit"
                 />
-                <template #feedback>
-                    <div v-if="form.errors.email" class="mt-2 text-sm text-red-600">{{ form.errors.email }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.email" />
+            </div>
 
-            <NFormItem label="Password" class="mt-4">
-                <NInput
+            <div class="mt-4">
+                <InputLabel for="password" value="Password" />
+                <TextInput
                     id="password"
-                    v-model:value="form.password"
+                    v-model="form.password"
                     type="password"
+                    class="mt-1 block w-full"
                     required
                     autocomplete="new-password"
-                    @keyup.enter="submit"
                 />
-                <template #feedback>
-                    <div v-if="form.errors.password" class="mt-2 text-sm text-red-600">{{ form.errors.password }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.password" />
+            </div>
 
-            <NFormItem label="Confirm Password" class="mt-4">
-                <NInput
+            <div class="mt-4">
+                <InputLabel for="password_confirmation" value="Confirm Password" />
+                <TextInput
                     id="password_confirmation"
-                    v-model:value="form.password_confirmation"
+                    v-model="form.password_confirmation"
                     type="password"
+                    class="mt-1 block w-full"
                     required
                     autocomplete="new-password"
-                    @keyup.enter="submit"
                 />
-                <template #feedback>
-                    <div v-if="form.errors.password_confirmation" class="mt-2 text-sm text-red-600">{{ form.errors.password_confirmation }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+            </div>
 
             <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mt-4">
                 <InputLabel for="terms">
                     <div class="flex items-center">
-                        <NCheckbox id="terms" v-model:checked="form.terms" name="terms" required />
+                        <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
 
                         <div class="ms-2">
                             I agree to the <a target="_blank" :href="route('terms.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Terms of Service</a> and <a target="_blank" :href="route('policy.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Privacy Policy</a>
                         </div>
                     </div>
-                    <template #feedback>
-                        <div v-if="form.errors.terms" class="mt-2 text-sm text-red-600">{{ form.errors.terms }}</div>
-                    </template>
+                    <InputError class="mt-2" :message="form.errors.terms" />
                 </InputLabel>
             </div>
 
@@ -122,9 +103,9 @@ const submit = () => {
                     Already registered?
                 </Link>
 
-                <NButton ghost type="success" class="ms-4" :loading="form.processing" :disabled="form.processing" @click="submit">
+                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Register
-                </NButton>
+                </PrimaryButton>
             </div>
         </form>
     </AuthenticationCard>

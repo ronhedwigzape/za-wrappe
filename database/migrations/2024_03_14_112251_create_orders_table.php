@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('security_compliances', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->text('authentication_logs');
-            $table->text('access_control_info');
-            $table->text('audit_trails');
+            $table->string('status');
+            $table->string('customer_contact');
+            $table->decimal('total_price', 8, 2);
+            $table->string('verification_code')->unique();
+            $table->string('payment_status');
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('security_compliances');
+        Schema::dropIfExists('orders');
     }
 };

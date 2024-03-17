@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payer_id')->constrained('users');
-            $table->foreignId('receiver_id')->constrained('users');
-            $table->decimal('amount', 8, 2);
-            $table->foreignId('payment_method_id')->constrained();
+            $table->string('type');
+            $table->integer('related_id');
             $table->string('status');
+            $table->text('message');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('notifications');
     }
 };

@@ -2,7 +2,11 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import { NFormItem, NInput, NButton, NCheckbox } from 'naive-ui';
+import Checkbox from '@/Components/Checkbox.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 defineProps({
     canResetPassword: Boolean,
@@ -33,58 +37,54 @@ const submit = () => {
             <AuthenticationCardLogo />
         </template>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
 
         <form @submit.prevent="submit">
-            <NFormItem label="Email" path="email">
-                <NInput
+            <div>
+                <InputLabel for="email" value="Email" />
+                <TextInput
                     id="email"
-                    v-model:value="form.email"
+                    v-model="form.email"
                     type="email"
+                    class="mt-1 block w-full"
                     required
                     autofocus
                     autocomplete="username"
-                    @keyup.enter="submit"
                 />
-                <template #feedback>
-                    <div v-if="form.errors.email" class="mt-2 text-sm text-red-600">{{ form.errors.email }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.email" />
+            </div>
 
-            <NFormItem label="Password" path="password" class="mt-4">
-                <NInput
+            <div class="mt-4">
+                <InputLabel for="password" value="Password" />
+                <TextInput
                     id="password"
-                    v-model:value="form.password"
+                    v-model="form.password"
                     type="password"
+                    class="mt-1 block w-full"
                     required
                     autocomplete="current-password"
-                    @keyup.enter="submit"
                 />
-                <template #feedback>
-                    <div v-if="form.errors.password" class="mt-2 text-sm text-red-600">{{ form.errors.password }}</div>
-                </template>
-            </NFormItem>
+                <InputError class="mt-2" :message="form.errors.password" />
+            </div>
 
-
-            <NFormItem class="block mt-4">
-                <NCheckbox v-model:checked="form.remember" name="remember" />
-                <span class="ms-2 text-sm text-gray-600">Remember me</span>
-            </NFormItem>
+            <div class="block mt-4">
+                <label class="flex items-center">
+                    <Checkbox v-model:checked="form.remember" name="remember" />
+                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
+                </label>
+            </div>
 
             <div class="flex items-center justify-end mt-4">
-                <Link :href="route('password.request')" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Forgot your password?
                 </Link>
 
-                <NButton ghost type="success" class="ms-4"  :loading="form.processing" :disabled="form.processing" @click.prevent="submit">
+                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Log in
-                </NButton>
+                </PrimaryButton>
             </div>
         </form>
-        <template #navigation>
-            <Link :href="route('register')" class="ms-4 font-semibold text-sm text-gray-500 hover:text-gray-800 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Don't have an account yet? Register here.</Link>
-        </template>
     </AuthenticationCard>
 </template>

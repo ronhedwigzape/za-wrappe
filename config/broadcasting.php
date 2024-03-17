@@ -55,10 +55,7 @@ return [
 
         'redis' => [
             'driver' => 'redis',
-            'connection' => 'default', // The name of the Redis connection
-            'queue' => 'default',
-            'retry_after' => 90,
-            'block_for' => null,
+            'connection' => 'default',
         ],
 
         'log' => [
