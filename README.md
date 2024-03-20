@@ -41,7 +41,17 @@ Before starting, ensure you have:
       php artisan key:generate
       ```
 
-6. **Set Up Paymongo API Keys**:
+6. **Seed the Database**:
+    - After migrating your database, you can seed it with test data to facilitate development and testing. Run the following command to seed your database using Laravel's seeder classes:
+      ```
+      php artisan migrate --seed
+      ```
+      
+    - This command will execute the `DatabaseSeeder` class, which may call other seed classes to populate your tables with data. Ensure that your seeder files are properly set up to insert the necessary data into your database.
+     
+    - By specifying the `migrate --seed` command, you ensure that the database is migrated to the latest schema before seeding it. This approach helps in maintaining consistency and reliability in your development and testing environments, ensuring that your application's database structure and initial data are set up correctly.
+
+7. **Set Up Paymongo API Keys**:
     - Sign up for a [Paymongo](https://www.paymongo.com/) account and obtain your API keys from the Paymongo dashboard.
     - Add your Paymongo API keys to your `.env` file:
       ```env
@@ -49,7 +59,7 @@ Before starting, ensure you have:
       PAYMONGO_SECRET_KEY=your_secret_key
       ```
 
-7. **Set Up Pusher API Keys**:
+8. **Set Up Pusher API Keys**:
     - Create a [Pusher](https://pusher.com/) account and create an application to get your Pusher app credentials.
     - Add your Pusher API keys to your `.env` file:
       ```env
@@ -59,7 +69,7 @@ Before starting, ensure you have:
       PUSHER_APP_CLUSTER=your_app_cluster
       ```
 
-8. **Run the App**:
+9. **Run the App**:
     - Start the Laravel server by running the following command in a terminal:
       ```
       php artisan serve
