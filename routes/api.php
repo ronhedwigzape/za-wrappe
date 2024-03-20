@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\AddOnController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FlavorController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +30,15 @@ Route::get('/menu', [MenuController::class, 'index']);
 // Fetch categories for the menu
 Route::get('/categories', [CategoryController::class, 'index']);
 
+// Fetch all products by category
+Route::get('/products/{categoryId}', [ProductController::class, 'showByCategory']);
+
 // Get help information
 Route::get('/help', [HelpController::class, 'index']);
+
+// Get all flavors
+Route::get('/flavors', [FlavorController::class, 'index']);
+
+// Get all add-ons
+Route::get('/add-ons', [AddOnController::class, 'index']);
+

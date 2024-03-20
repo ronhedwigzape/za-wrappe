@@ -2,9 +2,13 @@
     <div>
         <div v-if="!menuStore.orderComplete">
             <SfButton @click="displayMenu" class="btn">View Menu</SfButton>
-            <SfButton @click="startOrder">Start Order</SfButton>
+            <Link :href="route('order')">
+                <SfButton @click="startOrder">Start Order</SfButton>
+            </Link>
             <SfButton @click="displayHelp">Help</SfButton>
-            <Link :href="route('welcome')"><SfButton @click="exit">Exit</SfButton></Link>
+            <Link :href="route('welcome')">
+                <SfButton @click="exit">Exit</SfButton>
+            </Link>
         </div>
 
         <div v-if="menuVisible">

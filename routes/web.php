@@ -24,9 +24,13 @@ use Inertia\Inertia;
 
     })->name('welcome');
 
-    Route::get('/start-order', function() {
-       return Inertia::render('Order/Initializer');
-    })->name('start-order');
+    Route::get('/initialize', function() {
+       return Inertia::render('Order/Initialize');
+    })->name('initialize');
+
+    Route::get('/order', function() {
+        return Inertia::render('Order/Create');
+    })->name('order');
 
     // Authenticate merchant or admin users
     Route::middleware([

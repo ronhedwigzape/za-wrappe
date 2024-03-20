@@ -10,7 +10,7 @@ class MenuController extends Controller
 {
     public function index(): JsonResponse
     {
-        $menuItems = Product::with('category')->active()->get(); 
+        $menuItems = Product::with('category')->active()->get();
         return response()->json($menuItems, Response::HTTP_OK);
     }
 }

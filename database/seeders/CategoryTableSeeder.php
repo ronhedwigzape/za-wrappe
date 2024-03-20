@@ -13,6 +13,15 @@ class CategoryTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory()->count(5)->create();
+        // Define categories as per the menu
+        $categoriesData = [
+            ['name' => 'Shawarma', 'description' => 'Delicious Shawarma wraps and more'],
+            ['name' => 'Fruit Soda & Tea', 'description' => 'Refreshing fruit soda and tea in various flavors'],
+            ['name' => 'Yakult Series', 'description' => 'Healthy Yakult infused drinks'],
+        ];
+
+        foreach ($categoriesData as $data) {
+            Category::create($data);
+        }
     }
 }
