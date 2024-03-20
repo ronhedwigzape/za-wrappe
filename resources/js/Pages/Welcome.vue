@@ -25,7 +25,7 @@
                         Explore our menu, customize your order, and enjoy an innovative dining experience.
                     </p>
                     <div class="flex flex-col md:flex-row gap-4 mt-6">
-                        <Link :href="route('start-order')">
+                        <Link :href="route('initialize')">
                             <SfButton size="lg" variant="secondary"> Get Started </SfButton>
                         </Link>
                     </div>
