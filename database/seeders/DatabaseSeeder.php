@@ -22,8 +22,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleTableSeeder::class,
             UsersTableSeeder::class,
+            CategoryTableSeeder::class,
+            FlavorsTableSeeder::class,
+            AddOnsTableSeeder::class,
             ProductsTableSeeder::class,
-            CategoryTableSeeder::class
         ]);
     }
 }
