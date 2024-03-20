@@ -14,7 +14,7 @@ use Inertia\Inertia;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+    //
     Route::get('/', function () {
 
         return Inertia::render('Welcome', [
@@ -22,8 +22,13 @@ use Inertia\Inertia;
             'canRegister' => Route::has('register'),
         ]);
 
-    });
+    })->name('welcome');
 
+    Route::get('/start-order', function() {
+       return Inertia::render('Order/Initializer');
+    })->name('start-order');
+
+    // Authenticate merchant or admin users
     Route::middleware([
         'auth:sanctum',
         config('jetstream.auth_session'),
