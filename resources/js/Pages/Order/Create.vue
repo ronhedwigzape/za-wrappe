@@ -148,8 +148,6 @@ function finalizeCustomization() {
 
 onMounted(async () => {
     if (!orderStore.categories.length) await orderStore.fetchCategories();
-    await orderStore.fetchFlavors();
-    await orderStore.fetchAddOns();
 });
 
 function selectProducts(category) {
