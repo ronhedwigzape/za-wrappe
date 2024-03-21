@@ -45,12 +45,4 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-
-    public function flavors(): BelongsToMany {
-        return $this->belongsToMany(Flavor::class);
-    }
-
-    public function addOns(): BelongsToMany {
-        return $this->belongsToMany(AddOn::class);
-    }
 }

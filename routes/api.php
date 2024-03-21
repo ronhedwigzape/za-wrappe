@@ -36,9 +36,9 @@ Route::get('/products/{categoryId}', [ProductController::class, 'showByCategory'
 // Get help information
 Route::get('/help', [HelpController::class, 'index']);
 
-// Get all flavors
-Route::get('/flavors', [FlavorController::class, 'index']);
+// Get all flavors by category
+Route::get('/categories/{category}/flavors', [CategoryController::class, 'flavors']);
 
-// Get all add-ons
-Route::get('/add-ons', [AddOnController::class, 'index']);
+// Get all add-ons by category
+Route::get('/categories/{category}/add-ons', [CategoryController::class, 'addOns']);
 

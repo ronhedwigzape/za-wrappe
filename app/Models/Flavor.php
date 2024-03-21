@@ -10,7 +10,7 @@ class Flavor extends Model
 {
     use HasFactory;
 
-    public function products(): BelongsToMany {
-        return $this->belongsToMany(Product::class);
+    public function categories(): BelongsToMany {
+        return $this->belongsToMany(Category::class);
     }
 }

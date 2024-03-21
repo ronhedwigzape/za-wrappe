@@ -2,24 +2,29 @@
 
 namespace Database\Seeders;
 
-use App\Models\AddOn;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\AddOn;
+use App\Models\Category;
 
 class AddOnsTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $addOns = [
+        $shawarmaCategory = Category::where('name', 'Shawarma')->first();
+        $yakultCategory = Category::where('name', 'Yakult Series')->first();
+
+        $shawarmaAddOns = [
             ['name' => 'Cheesy Dip', 'price' => 7.00],
             ['name' => 'Spicy Dip', 'price' => 7.00],
-            ['name' => 'Add Yakult', 'price' => 15.00],
         ];
-        foreach ($addOns as $addOn) {
-            AddOn::create($addOn);
+
+        foreach ($shawarmaAddOns as $addOnData) {
+            $addOn = AddOn::firstOrCreate($addOnData);
+            $shawarmaCategory->addOns()->attach($addOn->id);
         }
+
+        // 'Add Yakult' is the only add-on for Yakult Series.
+        $addYakult = AddOn::firstOrCreate(['name' => 'Add Yakult', 'price' => 15.00]);
+        $yakultCategory->addOns()->attach($addYakult->id);
     }
 }

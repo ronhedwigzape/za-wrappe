@@ -7,8 +7,8 @@ export const useOrderStore = defineStore('order', {
         products: [],
         cart: [],
         ordering: true,
-        flavors: [],
-        addOns: [],
+        categorySpecificFlavors: [],
+        categorySpecificAddOns: [],
     }),
     getters: {
         cartTotal: (state) => {
@@ -32,22 +32,20 @@ export const useOrderStore = defineStore('order', {
 
             // TODO: Add a function for updating backend
         },
-        async fetchFlavors() {
+        async fetchCategorySpecificFlavors(categoryId) {
             try {
-                const response = await axios.get('/api/flavors');
-                this.flavors = response.data;
-                console.log('Fetched flavors:', this.flavors);
+                const response = await axios.get(`/api/categories/${categoryId}/flavors`);
+                this.categorySpecificFlavors = response.data;
             } catch (error) {
-                console.error('Error fetching flavors:', error);
+                console.error('Error fetching category-specific flavors:', error);
             }
         },
-        async fetchAddOns() {
+        async fetchCategorySpecificAddOns(categoryId) {
             try {
-                const response = await axios.get('/api/add-ons');
-                this.addOns = response.data;
-                console.log('Fetched add-ons:', this.addOns);
+                const response = await axios.get(`/api/categories/${categoryId}/add-ons`);
+                this.categorySpecificAddOns = response.data;
             } catch (error) {
-                console.error('Error fetching add-ons:', error);
+                console.error('Error fetching category-specific add-ons:', error);
             }
         },
         clearCart() {
