@@ -12,8 +12,8 @@ class FlavorsTableSeeder extends Seeder
     {
         $categoriesWithFlavors = [
             'Shawarma' => ['Pork', 'Chicken', 'Tilapia'],
-            'Fruit Soda & Tea' => ['Kiwi', 'Green Apple', 'Strawberry', 'Lychee', 'Lemon', 'Mango', 'Blueberry', 'Pork', 'Chicken', 'Tilapia'],
-            'Yakult Series' => ['Kiwi', 'Green Apple', 'Strawberry', 'Lychee', 'Lemon', 'Mango', 'Blueberry', 'Pork', 'Chicken', 'Tilapia'],
+            'Fruit Soda & Tea' => ['Kiwi', 'Green Apple', 'Strawberry', 'Lychee', 'Lemon', 'Mango', 'Blueberry'],
+            'Yakult Series' => ['Kiwi', 'Green Apple', 'Strawberry', 'Lychee', 'Lemon', 'Mango', 'Blueberry'],
         ];
 
         foreach ($categoriesWithFlavors as $categoryName => $flavors) {
