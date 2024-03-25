@@ -31,18 +31,23 @@
             <div v-if="productToCustomize && isCustomizingFlavorAndAddOns" class="space-y-4">
                 <h2 class="text-2xl font-semibold">Customize Your {{ productToCustomize.name }}</h2>
                 <div class="flex flex-wrap">
-                    <h3 class="text-xl font-semibold">Current Price: ${{ currentPrice }}</h3>
+                    <h3 class="text-xl font-semibold">Current Price: ${{ currentPrice.toFixed(2) }}</h3>
 
                     <!-- Display currently selected flavor -->
-                    <div v-if="selectedFlavor" class="mb-4">
-                        <h4 class="text-lg font-medium">Current Flavor: {{ selectedFlavor.name }}</h4>
+                    <div v-if="selectedFlavor" class="w-full mb-4">
+                        <span class="text-lg font-medium">Selected Flavor: </span>{{ selectedFlavor.name }}
                     </div>
 
-                    <div v-if="selectedFlavors.length" class="space-y-2">
+                    <div v-if="selectedFlavors.length" class="w-full space-y-2">
                         <h3 class="text-lg font-medium">Select Flavor</h3>
                         <div class="flex flex-wrap">
-                            <button v-for="flavor in selectedFlavors" :key="flavor.id" @click="selectFlavor(flavor)"
-                                    class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded m-1">
+                            <button
+                                v-for="flavor in selectedFlavors" :key="flavor.id" @click="selectFlavor(flavor)"
+                                class="hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded m-1"
+                                :class="{
+                                    'bg-indigo-700': selectedFlavor && selectedFlavor.id === flavor.id,
+                                    'bg-indigo-500': !(selectedFlavor && selectedFlavor.id === flavor.id)
+                                } ">
                                 {{ flavor.name }}
                             </button>
                         </div>
@@ -80,10 +85,10 @@
                                 </li>
                             </ul>
                         </div>
-                        <div>Price: ${{ item.currentPrice }}</div>
+                        <div>Price: ${{ item.currentPrice.toFixed(2) }}</div>
                     </li>
                 </ul>
-                <div class="font-bold">Total: ${{ orderStore.cartTotal }}</div>
+                <div class="font-bold">Total: ${{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
                 <div class="flex space-x-4">
                     <button @click="continueOrdering"
                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -107,33 +112,37 @@
 import { ref, computed, onMounted } from 'vue';
 import { useOrderStore } from '@/Store/store-order';
 
+// store
 const orderStore = useOrderStore();
+
+// data
 const selectedCategory = ref(null);
-const selectedCategoryProducts = computed(() => orderStore.products);
 const productToCustomize = ref(null);
 const selectedFlavor = ref(null);
 const selectedAddOns = ref([]);
-const selectedFlavors = computed(() => orderStore.categorySpecificFlavors);
-const selectedAddOnsList = computed(() => orderStore.categorySpecificAddOns);
 const isCustomizingFlavorAndAddOns = ref(false);
 
+// computed
+const selectedCategoryProducts = computed(() => orderStore.products);
+const selectedFlavors = computed(() => orderStore.categorySpecificFlavors);
+const selectedAddOnsList = computed(() => orderStore.categorySpecificAddOns);
 const currentPrice = computed(() => {
-    let price = productToCustomize.value ? productToCustomize.value.price : 0;
+    let price = productToCustomize.value ? parseFloat(productToCustomize.value.price) : 0;
     if (selectedFlavor.value && selectedFlavor.value.price) {
-        price += selectedFlavor.value.price;
+        price += parseFloat(selectedFlavor.value.price);
     }
     if (selectedAddOns.value && selectedAddOns.value.length > 0) {
-        price += selectedAddOns.value.reduce((sum, addOn) => sum + (addOn.price || 0), 0);
+        price += selectedAddOns.value.reduce((sum, addOn) => sum + parseFloat(addOn.price || 0), 0);
     }
-    return price;
+    return parseFloat(price.toFixed(2));
 });
 
-// Ensure the finalizeCustomization method correctly handles the absence of a selected flavor.
+// methods
 function finalizeCustomization() {
     const cartItem = {
         ...productToCustomize.value,
         variant: productToCustomize.value.variant,
-        flavor: selectedFlavor.value ? selectedFlavor.value.name : 'None', // Handle no flavor selected.
+        flavor: selectedFlavor.value ? selectedFlavor.value.name : 'None',
         addOns: [...selectedAddOns.value],
         currentPrice: currentPrice.value
     };
@@ -157,12 +166,11 @@ function selectProduct(product) {
     isCustomizingFlavorAndAddOns.value = true;
 }
 
-// Updated selectFlavor method to handle flavor toggling more robustly.
 function selectFlavor(flavor) {
     if (selectedFlavor.value && selectedFlavor.value.id === flavor.id) {
-        selectedFlavor.value = null; // Deselect if clicked again
+        selectedFlavor.value = null;
     } else {
-        selectedFlavor.value = flavor; // Select new flavor
+        selectedFlavor.value = flavor;
     }
 }
 
