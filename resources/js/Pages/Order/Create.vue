@@ -27,48 +27,42 @@
                 </button>
             </div>
 
-            <!-- Product Customization: Size or Type Selection -->
-            <div v-if="productToCustomize && !isCustomizingFlavorAndAddOns" class="space-y-4">
+            <!-- Product Customization: Flavor, Size or Type Selection -->
+            <div v-if="productToCustomize && isCustomizingFlavorAndAddOns" class="space-y-4">
                 <h2 class="text-2xl font-semibold">Customize Your {{ productToCustomize.name }}</h2>
                 <div class="flex flex-wrap">
-                    <template v-if="isBeverageCategory">
-                        <button @click="selectVariant('12 oz', 12)" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded m-1">12 oz</button>
-                        <button @click="selectVariant('16 oz', 16)" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded m-1">16 oz</button>
-                    </template>
-                    <template v-if="isShawarmaCategory">
-                        <button @click="selectVariant('Single Order', 0)" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded m-1">Single Order</button>
-                        <button @click="selectVariant('Buy One, Take One', additionalPriceForBOTOT)" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded m-1">Buy One, Take One</button>
-                    </template>
-                </div>
-            </div>
+                    <h3 class="text-xl font-semibold">Current Price: ${{ currentPrice }}</h3>
 
-            <!-- Flavor and Add-On Customization -->
-            <div v-if="isCustomizingFlavorAndAddOns" class="space-y-4">
-                <h3 class="text-xl font-semibold">Current Price: ${{ currentPrice }}</h3>
-                <div v-if="selectedFlavors.length" class="space-y-2">
-                    <h3 class="text-lg font-medium">Select Flavor</h3>
-                    <div class="flex flex-wrap">
-                        <button v-for="flavor in selectedFlavors" :key="flavor.id" @click="selectFlavor(flavor)"
-                                class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded m-1">
-                            {{ flavor.name }}
-                        </button>
+                    <!-- Display currently selected flavor -->
+                    <div v-if="selectedFlavor" class="mb-4">
+                        <h4 class="text-lg font-medium">Current Flavor: {{ selectedFlavor.name }}</h4>
                     </div>
-                </div>
 
-                <div v-if="selectedAddOnsList.length" class="space-y-2">
-                    <h3 class="text-lg font-medium">Add Ons</h3>
-                    <div class="flex flex-wrap">
-                        <button v-for="addOn in selectedAddOnsList" :key="addOn.id" @click="toggleAddOn(addOn)"
-                                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-1">
-                            {{ addOn.name }} (+${{ addOn.price }})
-                        </button>
+                    <div v-if="selectedFlavors.length" class="space-y-2">
+                        <h3 class="text-lg font-medium">Select Flavor</h3>
+                        <div class="flex flex-wrap">
+                            <button v-for="flavor in selectedFlavors" :key="flavor.id" @click="selectFlavor(flavor)"
+                                    class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded m-1">
+                                {{ flavor.name }}
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <button @click="finalizeCustomization"
-                        class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
-                    Add to Cart
-                </button>
+                    <div v-if="selectedAddOnsList.length" class="space-y-2">
+                        <h3 class="text-lg font-medium">Add Ons</h3>
+                        <div class="flex flex-wrap">
+                            <button v-for="addOn in selectedAddOnsList" :key="addOn.id" @click="toggleAddOn(addOn)"
+                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-1">
+                                {{ addOn.name }} (+${{ addOn.price }})
+                            </button>
+                        </div>
+                    </div>
+
+                    <button @click="finalizeCustomization"
+                            class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
+                        Add to Cart
+                    </button>
+                </div>
             </div>
 
             <!-- Cart Display -->
@@ -77,7 +71,7 @@
                 <ul class="list-disc pl-5">
                     <li v-for="(item, index) in orderStore.cart" :key="index" class="mt-2">
                         <div class="font-medium">{{ item.name }} - Variant: {{ item.variant }}</div>
-                        <div v-if="item.flavor">Flavor: {{ item.flavor.name }}</div>
+                        <div v-if="item.flavor">Flavor: {{ item.flavor }}</div>
                         <div v-if="item.addOns.length">
                             Add-Ons:
                             <ul class="list-disc pl-5">
@@ -122,23 +116,24 @@ const selectedAddOns = ref([]);
 const selectedFlavors = computed(() => orderStore.categorySpecificFlavors);
 const selectedAddOnsList = computed(() => orderStore.categorySpecificAddOns);
 const isCustomizingFlavorAndAddOns = ref(false);
-const currentVariantPrice = ref(0);
-const additionalPriceForBOTOT = 46; // Example additional price for Shawarma Buy One Take One
-const isBeverageCategory = computed(() => selectedCategory.value?.name === 'Fruit Soda & Tea' || selectedCategory.value?.name === 'Yakult Series');
-const isShawarmaCategory = computed(() => selectedCategory.value?.name === 'Shawarma');
-const currentPrice = computed(() => productToCustomize.value.price + currentVariantPrice.value + selectedAddOns.value.reduce((sum, addOn) => sum + addOn.price, 0));
 
-function selectVariant(variant, priceAdjustment) {
-    productToCustomize.value.variant = variant;
-    currentVariantPrice.value = priceAdjustment;
-    isCustomizingFlavorAndAddOns.value = true;
-}
+const currentPrice = computed(() => {
+    let price = productToCustomize.value ? productToCustomize.value.price : 0;
+    if (selectedFlavor.value && selectedFlavor.value.price) {
+        price += selectedFlavor.value.price;
+    }
+    if (selectedAddOns.value && selectedAddOns.value.length > 0) {
+        price += selectedAddOns.value.reduce((sum, addOn) => sum + (addOn.price || 0), 0);
+    }
+    return price;
+});
 
+// Ensure the finalizeCustomization method correctly handles the absence of a selected flavor.
 function finalizeCustomization() {
     const cartItem = {
         ...productToCustomize.value,
         variant: productToCustomize.value.variant,
-        flavor: selectedFlavor.value,
+        flavor: selectedFlavor.value ? selectedFlavor.value.name : 'None', // Handle no flavor selected.
         addOns: [...selectedAddOns.value],
         currentPrice: currentPrice.value
     };
@@ -159,10 +154,16 @@ function selectProducts(category) {
 
 function selectProduct(product) {
     productToCustomize.value = product;
+    isCustomizingFlavorAndAddOns.value = true;
 }
 
+// Updated selectFlavor method to handle flavor toggling more robustly.
 function selectFlavor(flavor) {
-    selectedFlavor.value = flavor;
+    if (selectedFlavor.value && selectedFlavor.value.id === flavor.id) {
+        selectedFlavor.value = null; // Deselect if clicked again
+    } else {
+        selectedFlavor.value = flavor; // Select new flavor
+    }
 }
 
 function toggleAddOn(addOn) {
@@ -170,28 +171,9 @@ function toggleAddOn(addOn) {
     index > -1 ? selectedAddOns.value.splice(index, 1) : selectedAddOns.value.push(addOn);
 }
 
-// function getAddOnQuantity(addOn) {
-//     return selectedAddOns.value.filter(a => a.id === addOn.id).length;
-// }
-//
-// function addToCart(product) {
-//     const cartItem = {
-//         ...product,
-//         flavor: selectedFlavor.value,
-//         addOns: [...selectedAddOns.value],
-//         quantity: 1 // Implement quantity logic if necessary
-//     };
-//     orderStore.addToCart(cartItem);
-//     resetSelections();
-// }
-
 function continueOrdering() {
     orderStore.ordering = true;
     resetSelections();
-}
-
-function reviewOrder() {
-    // Implement the review order logic or navigation
 }
 
 function cancelOrder() {
@@ -204,17 +186,13 @@ function resetSelections() {
     productToCustomize.value = null;
     selectedFlavor.value = null;
     selectedAddOns.value = [];
-    selectedCategory.value = null;  // Clear the selected category
+    selectedCategory.value = null;
 }
 
-// Navigation functions to go back in the order flow
 function goBackToCategories() {
-    selectedCategory.value = null;  // Clears the selected category, showing categories again
-    productToCustomize.value = null;  // Ensures no product is selected
+    selectedCategory.value = null;
+    productToCustomize.value = null;
 }
-
-// function goBackToProducts() {
-//     productToCustomize.value = null;  // Deselects the current product, showing products again
-// }
 
 </script>
+
