@@ -20,10 +20,6 @@ class ProductsTableSeeder extends Seeder
         $shawarmaProducts = [
             ['name' => 'Shawarma Single Order', 'price' => 49.00],
             ['name' => 'Shawarma Buy One, Take One', 'price' => 95.00],
-            ['name' => 'Shawarma Rice Single Order', 'price' => 49.00],
-            ['name' => 'Shawarma Rice Buy One, Take One', 'price' => 95.00],
-            ['name' => 'Shawarma Nachos Single Order', 'price' => 49.00],
-            ['name' => 'Shawarma Nachos Buy One, Take One', 'price' => 95.00],
         ];
 
         // Seed Shawarma products
@@ -50,22 +46,20 @@ class ProductsTableSeeder extends Seeder
     private function seedBeverageProducts($category, $baseName)
     {
         $sizes = ['12 oz' => 25.00, '16 oz' => 35.00];
-        $flavors = ['Kiwi', 'Green Apple', 'Strawberry', 'Lychee', 'Lemon', 'Mango', 'Blueberry'];
 
         // For the Yakult series, 'Add Yakult' option is considered here
         $isYakultSeries = $baseName === 'Yakult Series';
-        $additionalCost = $isYakultSeries ? 15.00 : 0;
+        $additionalCost = $isYakultSeries ? 4.00 : 0;
 
-        foreach ($flavors as $flavor) {
             foreach ($sizes as $size => $price) {
-                $productName = "{$baseName} - {$flavor} - {$size}";
+                $productName = "{$baseName} - {$size}";
                 $category->products()->create([
                     'name' => $productName,
                     'price' => $price + $additionalCost,
-                    'description' => "A delicious {$size} of {$flavor} flavor" . ($isYakultSeries ? " with added Yakult" : ""),
+                    'description' => "A delicious {$size}" . ($isYakultSeries ? " with added Yakult" : ""),
                     'active' => true,
                 ]);
             }
-        }
+
     }
 }
