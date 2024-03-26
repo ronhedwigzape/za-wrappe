@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FlavorController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -41,4 +42,13 @@ Route::get('/categories/{category}/flavors', [CategoryController::class, 'flavor
 
 // Get all add-ons by category
 Route::get('/categories/{category}/add-ons', [CategoryController::class, 'addOns']);
+
+// Fetch order summary
+Route::get('/order/summary', [OrderController::class, 'fetchOrderSummary']);
+
+// Update order
+Route::post('/order/update', [OrderController::class, 'updateOrder']);
+
+// Clear cart (cancel order)
+Route::post('/order/cancel', [OrderController::class, 'cancelOrder']);
 

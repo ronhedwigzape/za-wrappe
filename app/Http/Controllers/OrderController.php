@@ -2,63 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderItem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function fetchOrderSummary(Request $request): JsonResponse
     {
-        //
+        $orderId = $request->user()->order_id;
+        $order = Order::with('order_items.product')->find($orderId);
+
+        return response()->json($order);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function updateOrder(Request $request, $itemId): JsonResponse
     {
-        //
+        $item = OrderItem::find($itemId);
+        $item->update([
+            'quantity' => $request->quantity,
+            // 'order_id' => $request->order,
+            // other attributes
+        ]);
+        return response()->json(['message' => 'Order item updated successfully.']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function cancelOrder(Request $request): JsonResponse
     {
-        //
+        $orderId = $request->user()->current_order_id;
+        $order = Order::find($orderId);
+        return response()->json(['message' => 'Order canceled successfully.']);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

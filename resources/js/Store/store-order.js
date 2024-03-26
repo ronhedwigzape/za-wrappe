@@ -54,7 +54,6 @@ export const useOrderStore = defineStore('order', {
                     ...product,
                     selectedFlavor: selectedFlavorDetail,
                     addOns: selectedAddOnsIds.map(id => this.categorySpecificAddOns.find(a => a.id === id)).filter(Boolean),
-                    selectedFlavorId: product.selectedFlavorId || null,
                     selectedAddOnsIds: selectedAddOnsIds,
                 };
 
@@ -87,6 +86,20 @@ export const useOrderStore = defineStore('order', {
         },
         removeFromCart(itemId) {
             this.cart = this.cart.filter(item => item.id !== itemId);
+        },
+        async fetchOrderSummary() {
+            const response = await axios.get('/api/order/summary');
+            this.cart = response.data.cartItems;
+        },
+
+        async updateOrderItem(updatedItem) {
+            const response = await axios.post(`/api/order/items/${updatedItem.id}/update`, updatedItem);
+            await this.fetchOrderSummary();
+        },
+
+        async cancelOrder() {
+            await axios.post('/api/order/cancel');
+            this.clearCart();
         },
         clearCart() {
             this.cart = [];
