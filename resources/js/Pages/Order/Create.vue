@@ -33,6 +33,12 @@
                 <div class="flex flex-wrap">
                     <h3 class="text-xl font-semibold">Current Price: ${{ currentPrice.toFixed(2) }}</h3>
 
+                    <!-- Quantity Selection -->
+                    <div class="w-full space-y-2">
+                        <h3 class="text-lg font-medium">Quantity</h3>
+                        <input type="number" v-model.number="quantity" min="1" class="border-2 border-gray-300 rounded py-2 px-4" />
+                    </div>
+
                     <!-- Display currently selected flavor -->
                     <div v-if="selectedFlavor" class="w-full mb-4">
                         <span class="text-lg font-medium">Selected Flavor: </span>{{ selectedFlavor.name }}
@@ -63,32 +69,48 @@
                         </div>
                     </div>
 
-                    <button @click="finalizeCustomization"
+                    <button @click="goBackToProducts"
+                            class="mt-4 bg-gray-200 hover:bg-blue-800 text-black font-bold py-2 px-4 rounded">
+                        Go Back to Products
+                    </button>
+
+                    <button @click="finalizeCustomization()"
                             class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
                         Add to Cart
                     </button>
                 </div>
             </div>
 
+
             <!-- Cart Display -->
             <div v-if="orderStore.cart.length && orderStore.ordering" class="mt-8 space-y-4">
                 <h2 class="text-2xl font-semibold">Your Cart</h2>
                 <ul class="list-disc pl-5">
                     <li v-for="(item, index) in orderStore.cart" :key="index" class="mt-2">
-                        <div class="font-medium">{{ item.name }} - Variant: {{ item.variant }}</div>
-                        <div v-if="item.flavor">Flavor: {{ item.flavor }}</div>
-                        <div v-if="item.addOns.length">
-                            Add-Ons:
-                            <ul class="list-disc pl-5">
+                        <div class="font-medium">{{ item.name }}</div>
+
+                        <div v-if="item.flavor">{{ item.flavor }}</div>
+
+                        <div>
+                            <ul>
                                 <li v-for="addOn in item.addOns" :key="addOn.id">
                                     {{ addOn.name }} (+${{ addOn.price }})
                                 </li>
                             </ul>
                         </div>
-                        <div>Price: ${{ item.currentPrice.toFixed(2) }}</div>
+
+                        <div>Quantity:
+                            <input type="number" v-model="item.quantity" min="1" class="border-2 border-gray-300 rounded py-2 px-4" />
+                        </div>
+                        <div>Price: ${{ (item.currentPrice * item.quantity).toFixed(2) }}</div>
+                        <button @click="removeFromCart(item.id)"
+                                class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Remove
+                        </button>
                     </li>
                 </ul>
                 <div class="font-bold">Total: ${{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
+
                 <div class="flex space-x-4">
                     <button @click="continueOrdering"
                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -106,6 +128,7 @@
             </div>
         </div>
     </div>
+
 </template>
 
 <script setup>
@@ -121,30 +144,38 @@ const productToCustomize = ref(null);
 const selectedFlavor = ref(null);
 const selectedAddOns = ref([]);
 const isCustomizingFlavorAndAddOns = ref(false);
+const quantity = ref(1);
+const customizations = ref("");
 
 // computed
 const selectedCategoryProducts = computed(() => orderStore.products);
 const selectedFlavors = computed(() => orderStore.categorySpecificFlavors);
 const selectedAddOnsList = computed(() => orderStore.categorySpecificAddOns);
+
 const currentPrice = computed(() => {
-    let price = productToCustomize.value ? parseFloat(productToCustomize.value.price) : 0;
-    if (selectedFlavor.value && selectedFlavor.value.price) {
-        price += parseFloat(selectedFlavor.value.price);
-    }
-    if (selectedAddOns.value && selectedAddOns.value.length > 0) {
-        price += selectedAddOns.value.reduce((sum, addOn) => sum + parseFloat(addOn.price || 0), 0);
-    }
-    return parseFloat(price.toFixed(2));
+    let basePrice = productToCustomize.value ? parseFloat(productToCustomize.value.price) : 0;
+    let flavorPrice = selectedFlavor.value && selectedFlavor.value.price ? parseFloat(selectedFlavor.value.price) : 0;
+    let addOnsPrice = selectedAddOns.value && selectedAddOns.value.length > 0
+        ? selectedAddOns.value.reduce((sum, addOn) => sum + parseFloat(addOn.price || 0), 0)
+        : 0;
+
+    let totalPriceWithoutQuantity = basePrice + flavorPrice + addOnsPrice;
+    let totalPrice = totalPriceWithoutQuantity * quantity.value;
+
+    return parseFloat(totalPrice.toFixed(2));
 });
 
 // methods
 function finalizeCustomization() {
     const cartItem = {
+        id: Date.now(),
         ...productToCustomize.value,
-        variant: productToCustomize.value.variant,
+        variant: productToCustomize.value,
         flavor: selectedFlavor.value ? selectedFlavor.value.name : 'None',
         addOns: [...selectedAddOns.value],
-        currentPrice: currentPrice.value
+        currentPrice: currentPrice.value,
+        quantity: quantity.value,
+        customizations: customizations.value
     };
     orderStore.addToCart(cartItem);
     resetSelections();
@@ -175,6 +206,7 @@ function selectFlavor(flavor) {
 }
 
 function toggleAddOn(addOn) {
+    console.log(`Toggling add on: ${addOn.id} ${selectedAddOns.value}`)
     const index = selectedAddOns.value.findIndex(a => a.id === addOn.id);
     index > -1 ? selectedAddOns.value.splice(index, 1) : selectedAddOns.value.push(addOn);
 }
@@ -187,7 +219,6 @@ function continueOrdering() {
 function cancelOrder() {
     orderStore.clearCart();
     orderStore.ordering = true;
-    resetSelections();
 }
 
 function resetSelections() {
@@ -195,11 +226,27 @@ function resetSelections() {
     selectedFlavor.value = null;
     selectedAddOns.value = [];
     selectedCategory.value = null;
+    quantity.value = 1;
 }
 
 function goBackToCategories() {
     selectedCategory.value = null;
     productToCustomize.value = null;
+}
+
+function goBackToProducts() {
+    if (selectedCategory.value && !selectedCategoryProducts.value.length) {
+        selectProducts(selectedCategory.value);
+    }
+    productToCustomize.value = null;
+    selectedFlavor.value = null;
+    selectedAddOns.value = [];
+    quantity.value = 1;
+    customizations.value = "";
+}
+
+function removeFromCart(itemId) {
+    orderStore.removeFromCart(itemId);
 }
 
 </script>
