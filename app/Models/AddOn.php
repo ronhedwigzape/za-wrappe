@@ -10,7 +10,9 @@ class AddOn extends Model
 {
     use HasFactory;
 
-    public function products(): BelongsToMany {
-        return $this->belongsToMany(Product::class);
+    protected $fillable = ['name', 'description', 'image_url', 'price'];
+
+    public function categories(): BelongsToMany {
+        return $this->belongsToMany(Category::class);
     }
 }
