@@ -27,9 +27,11 @@ class ProductsTableSeeder extends Seeder
             $categories['Shawarma']->products()->create([
                 'name' => $product['name'],
                 'price' => $product['price'],
-                'description' => $product['name'] . ' - Enjoy our delicious ' . strtolower($product['name']) . ' with your favorite add-ons!',
+                'description' => 'Enjoy our delicious ' . strtolower($product['name']) . ' with your favorite add-ons!',
                 'active' => true,
+                'image_url' => 'path/to/products/' . strtolower(str_replace(' ', '_', $product['name'])) . '.jpg',
             ]);
+
         }
 
         // Seed beverage products with a broader range of flavors

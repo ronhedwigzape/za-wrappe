@@ -20,9 +20,14 @@ class FlavorsTableSeeder extends Seeder
             $category = Category::where('name', $categoryName)->first();
 
             foreach ($flavors as $flavorName) {
-                $flavor = Flavor::firstOrCreate(['name' => $flavorName]);
+                $flavor = Flavor::firstOrCreate([
+                    'name' => $flavorName,
+                    'description' => 'A delicious ' . $flavorName . ' flavor.',
+                    'image_url' => 'path/to/flavors/' . strtolower(str_replace(' ', '_', $flavorName)) . '.jpg'
+                ]);
                 $category->flavors()->attach($flavor->id);
             }
+
         }
     }
 }

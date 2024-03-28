@@ -16,21 +16,29 @@ use Inertia\Inertia;
 */
     //
     Route::get('/', function () {
-
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
         ]);
-
     })->name('welcome');
 
     Route::get('/initialize', function() {
-       return Inertia::render('Order/Initialize');
+       return Inertia::render(
+           'Order/Initialize'
+       );
     })->name('initialize');
 
     Route::get('/order', function() {
-        return Inertia::render('Order/Create');
+        return Inertia::render(
+            'Order/Create'
+        );
     })->name('order');
+
+    Route::get('/order-summary', function() {
+        return Inertia::render(
+            'Order/Summary'
+        );
+    })->name('order-summary');
 
     // Authenticate merchant or admin users
     Route::middleware([
@@ -38,9 +46,7 @@ use Inertia\Inertia;
         config('jetstream.auth_session'),
         'verified',
     ])->group(function () {
-        // Dashboard
         Route::get('/dashboard', function () {
             return Inertia::render('Dashboard');
         })->name('dashboard');
-
     });

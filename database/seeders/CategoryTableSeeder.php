@@ -21,6 +21,7 @@ class CategoryTableSeeder extends Seeder
         ];
 
         foreach ($categoriesData as $data) {
+            $data['image_url'] = strtolower(str_replace(' ', '_', $data['name'])) . '.jpg';
             Category::create($data);
         }
     }

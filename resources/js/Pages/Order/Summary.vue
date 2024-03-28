@@ -19,9 +19,15 @@ import { useOrderStore } from '@/Store/store-order';
 
 const orderStore = useOrderStore();
 
-const updateOrderItem = (item) => {
-
+const updateOrderItem = async (item) => {
+    let newQuantity = parseInt(prompt(`Update quantity for ${item.product.name}:`, item.quantity));
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        alert('Invalid quantity');
+        return;
+    }
+    await orderStore.updateOrderItem({ ...item, quantity: newQuantity });
 };
+
 
 const removeFromCart = (itemId) => {
     orderStore.removeFromCart(itemId);
@@ -31,7 +37,8 @@ const confirmOrder = () => {
 
 };
 
-const cancelOrder = () => {
-    orderStore.cancelOrder();
+const cancelOrder = async () => {
+    await orderStore.cancelOrder();
+    alert('Order has been canceled.');
 };
 </script>
