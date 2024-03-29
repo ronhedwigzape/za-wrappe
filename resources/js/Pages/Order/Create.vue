@@ -76,18 +76,17 @@
 
                     <button @click="finalizeCustomization()"
                             class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
-                        Add to Cart
+                        {{ isCartUpdating ? "Update item to cart" : "Add to cart" }}
                     </button>
                 </div>
             </div>
-
 
             <!-- Cart Display -->
             <div v-if="orderStore.cart.length && orderStore.ordering" class="mt-8 space-y-4">
                 <h2 class="text-2xl font-semibold">Your Cart</h2>
                 <ul class="list-disc pl-5">
-                    <li v-for="(item, index) in orderStore.cart" :key="index" class="mt-2">
-                        <div class="font-medium">{{ item.name }}</div>
+                    <li v-for="(item, index) in orderStore.cart" :key="index" @click="customizeCartItem(item.id)" class="cursor-pointer mt-2">
+                    <div class="font-medium">{{ item.name }}</div>
 
                         <div v-if="item.flavor">{{ item.flavor }}</div>
 
@@ -99,9 +98,7 @@
                             </ul>
                         </div>
 
-                        <div>Quantity:
-                            <input type="number" v-model="item.quantity" min="1" class="border-2 border-gray-300 rounded py-2 px-4" />
-                        </div>
+                        <div> Quantity: {{ item.quantity }} </div>
                         <div>Price: ${{ (item.currentPrice * item.quantity).toFixed(2) }}</div>
                         <button @click="removeFromCart(item.id)"
                                 class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -116,10 +113,11 @@
                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         Continue Ordering
                     </button>
-                    <button @click="reviewOrder"
-                            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
-                        Review Order
-                    </button>
+                    <Link :href="route('order-summary')">
+                        <button class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
+                            Review Order
+                        </button>
+                    </Link>
                     <button @click="cancelOrder"
                             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         Cancel Order
@@ -128,10 +126,10 @@
             </div>
         </div>
     </div>
-
 </template>
 
 <script setup>
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import { useOrderStore } from '@/Store/store-order';
 
@@ -146,6 +144,7 @@ const selectedAddOns = ref([]);
 const isCustomizingFlavorAndAddOns = ref(false);
 const quantity = ref(1);
 const customizations = ref("");
+const isCartUpdating = ref(false);
 
 // computed
 const selectedCategoryProducts = computed(() => orderStore.products);
@@ -168,18 +167,41 @@ const currentPrice = computed(() => {
 // methods
 function finalizeCustomization() {
     const cartItem = {
-        id: Date.now(),
+        id: productToCustomize.value.id,
         ...productToCustomize.value,
         variant: productToCustomize.value,
+        selectedFlavorId: selectedFlavor.value ? selectedFlavor.value.id : null,
+        selectedAddOnsIds: selectedAddOns.value.map(addOn => addOn.id),
         flavor: selectedFlavor.value ? selectedFlavor.value.name : 'None',
-        addOns: [...selectedAddOns.value],
+        addOns: selectedAddOns.value,
         currentPrice: currentPrice.value,
         quantity: quantity.value,
-        customizations: customizations.value
+        customizations: customizations.value,
     };
-    orderStore.addToCart(cartItem);
+
+    // Check if we're updating an existing item
+    if (isCartUpdating.value) {
+        orderStore.updateCartItem(cartItem);
+    } else {
+        orderStore.addToCart(cartItem);
+    }
+
     resetSelections();
 }
+
+function customizeCartItem(itemId) {
+    isCartUpdating.value = true;
+    const cartItem = orderStore.cart.find(item => item.id === itemId);
+    if (cartItem) {
+        productToCustomize.value = { ...cartItem };
+        selectedFlavor.value = orderStore.categorySpecificFlavors.find(f => f.id === cartItem.selectedFlavorId);
+        selectedAddOns.value = cartItem.selectedAddOnsIds.map(id =>
+            orderStore.categorySpecificAddOns.find(a => a.id === id)
+        ).filter(a => a);
+        quantity.value = cartItem.quantity;
+    }
+}
+
 
 onMounted(async () => {
     if (!orderStore.categories.length) await orderStore.fetchCategories();
@@ -227,6 +249,7 @@ function resetSelections() {
     selectedAddOns.value = [];
     selectedCategory.value = null;
     quantity.value = 1;
+    isCartUpdating.value = false;
 }
 
 function goBackToCategories() {
