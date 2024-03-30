@@ -54,12 +54,20 @@ export const useOrderStore = defineStore('order', {
     },
     actions: {
         async fetchCategories() {
-            const response = await axios.get('/api/categories');
-            this.categories = response.data;
+            try {
+                const response = await axios.get('/api/categories');
+                this.categories = response.data;
+            } catch (err) {
+                console.error('Error fetching categories', err);
+            }
         },
         async fetchProducts(categoryId) {
-            const response = await axios.get(`/api/products/${categoryId}`);
-            this.products = response.data;
+            try {
+                const response = await axios.get(`/api/products/${categoryId}`);
+                this.products = response.data;
+            } catch (err) {
+                console.error('Error fetching products', err);
+            }
         },
         async fetchCategorySpecificFlavors(categoryId) {
             try {
@@ -77,23 +85,47 @@ export const useOrderStore = defineStore('order', {
                 console.log('Error fetching category-specific add-ons:', error);
             }
         },
+        async goBackToProducts() {
+            if (this.selectedCategory && !this.selectedCategoryProducts.length) {
+                await this.selectProducts(this.selectedCategory);
+            }
+            this.productToCustomize = null;
+            this.selectedFlavor = null;
+            this.selectedAddOns = [];
+            this.quantity = 1;
+            this.customizations = "";
+        },
+        async selectProducts(category) {
+            this.selectedCategory = category;
+            try {
+                await this.fetchProducts(category.id);
+                await this.fetchCategorySpecificFlavors(category.id);
+                await this.fetchCategorySpecificAddOns(category.id);
+            } catch (e) {
+                console.error(e.toString());
+            }
+        },
+        async customizeCartItem(itemId) {
+            const cartItem = this.cart.find(item => item.id === itemId);
+            if (cartItem) {
+                try {
+                    await this.fetchCategorySpecificFlavors(cartItem.category_id);
+                    await this.fetchCategorySpecificAddOns(cartItem.category_id);
+                    this.productToCustomize = { ...cartItem };
+                    this.selectedFlavor = cartItem.selectedFlavor;
+                    this.selectedAddOns = cartItem.addOns.map(addOn => {
+                        return this.categorySpecificAddOns.find(a => a.id === addOn.id);
+                    }).filter(Boolean);
+                    this.quantity = cartItem.quantity;
+                    this.isCartUpdating = true;
+                } catch (e) {
+                    console.error(e.toString());
+                }
+            }
+        },
         goBackToCategories() {
             this.selectedCategory = null;
             this.productToCustomize = null;
-        },
-        async goBackToProducts() {
-            if (this.selectedCategory && !this.selectedCategoryProducts.length) {
-                try {
-                    await this.selectProducts(this.selectedCategory);
-                    this.productToCustomize = null;
-                    this.selectedFlavor = null;
-                    this.selectedAddOns = [];
-                    this.quantity = 1;
-                    this.customizations = "";
-                } catch (e) {
-                    console.error(e.toString())
-                }
-            }
         },
         addToCart(product) {
             console.log("Adding product to cart:", product);
@@ -126,16 +158,6 @@ export const useOrderStore = defineStore('order', {
         },
         clearCart() {
             this.cart = [];
-        },
-        async selectProducts(category) {
-            this.selectedCategory = category;
-            try {
-                await this.fetchProducts(category.id);
-                await this.fetchCategorySpecificFlavors(category.id);
-                await this.fetchCategorySpecificAddOns(category.id);
-            } catch (e) {
-                console.error(e.toString());
-            }
         },
         selectProduct(product) {
             this.productToCustomize = product;
@@ -184,24 +206,6 @@ export const useOrderStore = defineStore('order', {
             this.selectedCategory = null;
             this.quantity = 1;
             this.isCartUpdating = false;
-        },
-        async customizeCartItem(itemId) {
-            const cartItem = this.cart.find(item => item.id === itemId);
-            if (cartItem) {
-                try {
-                    await this.fetchCategorySpecificFlavors(cartItem.category_id);
-                    await this.fetchCategorySpecificAddOns(cartItem.category_id);
-                    this.productToCustomize = { ...cartItem };
-                    this.selectedFlavor = cartItem.selectedFlavor;
-                    this.selectedAddOns = cartItem.addOns.map(addOn => {
-                        return this.categorySpecificAddOns.find(a => a.id === addOn.id);
-                    }).filter(Boolean);
-                    this.quantity = cartItem.quantity;
-                    this.isCartUpdating = true;
-                } catch (e) {
-                    console.error(e.toString());
-                }
-            }
         },
         continueOrdering() {
             this.ordering = true;
