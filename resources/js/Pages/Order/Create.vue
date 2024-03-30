@@ -36,7 +36,7 @@
                     <!-- Quantity Selection -->
                     <div class="w-full space-y-2">
                         <h3 class="text-lg font-medium">Quantity</h3>
-                        <input type="number" v-model.number="orderStore.quantity" min="1" class="border-2 border-gray-300 rounded py-2 px-4" />
+                        <input type="number" v-model.number="orderStore.quantity" min="1" max="100" class="border-2 border-gray-300 rounded py-2 px-4" />
                     </div>
 
                     <!-- Display currently selected flavor -->
