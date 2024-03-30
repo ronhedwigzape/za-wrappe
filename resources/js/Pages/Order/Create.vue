@@ -99,7 +99,7 @@
                         </div>
 
                         <div> Quantity: {{ item.quantity }} </div>
-                        <div>Price: ${{ (item.currentPrice * item.quantity).toFixed(2) }}</div>
+                        <div>Price: ${{ (item.currentPrice).toFixed(2) }}</div>
                         <button @click="removeFromCart(item.id)"
                                 class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             Remove
@@ -189,19 +189,24 @@ function finalizeCustomization() {
     resetSelections();
 }
 
-function customizeCartItem(itemId) {
-    isCartUpdating.value = true;
+async function customizeCartItem(itemId) {
     const cartItem = orderStore.cart.find(item => item.id === itemId);
     if (cartItem) {
+        const categoryId = cartItem.category_id;
+
+        await orderStore.fetchCategorySpecificFlavors(categoryId);
+        await orderStore.fetchCategorySpecificAddOns(categoryId);
+
         productToCustomize.value = { ...cartItem };
-        selectedFlavor.value = orderStore.categorySpecificFlavors.find(f => f.id === cartItem.selectedFlavorId);
-        selectedAddOns.value = cartItem.selectedAddOnsIds.map(id =>
-            orderStore.categorySpecificAddOns.find(a => a.id === id)
-        ).filter(a => a);
+        selectedFlavor.value = cartItem.selectedFlavor;
+        selectedAddOns.value = cartItem.addOns.map(addOn => {
+            return orderStore.categorySpecificAddOns.find(a => a.id === addOn.id);
+        }).filter(Boolean);
         quantity.value = cartItem.quantity;
+
+        isCartUpdating.value = true;
     }
 }
-
 
 onMounted(async () => {
     if (!orderStore.categories.length) await orderStore.fetchCategories();
