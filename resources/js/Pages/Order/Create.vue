@@ -86,27 +86,26 @@
                 <h2 class="text-2xl font-semibold">Your Cart</h2>
                 <ul class="list-disc pl-5">
                     <li v-for="(item, index) in orderStore.cart" :key="index" @click="orderStore.customizeCartItem(item.id)" class="cursor-pointer mt-2">
-                    <div class="font-medium">{{ item.name }}</div>
+                    <div class="font-medium"> {{ item.quantity }} x {{ item.name }} (₱ {{ item.price }})</div>
 
-                        <div v-if="item.flavor">{{ item.flavor }}</div>
+                        <div v-if="item.flavor">Flavor: {{ item.flavor }}</div>
 
                         <div>
                             <ul>
                                 <li v-for="addOn in item.addOns" :key="addOn.id">
-                                    {{ addOn.name }} (+₱{{ addOn.price }})
+                                    Add On: {{ addOn.name }} (+₱{{ addOn.price }} x {{ item.quantity }})
                                 </li>
                             </ul>
                         </div>
 
-                        <div> Quantity: {{ item.quantity }} </div>
-                        <div>Price: ₱{{ (item.currentPrice).toFixed(2) }}</div>
+                        <p class="text-sm">Total Item Price: ₱{{ (item.currentPrice).toFixed(2) }} </p>
                         <button @click="orderStore.removeFromCart(item.id)"
                                 class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             Remove
                         </button>
                     </li>
                 </ul>
-                <div class="font-bold">Total: ₱{{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
+                <div class="font-bold">Cart Total: ₱{{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
 
                 <div class="flex space-x-4">
                     <button @click="orderStore.continueOrdering"

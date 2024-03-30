@@ -21,21 +21,7 @@ export const useOrderStore = defineStore('order', {
     getters: {
         cartTotal: (state) => {
             return state.cart.reduce((total, item) => {
-                let itemTotal = Number(item.currentPrice) || 0;
-                const flavor = state.categorySpecificFlavors.find(f => f.id === item.selectedFlavorId);
-                if (flavor && !isNaN(Number(flavor.price))) {
-                    itemTotal += Number(flavor.price);
-                }
-                itemTotal += (item.selectedAddOnsIds || []).reduce((addOnTotal, addOnId) => {
-                    const addOn = state.categorySpecificAddOns.find(a => a.id === addOnId);
-                    if (addOn && !isNaN(Number(addOn.price))) {
-                        return addOnTotal + Number(addOn.price);
-                    }
-                    return addOnTotal;
-                }, 0);
-                let itemQuantity = Number(item.quantity) || 0;
-                itemTotal *= itemQuantity;
-                return total + itemTotal;
+                return total + item.currentPrice;
             }, 0);
         },
         selectedCategoryProducts: (state) => state.products,
@@ -108,19 +94,16 @@ export const useOrderStore = defineStore('order', {
         async customizeCartItem(itemId) {
             const cartItem = this.cart.find(item => item.id === itemId);
             if (cartItem) {
-                try {
-                    await this.fetchCategorySpecificFlavors(cartItem.category_id);
-                    await this.fetchCategorySpecificAddOns(cartItem.category_id);
-                    this.productToCustomize = { ...cartItem };
-                    this.selectedFlavor = cartItem.selectedFlavor;
-                    this.selectedAddOns = cartItem.addOns.map(addOn => {
-                        return this.categorySpecificAddOns.find(a => a.id === addOn.id);
-                    }).filter(Boolean);
-                    this.quantity = cartItem.quantity;
-                    this.isCartUpdating = true;
-                } catch (e) {
-                    console.error(e.toString());
-                }
+                this.selectedCategory = this.categories.find(category => category.id === cartItem.category_id);
+
+                await this.fetchCategorySpecificFlavors(cartItem.category_id);
+                await this.fetchCategorySpecificAddOns(cartItem.category_id);
+
+                this.productToCustomize = { ...cartItem };
+                this.selectedFlavor = this.categorySpecificFlavors.find(flavor => flavor.id === cartItem.selectedFlavorId);
+                this.selectedAddOns = cartItem.addOns;
+                this.quantity = cartItem.quantity;
+                this.isCartUpdating = true;
             }
         },
         goBackToCategories() {
