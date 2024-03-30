@@ -69,7 +69,7 @@
                         </div>
                     </div>
 
-                    <button @click="goBackToProducts"
+                    <button v-if="!isCartUpdating" @click="goBackToProducts"
                             class="mt-4 bg-gray-200 hover:bg-blue-800 text-black font-bold py-2 px-4 rounded">
                         Go Back to Products
                     </button>
@@ -156,10 +156,8 @@ const currentPrice = computed(() => {
     let addOnsPrice = selectedAddOns.value && selectedAddOns.value.length > 0
         ? selectedAddOns.value.reduce((sum, addOn) => sum + parseFloat(addOn.price || 0), 0)
         : 0;
-
     let totalPriceWithoutQuantity = basePrice + flavorPrice + addOnsPrice;
     let totalPrice = totalPriceWithoutQuantity * quantity.value;
-
     return parseFloat(totalPrice.toFixed(2));
 });
 
