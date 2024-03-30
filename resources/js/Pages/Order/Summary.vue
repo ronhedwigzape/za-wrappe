@@ -19,7 +19,7 @@
                 </div>
             </li>
         </ul>
-        <p class="text-lg font-semibold mt-4">Total: <span class="text-green-500">${{ orderStore.cartTotal }}</span></p>
+        <p class="text-lg font-semibold mt-4">Total: <span class="text-green-500">₱{{ orderStore.cartTotal }}</span></p>
         <div class="flex justify-center gap-4 mt-6">
             <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                     @click="confirmOrder">Confirm Order</button>
@@ -36,7 +36,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const orderStore = useOrderStore();
 
 const updateCartItem = async (item) => {
-    let newQuantity = parseInt(prompt(`Update quantity for ${item.product.name}:`, item.quantity));
+    let newQuantity = parseInt(prompt(`Update quantity for ₱{item.product.name}:`, item.quantity));
     if (isNaN(newQuantity) || newQuantity < 1) {
         alert('Invalid quantity');
         return;

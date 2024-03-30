@@ -18,7 +18,7 @@
                 <div class="flex flex-wrap">
                     <button v-for="product in selectedCategoryProducts" :key="product.id" @click="selectProduct(product)"
                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded m-1">
-                        {{ product.name }} - ${{ product.price }}
+                        {{ product.name }} - ₱{{ product.price }}
                     </button>
                 </div>
                 <button @click="goBackToCategories"
@@ -31,7 +31,7 @@
             <div v-if="productToCustomize && isCustomizingFlavorAndAddOns" class="space-y-4">
                 <h2 class="text-2xl font-semibold">Customize Your {{ productToCustomize.name }}</h2>
                 <div class="flex flex-wrap">
-                    <h3 class="text-xl font-semibold">Current Price: ${{ currentPrice.toFixed(2) }}</h3>
+                    <h3 class="text-xl font-semibold">Current Price: ₱{{ currentPrice.toFixed(2) }}</h3>
 
                     <!-- Quantity Selection -->
                     <div class="w-full space-y-2">
@@ -64,7 +64,7 @@
                         <div class="flex flex-wrap">
                             <button v-for="addOn in selectedAddOnsList" :key="addOn.id" @click="toggleAddOn(addOn)"
                                     class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-1">
-                                {{ addOn.name }} (+${{ addOn.price }})
+                                {{ addOn.name }} (+₱{{ addOn.price }})
                             </button>
                         </div>
                     </div>
@@ -93,20 +93,20 @@
                         <div>
                             <ul>
                                 <li v-for="addOn in item.addOns" :key="addOn.id">
-                                    {{ addOn.name }} (+${{ addOn.price }})
+                                    {{ addOn.name }} (+₱{{ addOn.price }})
                                 </li>
                             </ul>
                         </div>
 
                         <div> Quantity: {{ item.quantity }} </div>
-                        <div>Price: ${{ (item.currentPrice).toFixed(2) }}</div>
+                        <div>Price: ₱{{ (item.currentPrice).toFixed(2) }}</div>
                         <button @click="removeFromCart(item.id)"
                                 class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             Remove
                         </button>
                     </li>
                 </ul>
-                <div class="font-bold">Total: ${{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
+                <div class="font-bold">Total: ₱{{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
 
                 <div class="flex space-x-4">
                     <button @click="continueOrdering"
@@ -233,7 +233,7 @@ function selectFlavor(flavor) {
 }
 
 function toggleAddOn(addOn) {
-    console.log(`Toggling add on: ${addOn.id} ${selectedAddOns.value}`)
+    console.log(`Toggling add on: ₱{addOn.id} ₱{selectedAddOns.value}`)
     const index = selectedAddOns.value.findIndex(a => a.id === addOn.id);
     index > -1 ? selectedAddOns.value.splice(index, 1) : selectedAddOns.value.push(addOn);
 }
