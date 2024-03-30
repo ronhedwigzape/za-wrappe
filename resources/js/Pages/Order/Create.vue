@@ -100,7 +100,7 @@
 
                         <div> Quantity: {{ item.quantity }} </div>
                         <div>Price: ₱{{ (item.currentPrice).toFixed(2) }}</div>
-                        <button @click="removeFromCart(item.id)"
+                        <button @click="orderStore.removeFromCart(item.id)"
                                 class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             Remove
                         </button>
@@ -118,8 +118,7 @@
                             Review Order
                         </button>
                     </Link>
-                    <button @click="cancelOrder"
-                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    <button @click="cancelOrder" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         Cancel Order
                     </button>
                 </div>
@@ -178,45 +177,42 @@ function finalizeCustomization() {
         quantity: quantity.value,
         customizations: customizations.value,
     };
-
-    // Check if we're updating an existing item
     if (isCartUpdating.value) {
         orderStore.updateCartItem(cartItem);
     } else {
         orderStore.addToCart(cartItem);
     }
-
     resetSelections();
 }
 
 async function customizeCartItem(itemId) {
     const cartItem = orderStore.cart.find(item => item.id === itemId);
     if (cartItem) {
-        const categoryId = cartItem.category_id;
-
-        await orderStore.fetchCategorySpecificFlavors(categoryId);
-        await orderStore.fetchCategorySpecificAddOns(categoryId);
-
-        productToCustomize.value = { ...cartItem };
-        selectedFlavor.value = cartItem.selectedFlavor;
-        selectedAddOns.value = cartItem.addOns.map(addOn => {
-            return orderStore.categorySpecificAddOns.find(a => a.id === addOn.id);
-        }).filter(Boolean);
-        quantity.value = cartItem.quantity;
-
-        isCartUpdating.value = true;
+        try {
+            await orderStore.fetchCategorySpecificFlavors(cartItem.category_id);
+            await orderStore.fetchCategorySpecificAddOns(cartItem.category_id);
+            productToCustomize.value = { ...cartItem };
+            selectedFlavor.value = cartItem.selectedFlavor;
+            selectedAddOns.value = cartItem.addOns.map(addOn => {
+                return orderStore.categorySpecificAddOns.find(a => a.id === addOn.id);
+            }).filter(Boolean);
+            quantity.value = cartItem.quantity;
+            isCartUpdating.value = true;
+        } catch (e) {
+            console.error(e.toString());
+        }
     }
 }
 
-onMounted(async () => {
-    if (!orderStore.categories.length) await orderStore.fetchCategories();
-});
-
-function selectProducts(category) {
+async function selectProducts(category) {
     selectedCategory.value = category;
-    orderStore.fetchProducts(category.id);
-    orderStore.fetchCategorySpecificFlavors(category.id);
-    orderStore.fetchCategorySpecificAddOns(category.id);
+    try {
+        await orderStore.fetchProducts(category.id);
+        await orderStore.fetchCategorySpecificFlavors(category.id);
+        await orderStore.fetchCategorySpecificAddOns(category.id);
+    } catch (e) {
+        console.error(e.toString());
+    }
 }
 
 function selectProduct(product) {
@@ -273,9 +269,9 @@ function goBackToProducts() {
     customizations.value = "";
 }
 
-function removeFromCart(itemId) {
-    orderStore.removeFromCart(itemId);
-}
+onMounted(async () => {
+    if (!orderStore.categories.length) await orderStore.fetchCategories();
+});
 
 </script>
 
