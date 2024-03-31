@@ -1,59 +1,105 @@
 <template>
-    <div class="max-w-2xl mx-auto p-4 bg-white shadow-lg rounded-lg">
-        <h2 class="text-xl font-bold text-center mb-4">Your Order Summary</h2>
-        <Link :href="route('order')">
-            <button class="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Back to Order
-            </button>
-        </Link>
-        <ul class="divide-y divide-gray-200">
-            <li class="flex justify-between items-center py-3" v-for="(item, index) in orderStore.cart" :key="index">
-                <span>
-                    {{ item.name }} - Quantity: {{ item.quantity }}
-                </span>
-                <div>
-                    <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-lg mr-2"
-                            @click="updateCartItem(item)">Update</button>
-                    <button class="text-sm bg-red-500 hover:bg-red-700 text-white py-1 px-3 rounded-lg"
-                            @click="removeFromCart(item.id)">Remove</button>
+    <SfButton @click="open">Review Order</SfButton>
+
+    <!-- Backdrop -->
+    <transition
+        enter-active-class="transition duration-200 ease-out"
+        leave-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+    >
+        <div v-if="isOpen" class="fixed inset-0 bg-neutral-700 bg-opacity-50" />
+    </transition>
+
+    <!-- Modal -->
+    <transition
+        enter-active-class="transition duration-200 ease-out"
+        leave-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 translate-y-10"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-10"
+    >
+        <SfModal
+            v-model="isOpen"
+            class="max-w-[90%] md:max-w-lg"
+            tag="section"
+            role="alertdialog"
+            aria-labelledby="promoModalTitle"
+            aria-describedby="promoModalDesc"
+        >
+            <header class="mb-5">
+                <SfButton square variant="tertiary" class="absolute right-2 top-2" @click="close">
+                    <SfIconClose />
+                </SfButton>
+                <div class="flex flex-col items-center justify-center">
+                    <img src="/za_wrappe_logo.png" class="h-40" alt="Za-Wrappe logo"/>
+                    <h2 id="promoModalTitle" class="text-2xl font-semibold">
+                        Is this order correct?
+                    </h2>
                 </div>
-            </li>
-        </ul>
-        <p class="text-lg font-semibold mt-4">Total: <span class="text-green-500">₱{{ orderStore.cartTotal }}</span></p>
-        <div class="flex justify-center gap-4 mt-6">
-            <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                    @click="confirmOrder">Confirm Order</button>
-            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-                    @click="cancelOrder">Cancel Order</button>
-        </div>
-    </div>
+            </header>
+            <div v-if="orderStore.cart.length && orderStore.ordering" class="mt-2">
+                <div class="overflow-y-auto max-h-[600px] scrollable-container">
+                    <ul class="list-disc pl-5">
+                        <li v-for="(item, index) in orderStore.cart" :key="index" class="cursor-pointer mt-2">
+                            <div class="font-medium"> {{ item.quantity }} x {{ item.name }} (₱ {{ item.price }})</div>
+
+                            <div v-if="item.flavor">Flavor: {{ item.flavor }}</div>
+
+                            <div>
+                                <ul>
+                                    <li v-for="addOn in item.addOns" :key="addOn.id">
+                                        Add On: {{ addOn.name }} (+₱{{ addOn.price }} x {{ item.quantity }})
+                                    </li>
+                                </ul>
+                            </div>
+                            <p class="text-sm ">Total Item Price: ₱{{ (item.currentPrice).toFixed(2) }} </p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="font-bold mt-3">Total: ₱{{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
+            </div>
+            <footer class="flex justify-end gap-4 mt-4">
+                <SfButton variant="secondary" @click="close">No</SfButton>
+                <SfButton @click="close">Yes</SfButton>
+            </footer>
+        </SfModal>
+    </transition>
 </template>
 
 <script setup>
+import { SfModal, SfButton, SfIconClose, useDisclosure } from '@storefront-ui/vue';
 import { useOrderStore } from '@/Store/store-order';
-import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const orderStore = useOrderStore();
-
-const updateCartItem = async (item) => {
-    let newQuantity = parseInt(prompt(`Update quantity for ₱{item.product.name}:`, item.quantity));
-    if (isNaN(newQuantity) || newQuantity < 1) {
-        alert('Invalid quantity');
-        return;
-    }
-    await orderStore.updateCartItem({ ...item, quantity: newQuantity });
-};
-
-const removeFromCart = (itemId) => {
-    orderStore.removeFromCart(itemId);
-};
-
-const confirmOrder = () => {
-
-};
-
-const cancelOrder = async () => {
-    await orderStore.cancelOrder();
-    alert('Order has been canceled.');
-};
+const { isOpen, open, close } = useDisclosure({ initialValue: false });
 </script>
+
+<style scoped>
+/* Container with custom scrollbar */
+.scrollable-container {
+    overflow-y: auto;
+    max-height: 300px; /* Adjust the height as needed */
+}
+
+/* Customizing the scrollbar track */
+.scrollable-container::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* Light grey track */
+    border-radius: 10px;
+}
+
+/* Customizing the scrollbar handle */
+.scrollable-container::-webkit-scrollbar-thumb {
+    background-color: #8c8c8c; /* Your accent color */
+    border-radius: 10px;
+}
+
+/* Customizing the scrollbar width */
+.scrollable-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+</style>

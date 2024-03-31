@@ -82,7 +82,7 @@
             </div>
 
             <!-- Cart Display -->
-            <div v-if="orderStore.cart.length && orderStore.ordering" class="mt-8 space-y-4">
+            <div v-if="orderStore.cart.length && orderStore.ordering">
                 <h2 class="text-2xl font-semibold">Your Cart</h2>
                 <ul class="list-disc pl-5">
                     <li v-for="(item, index) in orderStore.cart" :key="index" @click="orderStore.customizeCartItem(item.id)" class="cursor-pointer mt-2">
@@ -106,17 +106,12 @@
                     </li>
                 </ul>
                 <div class="font-bold">Cart Total: ₱{{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
-
-                <div class="flex space-x-4">
+                <div class="flex">
                     <button @click="orderStore.continueOrdering"
                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         Continue Ordering
                     </button>
-                    <Link :href="route('order-summary')">
-                        <button class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
-                            Review Order
-                        </button>
-                    </Link>
+                    <Summary/>
                     <button @click="orderStore.cancelOrder" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         Cancel Order
                     </button>
@@ -130,6 +125,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, onMounted } from 'vue';
 import { useOrderStore } from '@/Store/store-order';
+import Summary from "@/Pages/Order/Summary.vue";
 
 // store
 const orderStore = useOrderStore();
