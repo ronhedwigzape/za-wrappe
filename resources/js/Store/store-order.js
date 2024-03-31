@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 import axios from 'axios';
 
 export const useOrderStore = defineStore('order', {
@@ -17,6 +17,7 @@ export const useOrderStore = defineStore('order', {
         quantity: 1,
         customizations: "",
         isCartUpdating: false,
+        combinedFruitSodaTeaAndShawarma: []
     }),
     getters: {
         cartTotal: (state) => {
@@ -69,6 +70,28 @@ export const useOrderStore = defineStore('order', {
                 this.categorySpecificAddOns = response.data;
             } catch (error) {
                 console.log('Error fetching category-specific add-ons:', error);
+            }
+        },
+        async fetchAndCombineFruitSodaTeaAndShawarma() {
+            try {
+                const fruitSodaTeaCategory = this.categories.find(category => category.name === "Fruit Soda & Tea");
+                const shawarmaCategory = this.categories.find(category => category.name === "Shawarma");
+
+                if (!fruitSodaTeaCategory || !shawarmaCategory) {
+                    console.error("Categories not found");
+                    return;
+                }
+
+                const fruitSodaTeaFlavorsResponse = await axios.get(`/api/categories/${fruitSodaTeaCategory.id}/flavors`);
+                const fruitSodaTeaFlavors = fruitSodaTeaFlavorsResponse.data;
+
+                const shawarmaProductsResponse = await axios.get(`/api/products/${shawarmaCategory.id}`);
+                const shawarmaProducts = shawarmaProductsResponse.data;
+
+                this.combinedFruitSodaTeaAndShawarma = [...fruitSodaTeaFlavors, ...shawarmaProducts];
+
+            } catch (error) {
+                console.error("Failed to fetch data", error);
             }
         },
         async goBackToProducts() {
