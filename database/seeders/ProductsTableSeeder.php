@@ -29,7 +29,7 @@ class ProductsTableSeeder extends Seeder
                 'price' => $product['price'],
                 'description' => 'Enjoy our delicious ' . strtolower($product['name']) . ' with your favorite add-ons!',
                 'active' => true,
-                'image_url' => 'path/to/products/' . strtolower(str_replace(' ', '_', $product['name'])) . '.jpg',
+                'image_url' => strtolower(str_replace(' ', '_', $product['name'])) . '.jpg',
             ]);
 
         }
@@ -58,7 +58,8 @@ class ProductsTableSeeder extends Seeder
                 $category->products()->create([
                     'name' => $productName,
                     'price' => $price + $additionalCost,
-                    'description' => "A delicious {$size}" . ($isYakultSeries ? " with added Yakult" : ""),
+                    'description' => "A delicious {$size} {$productName}" . ($isYakultSeries ? " with added Yakult" : ""),
+                    'image_url' => strtolower(str_replace([' ', '&'], '_', $productName)) . '.jpg',
                     'active' => true,
                 ]);
             }
