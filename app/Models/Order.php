@@ -35,4 +35,10 @@ class Order extends Model
     {
         return $this->hasOne(CustomerVerification::class);
     }
+
+    // Define relationship with TransactionSlip
+    public function transactionSlip(): HasOne
+    {
+        return $this->hasOne(TransactionSlip::class, 'order_id');
+    }
 }
