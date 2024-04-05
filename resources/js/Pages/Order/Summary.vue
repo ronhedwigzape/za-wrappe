@@ -79,25 +79,21 @@ const { isOpen, open, close } = useDisclosure({ initialValue: false });
 </script>
 
 <style scoped>
-/* Container with custom scrollbar */
 .scrollable-container {
     overflow-y: auto;
-    max-height: 300px; /* Adjust the height as needed */
+    max-height: 300px;
 }
 
-/* Customizing the scrollbar track */
 .scrollable-container::-webkit-scrollbar-track {
-    background-color: #f0f0f0; /* Light grey track */
+    background-color: #f0f0f0;
     border-radius: 10px;
 }
 
-/* Customizing the scrollbar handle */
 .scrollable-container::-webkit-scrollbar-thumb {
-    background-color: #8c8c8c; /* Your accent color */
+    background-color: #8c8c8c;
     border-radius: 10px;
 }
 
-/* Customizing the scrollbar width */
 .scrollable-container::-webkit-scrollbar {
     width: 8px;
 }
