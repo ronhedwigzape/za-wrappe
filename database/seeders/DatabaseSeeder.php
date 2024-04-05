@@ -26,6 +26,14 @@ class DatabaseSeeder extends Seeder
             FlavorsTableSeeder::class,
             AddOnsTableSeeder::class,
             ProductsTableSeeder::class,
+            OrdersTableSeeder::class,
+            OrderItemsTableSeeder::class,
+            InventoriesTableSeeder::class,
+            CustomerVerificationsTableSeeder::class,
+            TransactionSlipsTableSeeder::class,
+            PaymentsTableSeeder::class,
+            ReceiptsTableSeeder::class,
+            NotificationsTableSeeder::class,
         ]);
     }
 }

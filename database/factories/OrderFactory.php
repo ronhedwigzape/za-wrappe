@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,9 +9,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class OrderFactory extends Factory
 {
-
-    protected $model = Order::class;
-
     /**
      * Define the model's default state.
      *
@@ -21,11 +17,13 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'status' => $this->faker->randomElement(['pending', 'completed']),
+            'status' => $this->faker->randomElement(['Awaiting Verification', 'Confirmed']),
             'customer_contact' => $this->faker->phoneNumber,
             'total_price' => $this->faker->randomFloat(2, 10, 500),
-            'verification_code' => $this->faker->lexify('??????'),
-            'payment_status' => $this->faker->randomElement(['pending', 'completed']),
+            'verification_code' => $this->faker->bothify('##??##'),
+            'created_at' => now(),
+            'updated_at' => now(),
+            'payment_status' => $this->faker->randomElement(['Pending', 'Completed']),
         ];
     }
 }
