@@ -129,6 +129,42 @@ export const useOrderStore = defineStore('order', {
                 this.isCartUpdating = true;
             }
         },
+        async setOrderAwaitingPayment(orderId) {
+            try {
+                await axios.post(`/api/orders/${orderId}/awaiting-payment`);
+                await this.fetchOrder(orderId);
+            } catch (error) {
+                console.error('Error setting order to awaiting payment:', error);
+            }
+        },
+        async createOrGetOrder() {
+            try {
+                const response = await axios.post('/api/orders/create-or-get');
+                if (response.data.order) {
+                    this.order = response.data.order;
+                }
+                return response.data;
+            } catch (error) {
+                console.error('Error creating or getting order:', error);
+                return null;
+            }
+        },
+        async confirmOrderPayment(orderId) {
+            try {
+                const response = await axios.post('/api/payments/confirm', { order_id: orderId });
+                await this.fetchOrder(orderId);
+                return response.data;
+            } catch (error) {
+                console.error('Error confirming order payment:', error);
+            }
+        },
+        async fetchOrder(orderId) {
+            try {
+                const response = await axios.get(`/api/orders/${orderId}`);
+            } catch (error) {
+                console.error('Error fetching order:', error);
+            }
+        },
         goBackToCategories() {
             this.selectedCategory = null;
             this.productToCustomize = null;
@@ -220,6 +256,6 @@ export const useOrderStore = defineStore('order', {
         cancelOrder() {
             this.clearCart();
             this.ordering = true;
-        }
+        },
     }
 });
