@@ -50,7 +50,7 @@ export const useOrderStore = defineStore('order', {
         },
         async fetchProducts(categoryId) {
             try {
-                const response = await axios.get(`/api/products/${categoryId}`);
+                const response = await axios.get(`/api/categories/${categoryId}`);
                 this.products = response.data;
             } catch (err) {
                 console.error('Error fetching products', err);
@@ -85,7 +85,7 @@ export const useOrderStore = defineStore('order', {
                 const fruitSodaTeaFlavorsResponse = await axios.get(`/api/categories/${fruitSodaTeaCategory.id}/flavors`);
                 const fruitSodaTeaFlavors = fruitSodaTeaFlavorsResponse.data;
 
-                const shawarmaProductsResponse = await axios.get(`/api/products/${shawarmaCategory.id}`);
+                const shawarmaProductsResponse = await axios.get(`/api/categories/${shawarmaCategory.id}`);
                 const shawarmaProducts = shawarmaProductsResponse.data;
 
                 this.combinedFruitSodaTeaAndShawarma = [...fruitSodaTeaFlavors, ...shawarmaProducts];
