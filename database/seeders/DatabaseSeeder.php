@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             PaymentsTableSeeder::class,
             ReceiptsTableSeeder::class,
             NotificationsTableSeeder::class,
+            FeedbackTableSeeder::class
         ]);
     }
 }
