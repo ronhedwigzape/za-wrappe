@@ -14,11 +14,11 @@ class CategoryController extends Controller
         return response()->json($categories, Response::HTTP_OK);
     }
 
-    public function flavors(Category $category) {
-        return $category->flavors;
+    public function flavors(Category $categoryId) {
+        return $categoryId->flavors;
     }
 
-    public function addOns(Category $category) {
-        return $category->addOns;
+    public function addOns(Category $categoryId) {
+        return $categoryId->addOns;
     }
 }
