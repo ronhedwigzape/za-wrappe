@@ -2,63 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function salesReport(Request $request): JsonResponse
     {
-        //
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        $sales = Order::whereBetween('created_at', [$startDate, $endDate])
+            ->where('payment_status', 'Completed')
+            ->selectRaw('DATE(created_at) as date, SUM(total_price) as total_sales')
+            ->groupBy('date')
+            ->get();
+
+        return response()->json([
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'sales' => $sales
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function financialReport(Request $request): JsonResponse
     {
-        //
-    }
+        $reportType = $request->input('type', 'daily');
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        switch ($reportType) {
+            case 'daily':
+                $startDate = Carbon::today();
+                $endDate = Carbon::tomorrow();
+                break;
+            case 'weekly':
+                $startDate = Carbon::now()->startOfWeek();
+                $endDate = Carbon::now()->endOfWeek();
+                break;
+            case 'monthly':
+                $startDate = Carbon::now()->startOfMonth();
+                $endDate = Carbon::now()->endOfMonth();
+                break;
+            default:
+                return response()->json(['error' => 'Invalid report type'], 400);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $salesData = Order::where('payment_status', 'Completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('sum(total_price) as total_sales, count(*) as total_orders')
+            ->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json([
+            'report_type' => $reportType,
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->subDay()->toDateString(),
+            'total_sales' => $salesData->total_sales ?? 0,
+            'total_orders' => $salesData->total_orders ?? 0,
+        ]);
     }
 }
