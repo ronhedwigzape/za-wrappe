@@ -43,7 +43,7 @@ Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addO
 | Order Management Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/order/summary', [OrderController::class, 'fetchOrderSummary'])->name('order.fetchOrderSummary');
+Route::get('/order/summary/{orderId}', [OrderController::class, 'fetchOrderSummary'])->name('order.fetchOrderSummary');
 Route::post('/order/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
 Route::post('/order/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
 Route::post('/order/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
