@@ -7,9 +7,11 @@ use App\Models\Inventory;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -139,37 +141,58 @@ class OrderController extends Controller
 
     public function createOrder(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'customer_contact' => 'required|string',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
         DB::beginTransaction();
         try {
+            $totalPrice = 0;
+
+            // Prepare the order
             $order = new Order();
             $order->status = 'Awaiting Payment';
-            $order->save();
+            $order->customer_contact = $validated['customer_contact'];
+            $order->payment_status = 'Pending';
+            $order->verification_code = Str::random(10);
 
-            foreach ($request->items as $itemData) {
-                $inventory = Inventory::where('product_id', $itemData['product_id'])->first();
+            foreach ($validated['items'] as $itemData) {
+                $product = Product::findOrFail($itemData['product_id']);
+                $subtotal = $product->price * $itemData['quantity'];
+                $totalPrice += $subtotal;
 
+                // Check inventory before creating an order item
+                $inventory = Inventory::where('product_id', $itemData['product_id'])->firstOrFail();
                 if ($inventory->count < $itemData['quantity']) {
-                    throw new \Exception("Product {$inventory->product_id} is out of stock.");
+                    throw new \Exception("Insufficient inventory for product {$product->id}.");
                 }
 
+                // Deduct the ordered quantity from the inventory
+                $inventory->decrement('count', $itemData['quantity']);
+            }
+
+            $order->total_price = $totalPrice;
+            $order->save();
+
+            foreach ($validated['items'] as $itemData) {
                 $orderItem = new OrderItem([
                     'order_id' => $order->id,
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
-                    'subtotal' => $itemData['subtotal'],
+                    'subtotal' => Product::findOrFail($itemData['product_id'])->price * $itemData['quantity'],
                 ]);
                 $orderItem->save();
-
-                // Update inventory
-                $inventory->decrement('count', $itemData['quantity']);
             }
 
             // Initiate customer verification process
-            $verificationCode = "/* Generate verification code */";
             CustomerVerification::create([
                 'order_id' => $order->id,
                 'customer_contact' => $order->customer_contact,
-                'verification_code' => $verificationCode,
+                'verification_code' => $order->verification_code,
+                'attempts' => 0,
             ]);
 
             // Send notification
@@ -177,11 +200,18 @@ class OrderController extends Controller
                 'type' => 'new_order',
                 'related_id' => $order->id,
                 'message' => "New order #{$order->id} has been placed.",
+                'status' => 'pending'
             ]);
 
             DB::commit();
 
-            return response()->json(['message' => 'Order created successfully.', 'order_id' => $order->id], 201);
+            return response()->json([
+                'message' => 'Order created successfully.',
+                'order_id' => $order->id,
+                'total_price' => $totalPrice,
+                'verification_code' => $order->verification_code
+            ], 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to create order. ' . $e->getMessage()], 500);
