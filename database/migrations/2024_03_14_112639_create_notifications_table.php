@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('type');
             $table->integer('related_id');
-            $table->string('status');
+            $table->string('status')->default('pending');
             $table->text('message');
             $table->timestamps();
         });
