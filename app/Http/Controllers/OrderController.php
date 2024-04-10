@@ -19,26 +19,77 @@ class OrderController extends Controller
 
     public function fetchOrder($orderId): JsonResponse
     {
-        $order = Order::with(['orderItems', 'customerVerification', 'transactionSlip'])
-            ->find($orderId);
+        $order = Order::with([
+            'orderItems.product',
+            'orderItems.product.inventory',
+            'customerVerification',
+            'transactionSlip'
+        ])->find($orderId);
 
         if (!$order) {
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        return response()->json($order);
-    }
+        $orderData = [
+            'id' => $order->id,
+            'status' => $order->status,
+            'customer_contact' => $order->customer_contact,
+            'total_price' => $order->total_price,
+            'verification_code' => $order->verification_code,
+            'payment_status' => $order->payment_status,
+            'created_at' => $order->created_at,
+            'updated_at' => $order->updated_at,
+            'order_items' => $order->orderItems->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'order_id' => $item->order_id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'subtotal' => $item->subtotal,
+                    'add_on_ids' => json_decode($item->add_on_ids),
+                    'flavor_id' => $item->flavor_id,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'category_id' => $item->product->category_id,
+                        'description' => $item->product->description,
+                        'price' => $item->product->price,
+                        'image_url' => $item->product->image_url,
+                        'active' => $item->product->active,
+                        'created_at' => $item->product->created_at,
+                        'updated_at' => $item->product->updated_at,
+                    ],
+                    'inventory' => [
+                        'id' => $item->product->inventory->id,
+                        'count' => $item->product->inventory->count,
+                        'product_id' => $item->product->inventory->product_id,
+                        'low_stock_threshold' => $item->product->inventory->low_stock_threshold,
+                        'created_at' => $item->product->inventory->created_at,
+                        'updated_at' => $item->product->inventory->updated_at,
+                    ],
+                ];
+            })->toArray(),
+            'customer_verification' => $order->customerVerification ? [
+                'id' => $order->customerVerification->id,
+                'order_id' => $order->customerVerification->order_id,
+                'customer_contact' => $order->customerVerification->customer_contact,
+                'verification_code' => $order->customerVerification->verification_code,
+                'verified_at' => $order->customerVerification->verified_at,
+                'attempts' => $order->customerVerification->attempts,
+                'created_at' => $order->customerVerification->created_at,
+                'updated_at' => $order->customerVerification->updated_at,
+            ] : null,
+            'transaction_slip' => $order->transactionSlip ? [
+                'id' => $order->transactionSlip->id,
+                'order_id' => $order->transactionSlip->order_id,
+                'issued_at' => $order->transactionSlip->issued_at,
+                'code' => $order->transactionSlip->code,
+                'created_at' => $order->transactionSlip->created_at,
+                'updated_at' => $order->transactionSlip->updated_at,
+            ] : null,
+        ];
 
-    public function fetchOrderSummary($orderId): JsonResponse
-    {
-        $order = Order::with(['orderItems.product', 'orderItems.product.inventory'])
-            ->find($orderId);
-
-        if (!$order) {
-            return response()->json(['message' => 'Order not found.'], 404);
-        }
-
-        return response()->json($order);
+        return response()->json($orderData);
     }
 
     public function createOrder(Request $request): JsonResponse
