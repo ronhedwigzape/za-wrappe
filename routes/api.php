@@ -50,15 +50,15 @@ Route::get('/orders/{orderId}/summary', [OrderController::class, 'fetchOrderSumm
 Route::get('/orders/ready-for-preparation', [OrderController::class, 'ordersReadyForPreparation'])->name('orders.ordersReadyForPreparation');
 
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
-    Route::post('/order/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
-    Route::post('/order/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
-    Route::post('/order/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
+    Route::post('/orders/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
+    Route::post('/orders/{orderId}/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
+    Route::post('/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
+    Route::post('/orders/{orderId}/add', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
+    Route::post('/orders/{orderId}/item/{orderItemId}/update', [OrderController::class, 'updateItemToOrder'])->name('orders.updateItemToOrder');
+    Route::post('/orders/{orderId}/item/{orderItemId}/delete', [OrderController::class, 'deleteItemToOrder'])->name('orders.deleteItemToOrder');
     Route::post('/orders/{orderId}/awaiting-payment', [OrderController::class, 'setAwaitingPayment'])->name('orders.setAwaitingPayment');
-    Route::post('/orders/{orderId}/addItem', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
-    Route::post('/orders/{orderId}/updateItem/{orderItemId}', [OrderController::class, 'updateItemToOrder'])->name('orders.updateItemToOrder');
-    Route::post('/orders/{orderId}/deleteItem/{orderItemId}', [OrderController::class, 'deleteItemToOrder'])->name('orders.deleteItemToOrder');
-    Route::post('/order-items/{orderItem}/update-status', [OrderController::class, 'updateOrderItemStatus'])->name('orders.updateOrderItemStatus');
     Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'setOrderReadyForPickup'])->name('orders.setOrderReadyForPickup');
+    Route::post('/order-items/{orderItem}/update-status', [OrderController::class, 'updateOrderItemStatus'])->name('orders.updateOrderItemStatus');
     Route::post('/payments/confirm', [OrderController::class, 'confirmPayment'])->name('payments.confirmPayment');
 });
 
@@ -90,18 +90,18 @@ Route::get('/help', [HelpController::class, 'index'])->name('help.index');
 | User Login - Test API Purposes only
 |--------------------------------------------------------------------------
 */
-//Route::post('/login', function (Request $request) {
-//    $credentials = $request->validate([
-//        'email' => 'required|email',
-//        'password' => 'required',
-//    ]);
-//
-//    if (Auth::attempt($credentials)) {
-//        $user = Auth::user();
-//        $token = $user->createToken('API Token')->plainTextToken;
-//
-//        return response()->json(['token' => $token]);
-//    }
-//
-//    return response()->json(['error' => 'Unauthorized'], 401);
-//});
+Route::post('/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+        $token = $user->createToken('API Token')->plainTextToken;
+
+        return response()->json(['token' => $token]);
+    }
+
+    return response()->json(['error' => 'Unauthorized'], 401);
+});
