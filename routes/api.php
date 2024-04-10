@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\{
@@ -81,3 +82,24 @@ Route::get('/reports/financial', [ReportController::class, 'financialReport'])->
 |--------------------------------------------------------------------------
 */
 Route::get('/help', [HelpController::class, 'index'])->name('help.index');
+
+/*
+|--------------------------------------------------------------------------
+| User Login - Test API Purposes only
+|--------------------------------------------------------------------------
+*/
+//Route::post('/login', function (Request $request) {
+//    $credentials = $request->validate([
+//        'email' => 'required|email',
+//        'password' => 'required',
+//    ]);
+//
+//    if (Auth::attempt($credentials)) {
+//        $user = Auth::user();
+//        $token = $user->createToken('API Token')->plainTextToken;
+//
+//        return response()->json(['token' => $token]);
+//    }
+//
+//    return response()->json(['error' => 'Unauthorized'], 401);
+//});
