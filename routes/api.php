@@ -33,23 +33,22 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 | Menu and Categories Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
-Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-Route::get('/categories/{categoryId}', [ProductController::class, 'showByCategory'])->name('categories.showByCategory');
-Route::get('/categories/{categoryId}/flavors', [CategoryController::class, 'flavors'])->name('categories.flavors');
-Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addOns'])->name('categories.addOns');
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/{categoryId}', [ProductController::class, 'showByCategory'])->name('categories.showByCategory');
+    Route::get('/categories/{categoryId}/flavors', [CategoryController::class, 'flavors'])->name('categories.flavors');
+    Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addOns'])->name('categories.addOns');
+});
 
 /*
 |--------------------------------------------------------------------------
 | Order Management Routes
 |--------------------------------------------------------------------------
 */
-
-Route::get('/orders/{orderId}', [OrderController::class, 'fetchOrder'])->name('orders.fetchOrder');
-Route::get('/orders/{orderId}/summary', [OrderController::class, 'fetchOrderSummary'])->name('order.fetchOrderSummary');
-Route::get('/orders/ready-for-preparation', [OrderController::class, 'ordersReadyForPreparation'])->name('orders.ordersReadyForPreparation');
-
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('/orders/{orderId}', [OrderController::class, 'fetchOrder'])->name('orders.fetchOrder');
+    Route::get('/orders/ready-for-preparation', [OrderController::class, 'ordersReadyForPreparation'])->name('orders.ordersReadyForPreparation');
     Route::post('/orders/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
     Route::post('/orders/{orderId}/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
     Route::post('/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
@@ -67,16 +66,20 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 | Feedback Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('feedbacks.index');
-Route::post('/feedbacks/respond', [FeedbackController::class, 'respondToFeedback'])->name('feedbacks.respond');
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('feedbacks.index');
+    Route::post('/feedbacks/respond', [FeedbackController::class, 'respondToFeedback'])->name('feedbacks.respond');
+});
 
 /*
 |--------------------------------------------------------------------------
 | Reporting Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/reports/sales', [ReportController::class, 'salesReport'])->name('reports.salesReport');
-Route::get('/reports/financial', [ReportController::class, 'financialReport'])->name('reports.financialReport');
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('/reports/sales', [ReportController::class, 'salesReport'])->name('reports.salesReport');
+    Route::get('/reports/financial', [ReportController::class, 'financialReport'])->name('reports.financialReport');
+});
 
 /*
 |--------------------------------------------------------------------------
