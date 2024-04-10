@@ -23,7 +23,8 @@ class FlavorsTableSeeder extends Seeder
                 $flavor = Flavor::firstOrCreate([
                     'name' => $flavorName,
                     'description' => 'A delicious ' . $flavorName . ' flavor.',
-                    'image_url' => strtolower(str_replace(' ', '_', $flavorName)) . '.jpg'
+                    'image_url' => strtolower(str_replace(' ', '_', $flavorName)) . '.jpg',
+                    'active' => true,
                 ]);
                 $category->flavors()->attach($flavor->id);
             }

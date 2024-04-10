@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AddOn;
 use App\Models\CustomerVerification;
 use App\Models\Inventory;
 use App\Models\Notification;
@@ -127,35 +128,39 @@ class OrderController extends Controller
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.add_ons' => 'sometimes|array',
+            'items.*.add_ons.*' => 'exists:add_ons,id',
+            'items.*.flavor_id' => 'sometimes|exists:flavors,id',
         ]);
 
         DB::beginTransaction();
+
         try {
             $totalPrice = 0;
-
-            // Prepare the order
-            $order = new Order();
-            $order->status = 'Awaiting Payment';
-            $order->customer_contact = $validated['customer_contact'];
-            $order->payment_status = 'Pending';
-            $order->verification_code = Str::random(10);
 
             foreach ($validated['items'] as $itemData) {
                 $product = Product::findOrFail($itemData['product_id']);
                 $subtotal = $product->price * $itemData['quantity'];
-                $totalPrice += $subtotal;
 
-                // Check inventory before creating an order item
-                $inventory = Inventory::where('product_id', $itemData['product_id'])->firstOrFail();
-                if ($inventory->count < $itemData['quantity']) {
-                    throw new \Exception("Insufficient inventory for product {$product->id}.");
+                $addOnsPrice = 0;
+                if (!empty($itemData['add_ons'])) {
+                    $addOns = AddOn::whereIn('id', $itemData['add_ons'])->get();
+                    foreach ($addOns as $addOn) {
+                        $addOnsPrice += $addOn->price * $itemData['quantity'];
+                    }
                 }
 
-                // Deduct the ordered quantity from the inventory
-                $inventory->decrement('count', $itemData['quantity']);
+                $itemTotalPrice = $subtotal + $addOnsPrice;
+                $totalPrice += $itemTotalPrice;
             }
 
-            $order->total_price = $totalPrice;
+            $order = new Order([
+                'customer_contact' => $validated['customer_contact'],
+                'status' => 'Awaiting Payment',
+                'payment_status' => 'Pending',
+                'verification_code' => Str::random(10),
+                'total_price' => $totalPrice,
+            ]);
             $order->save();
 
             foreach ($validated['items'] as $itemData) {
@@ -163,9 +168,15 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
-                    'subtotal' => Product::findOrFail($itemData['product_id'])->price * $itemData['quantity'],
+                    'subtotal' => $product->price * $itemData['quantity'],
+                    'flavor_id' => $itemData['flavor_id'] ?? null,
+                    'add_on_ids' => $itemData['add_ons'] ?? [],
                 ]);
                 $orderItem->save();
+
+                // Update inventory
+                $inventory = Inventory::where('product_id', $itemData['product_id'])->firstOrFail();
+                $inventory->decrement('count', $itemData['quantity']);
             }
 
             // Initiate customer verification process
@@ -190,9 +201,8 @@ class OrderController extends Controller
                 'message' => 'Order created successfully.',
                 'order_id' => $order->id,
                 'total_price' => $totalPrice,
-                'verification_code' => $order->verification_code
-            ]);
-
+                'verification_code' => $order->verification_code,
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to create order. ' . $e->getMessage()], 500);

@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained();
             $table->foreignId('product_id')->constrained();
-            $table->integer('quantity');
+            $table->json('add_on_ids')->nullable();
+            $table->unsignedBigInteger('flavor_id')->nullable();
+            $table->foreign('flavor_id')->references('id')->on('flavors')->onDelete('set null');            $table->unsignedInteger('quantity');
             $table->text('customizations')->nullable();
-            $table->float('subtotal');
+            $table->decimal('subtotal', 8, 2);
             $table->timestamps();
         });
     }
