@@ -54,7 +54,9 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/order/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
     Route::post('/order/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
     Route::post('/orders/{orderId}/awaiting-payment', [OrderController::class, 'setAwaitingPayment'])->name('orders.setAwaitingPayment');
-    Route::post('/orders/{order}/addItem', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
+    Route::post('/orders/{orderId}/addItem', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
+    Route::post('/orders/{orderId}/updateItem/{orderItemId}', [OrderController::class, 'updateItemToOrder'])->name('orders.updateItemToOrder');
+    Route::post('/orders/{orderId}/deleteItem/{orderItemId}', [OrderController::class, 'deleteItemToOrder'])->name('orders.deleteItemToOrder');
     Route::post('/order-items/{orderItem}/update-status', [OrderController::class, 'updateOrderItemStatus'])->name('orders.updateOrderItemStatus');
     Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'setOrderReadyForPickup'])->name('orders.setOrderReadyForPickup');
     Route::post('/payments/confirm', [OrderController::class, 'confirmPayment'])->name('payments.confirmPayment');
