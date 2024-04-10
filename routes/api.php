@@ -43,17 +43,21 @@ Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addO
 | Order Management Routes
 |--------------------------------------------------------------------------
 */
-Route::post('/order/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
-Route::post('/order/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
-Route::post('/order/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
+
 Route::get('/orders/{orderId}', [OrderController::class, 'fetchOrder'])->name('orders.fetchOrder');
 Route::get('/orders/{orderId}/summary', [OrderController::class, 'fetchOrderSummary'])->name('order.fetchOrderSummary');
-Route::post('/orders/{orderId}/awaiting-payment', [OrderController::class, 'setAwaitingPayment'])->name('orders.setAwaitingPayment');
 Route::get('/orders/ready-for-preparation', [OrderController::class, 'ordersReadyForPreparation'])->name('orders.ordersReadyForPreparation');
-Route::post('/orders/{order}/addItem', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
-Route::post('/order-items/{orderItem}/update-status', [OrderController::class, 'updateOrderItemStatus'])->name('orders.updateOrderItemStatus');
-Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'setOrderReadyForPickup'])->name('orders.setOrderReadyForPickup');
-Route::post('/payments/confirm', [OrderController::class, 'confirmPayment'])->name('payments.confirmPayment');
+
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::post('/order/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
+    Route::post('/order/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
+    Route::post('/order/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
+    Route::post('/orders/{orderId}/awaiting-payment', [OrderController::class, 'setAwaitingPayment'])->name('orders.setAwaitingPayment');
+    Route::post('/orders/{order}/addItem', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
+    Route::post('/order-items/{orderItem}/update-status', [OrderController::class, 'updateOrderItemStatus'])->name('orders.updateOrderItemStatus');
+    Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'setOrderReadyForPickup'])->name('orders.setOrderReadyForPickup');
+    Route::post('/payments/confirm', [OrderController::class, 'confirmPayment'])->name('payments.confirmPayment');
+});
 
 /*
 |--------------------------------------------------------------------------
