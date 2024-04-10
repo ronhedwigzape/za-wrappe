@@ -27,25 +27,6 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    public function initializeOrder(Request $request): JsonResponse
-    {
-        $customerId = $request->input('customer_id');
-
-        $order = Order::where('customer_id', $customerId)
-            ->where('status', 'Initializing')
-            ->first();
-
-        if (!$order) {
-            $order = Order::create([
-                'customer_id' => $customerId,
-                'status' => 'Initializing',
-                // fields
-            ]);
-        }
-
-        return response()->json($order);
-    }
-
     public function addItemToOrder(Request $request, Order $order): JsonResponse
     {
         $validated = $request->validate([
@@ -210,7 +191,7 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'total_price' => $totalPrice,
                 'verification_code' => $order->verification_code
-            ], 201);
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();

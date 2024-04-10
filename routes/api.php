@@ -43,12 +43,11 @@ Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addO
 | Order Management Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/order/summary/{orderId}', [OrderController::class, 'fetchOrderSummary'])->name('order.fetchOrderSummary');
 Route::post('/order/create', [OrderController::class, 'createOrder'])->name('orders.createOrder');
 Route::post('/order/update', [OrderController::class, 'updateOrder'])->name('order.updateOrder');
 Route::post('/order/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancelOrder');
-Route::post('/orders/init', [OrderController::class, 'initializeOrder'])->name('orders.initializeOrder');
 Route::get('/orders/{orderId}', [OrderController::class, 'fetchOrder'])->name('orders.fetchOrder');
+Route::get('/orders/{orderId}/summary', [OrderController::class, 'fetchOrderSummary'])->name('order.fetchOrderSummary');
 Route::post('/orders/{orderId}/awaiting-payment', [OrderController::class, 'setAwaitingPayment'])->name('orders.setAwaitingPayment');
 Route::get('/orders/ready-for-preparation', [OrderController::class, 'ordersReadyForPreparation'])->name('orders.ordersReadyForPreparation');
 Route::post('/orders/{order}/addItem', [OrderController::class, 'addItemToOrder'])->name('orders.addItemToOrder');
