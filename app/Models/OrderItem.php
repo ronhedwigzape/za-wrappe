@@ -16,6 +16,7 @@ class OrderItem extends Model
     protected $casts = [
         'add_on_ids' => 'array',
     ];
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

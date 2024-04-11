@@ -47,7 +47,7 @@ class OrderController extends Controller
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'subtotal' => $item->subtotal,
-                    'add_on_ids' => json_decode($item->add_on_ids),
+                    'add_on_ids' => $item->add_on_ids,
                     'flavor_id' => $item->flavor_id,
                     'product' => [
                         'id' => $item->product->id,
@@ -235,7 +235,7 @@ class OrderController extends Controller
                 $orderItem->update([
                     'quantity' => $itemData['quantity'],
                     'subtotal' => $itemTotalPrice,
-                    'add_on_ids' => $itemData['add_ons'] ?? [],
+                    'add_on_ids' => json_encode($itemData['add_ons'] ?? []),
                     'flavor_id' => $itemData['flavor_id'] ?? $orderItem->flavor_id,
                 ]);
 
