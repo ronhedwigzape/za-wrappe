@@ -18,13 +18,15 @@ class AddOnsTableSeeder extends Seeder
                 'name' => 'Cheesy Dip',
                 'price' => 7.00,
                 'description' => 'A Cheesy Dip add-ons for Shawarma',
-                'image_url' => 'cheesy_dip.jpg'
+                'image_url' => 'cheesy_dip.jpg',
+                'active' => true,
             ],
             [
                 'name' => 'Spicy Dip',
                 'price' => 7.00,
                 'description' => 'A Spicy Dip add-ons for Shawarma',
-                'image_url' => 'spicy_dip.jpg'
+                'image_url' => 'spicy_dip.jpg',
+                'active' => true,
             ],
         ];
 
@@ -37,7 +39,8 @@ class AddOnsTableSeeder extends Seeder
             'name' => 'Add Yakult',
             'price' => 15.00,
             'description' => 'An additional Yakult to enrich your beverage.',
-            'image_url' => 'add_yakult.jpg'
+            'image_url' => 'add_yakult.jpg',
+            'active' => true,
         ];
         $addYakult = AddOn::firstOrCreate($addYakultData);
         $yakultCategory->addOns()->attach($addYakult->id);

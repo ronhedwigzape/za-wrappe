@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\AddOn;
+use App\Models\Flavor;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -19,13 +21,33 @@ class OrderItemsTableSeeder extends Seeder
         $products = Product::all();
 
         foreach ($orders as $order) {
-            foreach ($products->random(rand(1, 3)) as $product) { // Each order will have 1 to 3 products
+            foreach ($products->random(rand(1, 3)) as $product) {
+                $quantity = rand(1, 5);
+
+                if (in_array($product->id, [1, 2])) {
+                    $add_ons = AddOn::find([1, 2]);
+                } elseif (in_array($product->id, [5, 6])) {
+                    $add_ons = AddOn::find([3]);
+                } else {
+                    $add_ons = collect([]);
+                }
+
+                $add_ons_ids = $add_ons->pluck('id')->toArray();
+                $add_ons_price = $add_ons->sum('price') * $quantity;
+
+                $flavor = Flavor::inRandomOrder()->first();
+
+                $subtotal = ($product->price * $quantity) + $add_ons_price;
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
-                    'quantity' => rand(1, 5),
-                    'subtotal' => $product->price * rand(1, 5), // Example calculation
+                    'flavor_id' => optional($flavor)->id,
+                    'quantity' => $quantity,
+                    'subtotal' => $subtotal,
+                    'add_on_ids' => json_encode($add_ons_ids),
                 ]);
             }
-        }    }
+        }
+    }
 }

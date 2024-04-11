@@ -10,7 +10,7 @@ class Flavor extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'image_url'];
+    protected $fillable = ['name', 'description', 'image_url', 'active'];
 
     public function categories(): BelongsToMany {
         return $this->belongsToMany(Category::class);
