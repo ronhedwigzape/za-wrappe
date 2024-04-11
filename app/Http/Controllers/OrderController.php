@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\TransactionSlip;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -164,6 +165,13 @@ class OrderController extends Controller
                 'related_id' => $order->id,
                 'message' => "New order #{$order->id} has been placed.",
                 'status' => 'pending'
+            ]);
+
+            // Create transaction slip
+            TransactionSlip::create([
+                'order_id' => $order->id,
+                'issued_at' => now(),
+                'code' => Str::random(20)
             ]);
 
             DB::commit();
