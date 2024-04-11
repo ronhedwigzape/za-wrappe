@@ -141,7 +141,7 @@ class OrderController extends Controller
                     'quantity' => $itemData['quantity'],
                     'subtotal' => $product->price * $itemData['quantity'],
                     'flavor_id' => $itemData['flavor_id'] ?? null,
-                    'add_on_ids' => $itemData['add_ons'] ?? [],
+                    'add_on_ids' => json_encode($itemData['add_ons'] ?? []),
                 ]);
                 $orderItem->save();
 
