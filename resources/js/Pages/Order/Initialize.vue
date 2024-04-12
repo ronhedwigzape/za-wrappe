@@ -1,26 +1,28 @@
 <template>
-    <div class="flex flex-col items-center justify-center">
-        <img src="/za_wrappe_logo.png" alt="za-wrappe-logo" class="h-40">
-    </div>
-
-    <div v-if="isLoading" class="carousel-shimmer-container">
-        <div class="carousel-shimmer-slide" v-for="n in 5" :key="n">
-            <div class="shimmer"></div>
+    <div>
+        <div class="flex flex-col items-center justify-center">
+            <img src="/za_wrappe_logo.png" alt="za-wrappe-logo" class="h-40">
         </div>
-    </div>
 
-    <Carousel3d v-if="!isLoading" :height="448" :autoplay="true" :autoplay-timeout="3500" :display="5">
-        <Slide v-for="(slide, i) in orderStore.combinedFruitSodaTeaAndShawarma" :index="i" style="background-color: #f1eee5; border-radius: 5%">
-           <img class="flex flex-col items-center justify-center" :src="`/${slide.image_url}`" :alt="`${slide.image_url}`"/>
-        </Slide>
-    </Carousel3d>
-    <div v-if="!menuStore.orderComplete" class="flex flex-col items-center justify-center space-y-6 mt-5">
-        <Link :href="route('order')">
-            <SfButton size="lg" class="h-20 font-semibold !bg-neutral-900 w-48" @click="startOrder">Start Order</SfButton>
-        </Link>
-        <Link :href="route('welcome')">
-            <SfButton size="lg" class="h-20 font-semibold !bg-neutral-900 w-48" @click="exit">Exit</SfButton>
-        </Link>
+        <div v-if="isLoading" class="carousel-shimmer-container">
+            <div class="carousel-shimmer-slide" v-for="n in 5" :key="n">
+                <div class="shimmer"></div>
+            </div>
+        </div>
+
+        <Carousel3d v-if="!isLoading" :height="448" :autoplay="true" :autoplay-timeout="3500" :display="5">
+            <Slide v-for="(slide, i) in orderStore.combinedFruitSodaTeaAndShawarma" :index="i" style="background-color: #f1eee5; border-radius: 5%">
+                <img class="flex flex-col items-center justify-center" :src="`/${slide.image_url}`" :alt="`${slide.image_url}`"/>
+            </Slide>
+        </Carousel3d>
+        <div v-if="!menuStore.orderComplete" class="flex flex-col items-center justify-center space-y-6 mt-5">
+            <Link :href="route('order')">
+                <SfButton size="lg" class="h-20 font-semibold !bg-neutral-900 w-48" @click="startOrder">Start Order</SfButton>
+            </Link>
+            <Link :href="route('welcome')">
+                <SfButton size="lg" class="h-20 font-semibold !bg-neutral-900 w-48" @click="exit">Exit</SfButton>
+            </Link>
+        </div>
     </div>
 </template>
 
