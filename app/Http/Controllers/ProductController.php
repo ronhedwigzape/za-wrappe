@@ -69,9 +69,9 @@ class ProductController extends Controller
         return response()->json(['message' => 'Product deleted successfully'], Response::HTTP_OK);
     }
 
-    public function showByCategory($categoryId): Response
+    public function showByCategory($productId): Response
     {
-        $products = Product::where('category_id', $categoryId)->where('active', true)->get();
+        $products = Product::where('category_id', $productId)->where('active', true)->get();
         return response()->json($products, Response::HTTP_OK);
     }
 }

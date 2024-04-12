@@ -44,16 +44,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::get('/products/{categoryId}', [ProductController::class, 'showByCategory'])->name('categories.showByCategory');
-    Route::get('/categories/{categoryId}/flavors', [CategoryController::class, 'flavors'])->name('categories.flavors');
-    Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addOns'])->name('categories.addOns');
-
-    Route::get('/categories/{categoryId}', [CategoryController::class, 'show'])->name('categories.show');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{categoryId}', [CategoryController::class, 'show'])->name('categories.show');
     Route::put('/categories/{categoryId}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{categoryId}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::get('/categories/{categoryId}/flavors', [CategoryController::class, 'flavors'])->name('categories.flavors');
+    Route::get('/categories/{categoryId}/add-ons', [CategoryController::class, 'addOns'])->name('categories.addOns');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{productId}', [ProductController::class, 'showByCategory'])->name('categories.showByCategory');
     Route::put('/products/{productId}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{productId}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
