@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\TransactionSlip;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +47,7 @@ class OrderController extends Controller
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'subtotal' => $item->subtotal,
-                    'add_on_ids' => json_decode($item->add_on_ids),
+                    'add_on_ids' => $item->add_on_ids,
                     'flavor_id' => $item->flavor_id,
                     'product' => [
                         'id' => $item->product->id,
@@ -166,6 +167,13 @@ class OrderController extends Controller
                 'status' => 'pending'
             ]);
 
+            // Create transaction slip
+            TransactionSlip::create([
+                'order_id' => $order->id,
+                'issued_at' => now(),
+                'code' => Str::random(20)
+            ]);
+
             DB::commit();
 
             return response()->json([
@@ -227,7 +235,7 @@ class OrderController extends Controller
                 $orderItem->update([
                     'quantity' => $itemData['quantity'],
                     'subtotal' => $itemTotalPrice,
-                    'add_on_ids' => $itemData['add_ons'] ?? [],
+                    'add_on_ids' => json_encode($itemData['add_ons'] ?? []),
                     'flavor_id' => $itemData['flavor_id'] ?? $orderItem->flavor_id,
                 ]);
 

@@ -1,5 +1,6 @@
 import {defineStore} from 'pinia';
 import axios from 'axios';
+import {useAuthStore} from "@/Store/store-auth.js";
 
 export const useOrderStore = defineStore('order', {
     state: () => ({
@@ -42,15 +43,23 @@ export const useOrderStore = defineStore('order', {
     actions: {
         async fetchCategories() {
             try {
-                const response = await axios.get('/api/categories');
+                const response = await axios.get('/api/categories', {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 this.categories = response.data;
             } catch (err) {
                 console.error('Error fetching categories', err);
             }
         },
-        async fetchProducts(categoryId) {
+        async fetchProducts(productId) {
             try {
-                const response = await axios.get(`/api/categories/${categoryId}`);
+                const response = await axios.get(`/api/products/${productId}`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 this.products = response.data;
             } catch (err) {
                 console.error('Error fetching products', err);
@@ -58,7 +67,11 @@ export const useOrderStore = defineStore('order', {
         },
         async fetchCategorySpecificFlavors(categoryId) {
             try {
-                const response = await axios.get(`/api/categories/${categoryId}/flavors`);
+                const response = await axios.get(`/api/categories/${categoryId}/flavors`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 this.categorySpecificFlavors = response.data;
             } catch (error) {
                 console.log('Error fetching category-specific flavors:', error);
@@ -66,7 +79,11 @@ export const useOrderStore = defineStore('order', {
         },
         async fetchCategorySpecificAddOns(categoryId) {
             try {
-                const response = await axios.get(`/api/categories/${categoryId}/add-ons`);
+                const response = await axios.get(`/api/categories/${categoryId}/add-ons`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 this.categorySpecificAddOns = response.data;
             } catch (error) {
                 console.log('Error fetching category-specific add-ons:', error);
@@ -82,10 +99,18 @@ export const useOrderStore = defineStore('order', {
                     return;
                 }
 
-                const fruitSodaTeaFlavorsResponse = await axios.get(`/api/categories/${fruitSodaTeaCategory.id}/flavors`);
+                const fruitSodaTeaFlavorsResponse = await axios.get(`/api/categories/${fruitSodaTeaCategory.id}/flavors`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 const fruitSodaTeaFlavors = fruitSodaTeaFlavorsResponse.data;
 
-                const shawarmaProductsResponse = await axios.get(`/api/categories/${shawarmaCategory.id}`);
+                const shawarmaProductsResponse = await axios.get(`/api/products/${shawarmaCategory.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 const shawarmaProducts = shawarmaProductsResponse.data;
 
                 this.combinedFruitSodaTeaAndShawarma = [...fruitSodaTeaFlavors, ...shawarmaProducts];
@@ -131,27 +156,23 @@ export const useOrderStore = defineStore('order', {
         },
         async setOrderAwaitingPayment(orderId) {
             try {
-                await axios.post(`/api/orders/${orderId}/awaiting-payment`);
+                await axios.post(`/api/orders/${orderId}/awaiting-payment`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 await this.fetchOrder(orderId);
             } catch (error) {
                 console.error('Error setting order to awaiting payment:', error);
             }
         },
-        async createOrGetOrder() {
-            try {
-                const response = await axios.post('/api/orders/create-or-get');
-                if (response.data.order) {
-                    this.order = response.data.order;
-                }
-                return response.data;
-            } catch (error) {
-                console.error('Error creating or getting order:', error);
-                return null;
-            }
-        },
         async confirmOrderPayment(orderId) {
             try {
-                const response = await axios.post('/api/payments/confirm', { order_id: orderId });
+                const response = await axios.post('/api/payments/confirm', { order_id: orderId }, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
                 await this.fetchOrder(orderId);
                 return response.data;
             } catch (error) {
@@ -160,7 +181,11 @@ export const useOrderStore = defineStore('order', {
         },
         async fetchOrder(orderId) {
             try {
-                const response = await axios.get(`/api/orders/${orderId}`);
+                const response = await axios.get(`/api/orders/${orderId}`, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
             } catch (error) {
                 console.error('Error fetching order:', error);
             }

@@ -2,63 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventory;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class InventoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        //
+        $inventory = Inventory::with('product')->get();
+        return response()->json($inventory, Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show($productId): Response
     {
-        //
+        $inventory = Inventory::where('product_id', $productId)->first();
+        if (!$inventory) {
+            return response()->json(['message' => 'Inventory not found'], 404);
+        }
+        return response()->json($inventory, Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(Request $request, $productId): Response
     {
-        //
-    }
+        $inventory = Inventory::where('product_id', $productId)->first();
+        if (!$inventory) {
+            return response()->json(['message' => 'Inventory not found'], 404);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $validated = $request->validate([
+            'count' => 'required|integer|min:0',
+            'low_stock_threshold' => 'required|integer|min:0'
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $inventory->update($validated);
+        return response()->json($inventory, Response::HTTP_OK);
     }
 }

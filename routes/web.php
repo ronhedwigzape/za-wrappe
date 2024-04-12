@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,34 +14,32 @@ use Inertia\Inertia;
 | contains the "web" middleware group. Now create something great!
 |
 */
-    //
-    Route::get('/', function () {
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
-        }
-        return Inertia::render('Auth/Login', [
-            'canLogin' => Route::has('login'),
-            'canRegister' => Route::has('register'),
-        ]);
-    })->name('welcome');
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    return Inertia::render('Auth/Login', [
+        'canLogin' => Route::has('login'),
+    ]);
+})->name('welcome');
 
-    // Authenticate customer, merchant or admin users
-    Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
+// Authenticate customer, merchant or admin users
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
 
-        Route::get('/dashboard', function () {
-            return Inertia::render('Dashboard');
-        })->name('dashboard');
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
 
-        Route::get('/initialize', function() {
-            return Inertia::render('Order/Initialize');
-        })->name('initialize');
+    Route::get('/initialize', function() {
+        return Inertia::render('Order/Initialize');
+    })->name('initialize');
 
-        Route::get('/order', function() {
-            return Inertia::render('Order/Create');
-        })->name('order');
+    Route::get('/order', function() {
+        return Inertia::render('Order/Create');
+    })->name('order');
 
-        Route::get('/order-summary', function() {
-            return Inertia::render('Order/Summary');
-        })->name('order-summary');
+    Route::get('/order-summary', function() {
+        return Inertia::render('Order/Summary');
+    })->name('order-summary');
 
-    });
+});
