@@ -7,10 +7,13 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import {useAuthStore} from "@/Store/store-auth.js";
 
 defineProps({
     title: String,
 });
+
+const authStore = useAuthStore();
 
 const showingNavigationDropdown = ref(false);
 
@@ -24,6 +27,7 @@ const switchToTeam = (team) => {
 
 const logout = () => {
     router.post(route('logout'));
+    authStore.logout();
 };
 </script>
 

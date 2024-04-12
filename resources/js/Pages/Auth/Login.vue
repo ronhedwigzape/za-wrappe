@@ -7,6 +7,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import {useAuthStore} from "@/Store/store-auth.js";
 
 defineProps({
     canResetPassword: Boolean,
@@ -25,6 +26,11 @@ const submit = () => {
         remember: form.remember ? 'on' : '',
     })).post(route('login'), {
         onFinish: () => form.reset('password'),
+    });
+
+    useAuthStore().login({
+        email: form.email,
+        password: form.password
     });
 };
 </script>
