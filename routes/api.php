@@ -40,7 +40,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 | Menu and Categories, Products, Inventory Routes
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
@@ -59,6 +58,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/inventory/{productId}', [InventoryController::class, 'show'])->name('inventory.show');
     Route::put('/inventory/{productId}', [InventoryController::class, 'update'])->name('inventory.update');
 });
+
 /*
 |--------------------------------------------------------------------------
 | Order Management Routes
