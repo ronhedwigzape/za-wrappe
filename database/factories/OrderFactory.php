@@ -17,7 +17,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'status' => $this->faker->randomElement(['Awaiting Verification', 'Confirmed']),
+            'status' => $this->faker->randomElement(['Awaiting Verification', 'Confirmed', 'Awaiting Payment', 'Cancelled', 'Awaiting Preparation', 'Payment Received', 'Ready for Pickup']),
             'customer_contact' => $this->faker->phoneNumber,
             'total_price' => $this->faker->randomFloat(2, 10, 500),
             'verification_code' => $this->faker->bothify('##??##'),
