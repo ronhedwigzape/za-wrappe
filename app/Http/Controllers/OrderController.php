@@ -279,7 +279,7 @@ class OrderController extends Controller
                 }
             }
 
-            $order->status = 'Canceled';
+            $order->status = 'Cancelled';
             $order->save();
 
             DB::commit();
