@@ -31,15 +31,15 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     })->name('dashboard');
 
     Route::get('/initialize', function() {
-        return Inertia::render('Order/Initialize');
+        return Inertia::render('Customer/Order/Initialize');
     })->name('initialize');
 
     Route::get('/order', function() {
-        return Inertia::render('Order/Create');
+        return Inertia::render('Customer/Order/Create');
     })->name('order');
 
     Route::get('/order-summary', function() {
-        return Inertia::render('Order/Summary');
+        return Inertia::render('Customer/Order/Summary');
     })->name('order-summary');
 
 });

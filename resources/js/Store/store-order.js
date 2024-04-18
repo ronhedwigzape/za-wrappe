@@ -18,7 +18,9 @@ export const useOrderStore = defineStore('order', {
         quantity: 1,
         customizations: "",
         isCartUpdating: false,
-        combinedFruitSodaTeaAndShawarma: []
+        combinedFruitSodaTeaAndShawarma: [],
+        showError: false,
+        cartVisible: false
     }),
     getters: {
         cartTotal: (state) => {
@@ -221,7 +223,12 @@ export const useOrderStore = defineStore('order', {
             }
         },
         removeFromCart(itemId) {
-            this.cart = this.cart.filter(item => item.id !== itemId);
+            if (this.cart.length === 1) {
+                this.cart = this.cart.filter(item => item.id !== itemId);
+                this.resetSelections();
+            } else {
+                this.cart = this.cart.filter(item => item.id !== itemId);
+            }
         },
         clearCart() {
             this.cart = [];
@@ -247,6 +254,14 @@ export const useOrderStore = defineStore('order', {
             }
         },
         finalizeCustomization() {
+            if (!this.selectedFlavor) {
+                this.showError = true;
+                setTimeout(() => {
+                    this.showError = false;
+                }, 3000);
+                return;
+            }
+
             const cartItem = {
                 id: this.productToCustomize.id,
                 ...this.productToCustomize,
@@ -265,6 +280,8 @@ export const useOrderStore = defineStore('order', {
                 this.addToCart(cartItem);
             }
             this.resetSelections();
+            this.cartVisible = true;
+            this.showError = false;
         },
         resetSelections() {
             this.productToCustomize = null;
@@ -280,6 +297,7 @@ export const useOrderStore = defineStore('order', {
         },
         cancelOrder() {
             this.clearCart();
+            this.resetSelections();
             this.ordering = true;
         },
     }
