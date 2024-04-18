@@ -124,8 +124,8 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, onMounted } from 'vue';
-import { useOrderStore } from '@/Store/store-order';
-import Summary from "@/Pages/Order/Summary.vue";
+import { useOrderStore } from '@/Store/store-order.js';
+import Summary from "@/Pages/Customer/Order/Summary.vue";
 
 // store
 const orderStore = useOrderStore();

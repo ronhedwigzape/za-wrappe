@@ -25,7 +25,6 @@
                         {{ callToAction }}
                     </SfButton>
                 </div>
-
             </div>
         </div>
     </div>

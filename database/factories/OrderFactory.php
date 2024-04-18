@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class OrderFactory extends Factory
 {
     /**
-     * Define the model's default state.
+     * Define the mode....6. ////////u\\\\\\\\\\
+     * \l's default state.
      *
      * @return array<string, mixed>
      */

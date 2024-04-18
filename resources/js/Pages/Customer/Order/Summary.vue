@@ -72,7 +72,7 @@
 
 <script setup>
 import { SfModal, SfButton, SfIconClose, useDisclosure } from '@storefront-ui/vue';
-import { useOrderStore } from '@/Store/store-order';
+import { useOrderStore } from '@/Store/store-order.js';
 
 const orderStore = useOrderStore();
 const { isOpen, open, close } = useDisclosure({ initialValue: false });
