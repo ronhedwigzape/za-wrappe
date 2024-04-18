@@ -71,7 +71,11 @@ class ProductController extends Controller
 
     public function showByCategory($productId): Response
     {
-        $products = Product::where('category_id', $productId)->where('active', true)->get();
+        $products = Product::with('inventory')
+            ->where('category_id', $productId)
+            ->where('active', true)
+            ->get();
         return response()->json($products, Response::HTTP_OK);
     }
+
 }
