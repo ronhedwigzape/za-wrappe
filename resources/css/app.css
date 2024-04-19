@@ -5,3 +5,7 @@
 [x-cloak] {
     display: none;
 }
+
+.upperCase {
+    text-transform: uppercase !important;
+}
