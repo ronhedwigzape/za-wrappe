@@ -1,6 +1,6 @@
 <template>
     <div class="backgroundColor min-h-screen">
-        <div class="flex flex-col gap-6 md:flex-row ">
+        <div class="flex flex-col gap-6 md:flex-row">
             <div
                 v-for="{ title, subtitle, description, callToAction, image, backgroundColor, reverse, textColor } in displayDetails"
                 :key="title"
@@ -10,7 +10,7 @@
       ]"
             >
                 <div class="image-container flex items-center w-full">
-                    <img :src="image" :alt="title" class=" md:max-w-sm min-w-full max-w-full" />
+                    <img :src="image" :alt="title" class="full-width-image"/>
                 </div>
                 <a
                     :class="`absolute w-full h-full z-1 focus-visible:outline focus-visible:rounded-lg`"
@@ -53,12 +53,30 @@ const displayDetails = [
     background-size: cover;
 }
 
-.image-container img {
+.image-container {
     width: 100%;
-    height: 100%;
+    overflow: hidden;
+}
+
+.full-width-image {
+    width: 100%;
+    height: auto;
     object-fit: cover;
 }
 
-</style>
+/* Media query for viewport widths of 765px and above */
+@media (min-width: 765px) {
+    .image-container {
+        height: 100vh;
+        width: 100vw;
+    }
 
+    .full-width-image {
+        height: 100vh;
+        min-width: 100%;
+        object-fit: cover;
+    }
+}
+
+</style>
 

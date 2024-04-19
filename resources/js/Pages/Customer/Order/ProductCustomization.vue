@@ -4,6 +4,15 @@
             <SfIconSell size="sm" class="mr-1.5" />
             Sale
         </div>
+        <SfLink href="#" class="flex justify-center items-center">
+            <img
+                :src="orderStore.productToCustomize.image_url"
+                alt="Great product"
+                class="block object-cover h-auto rounded-md aspect-square"
+                width="250"
+                height="250"
+            />
+        </SfLink>
         <h1 class="mb-1 font-bold text-lg text-center">Customize Your {{ orderStore.productToCustomize.name }}</h1>
         <strong class="block font-bold text-lg text-center mb-4">Current Price: ₱{{ orderStore.currentPrice.toFixed(2) }}</strong>
         <div class="flex items-center justify-center mt-4 mb-2">
@@ -14,12 +23,11 @@
         <div class="py-4 mb-4 border-gray-200 border-y">
             <div class="flex flex-col items-center space-y-4">
                 <div class="w-full flex flex-col items-center">
-                    <div class="flex border border-neutral-300 rounded-md">
+                    <div class="flex">
                         <SfButton
-                            variant="tertiary"
                             :disabled="orderStore.quantity <= 1"
                             square
-                            class="rounded-r-none p-3"
+                            class="!rounded-full"
                             :aria-controls="inputId"
                             aria-label="Decrease value"
                             @click="orderStore.quantity > 1 ? orderStore.quantity-- : null"
@@ -30,16 +38,14 @@
                             :id="inputId"
                             v-model.number="orderStore.quantity"
                             type="number"
-                            class="grow appearance-none text-center bg-transparent font-medium focus-visible:outline-none [&::-webkit-inner-spin-button]:hidden"
-                            min="1"
+                            class="appearance-none px-2 mx-2 w-12 text-center bg-transparent font-medium [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:display-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:display-none [&::-webkit-outer-spin-button]:m-0 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none disabled:placeholder-disabled-900 focus-visible:outline focus-visible:outline-offset focus-visible:rounded-sm"                            min="1"
                             :max="999"
                             @input="handleOnChange"
                         />
                         <SfButton
-                            variant="tertiary"
                             :disabled="orderStore.quantity >= 999"
                             square
-                            class="rounded-l-none p-3"
+                            class="!rounded-full"
                             :aria-controls="inputId"
                             aria-label="Increase value"
                             @click="orderStore.quantity < 999 ? orderStore.quantity++ : null"
@@ -48,24 +54,13 @@
                         </SfButton>
                     </div>
                     <p class="text-xs text-neutral-500">
-                        <strong class="text-neutral-900">999</strong> in stock
+                        <strong class="text-neutral-900">{{ useOrderStore().productToCustomize.inventory.count }}</strong> in stock
                     </p>
-                </div>
-                <div v-if="orderStore.selectedFlavor" class="w-full mb-4">
-                    <span class="text-lg font-medium">Selected Flavor: </span>{{ orderStore.selectedFlavor.name }}
                 </div>
                 <div v-if="selectedFlavors.length" class="w-full">
                     <h3 class="text-lg font-medium">Select Flavor</h3>
                     <div class="flex flex-wrap justify-center">
-                        <button
-                            v-for="flavor in selectedFlavors"
-                            :key="flavor.id"
-                            @click="orderStore.selectFlavor(flavor)"
-                            class="hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded m-1"
-                            :class="{'bg-indigo-700': orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id, 'bg-indigo-500': !(orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id)}"
-                        >
-                            {{ flavor.name }}
-                        </button>
+                        <FlavorSlider :flavors="selectedFlavors" />
                     </div>
                 </div>
                 <div v-if="selectedAddOnsList.length" class="w-full">
@@ -87,18 +82,18 @@
                     </template>
                     {{ orderStore.isCartUpdating ? "Update item to cart" : "Add to cart" }}
                 </SfButton>
-                <div class="flex justify-center w-full gap-x-4">
-                    <SfButton size="sm" variant="tertiary">
-                        <template #prefix>
-                            <SfIconCompareArrows size="sm" />
-                        </template>
-                        Compare
-                    </SfButton>
-                    <SfButton size="sm" variant="tertiary">
-                        <SfIconFavorite size="sm" />
-                        Add to list
-                    </SfButton>
-                </div>
+<!--                <div class="flex justify-center w-full gap-x-4">-->
+<!--                    <SfButton size="sm" variant="tertiary">-->
+<!--                        <template #prefix>-->
+<!--                            <SfIconCompareArrows size="sm" />-->
+<!--                        </template>-->
+<!--                        Compare-->
+<!--                    </SfButton>-->
+<!--                    <SfButton size="sm" variant="tertiary">-->
+<!--                        <SfIconFavorite size="sm" />-->
+<!--                        Add to list-->
+<!--                    </SfButton>-->
+<!--                </div>-->
                 <div
                     v-if="!orderStore.isCartUpdating"
                     @click="orderStore.goBackToProducts"
@@ -130,6 +125,7 @@ import {
 } from '@storefront-ui/vue';
 import { useOrderStore } from '@/Store/store-order.js';
 import { computed } from 'vue';
+import FlavorSlider from "@/Components/FlavorSlider.vue";
 
 const orderStore = useOrderStore();
 const inputId = useId();

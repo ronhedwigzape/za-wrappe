@@ -1,5 +1,7 @@
 <template>
     <div>
+        <ZaWrappeTopBar/>
+
         <div class="max-w-4xl mx-auto p-4">
             <!-- Category Selection -->
             <transition-group
@@ -163,6 +165,7 @@ import Summary from "@/Pages/Customer/Order/Summary.vue";
 import {SfButton, SfIconArrowBack, SfLink} from "@storefront-ui/vue";
 import CancelOrder from "@/Components/CancelOrder.vue";
 import ProductCustomization from "@/Pages/Customer/Order/ProductCustomization.vue";
+import ZaWrappeTopBar from "@/Components/ZaWrappeTopBar.vue";
 
 // store
 const orderStore = useOrderStore();
