@@ -1,20 +1,16 @@
 <template>
     <section class="max-w-md mx-auto">
-        <div class="inline-flex items-center justify-center text-sm font-medium text-white bg-secondary-600 py-1.5 px-3 mb-4">
-            <SfIconSell size="sm" class="mr-1.5" />
-            Sale
-        </div>
-        <SfLink href="#" class="flex justify-center items-center">
+        <SfLink class="flex justify-center items-center">
             <img
                 :src="orderStore.productToCustomize.image_url"
                 alt="Great product"
-                class="block object-cover h-auto rounded-md aspect-square"
+                class="border border-neutral-200 rounded-md hover:shadow-lg max-w-[300px]"
                 width="250"
                 height="250"
             />
         </SfLink>
-        <h1 class="mb-1 font-bold text-lg text-center">Customize Your {{ orderStore.productToCustomize.name }}</h1>
-        <strong class="block font-bold text-lg text-center mb-4">Current Price: ₱{{ orderStore.currentPrice.toFixed(2) }}</strong>
+        <h1 class="mt-3 mb-1 font-bold text-lg text-center upperCase">Customize Your {{ orderStore.productToCustomize.name }}</h1>
+        <span class="block font-bold text-xl text-center mb-4">Current Price: ₱{{ orderStore.currentPrice.toFixed(2) }}</span>
         <div class="flex items-center justify-center mt-4 mb-2">
             <SfRating size="xs" :value="4" :max="5" />
             <SfCounter class="ml-1" size="xs">123</SfCounter>
@@ -53,12 +49,12 @@
                             <SfIconAdd />
                         </SfButton>
                     </div>
-                    <p class="text-xs text-neutral-500">
+                    <p class="my-3 text-xs text-neutral-500">
                         <strong class="text-neutral-900">{{ useOrderStore().productToCustomize.inventory.count }}</strong> in stock
                     </p>
                 </div>
                 <div v-if="selectedFlavors.length" class="w-full">
-                    <h3 class="text-lg font-medium">Select Flavor</h3>
+                    <h1 class="text-lg font-medium text-center">Select your Flavor</h1>
                     <div class="flex flex-wrap justify-center">
                         <FlavorSlider :flavors="selectedFlavors" />
                     </div>
@@ -66,14 +62,7 @@
                 <div v-if="selectedAddOnsList.length" class="w-full">
                     <h3 class="text-lg font-medium">Add Ons</h3>
                     <div class="flex flex-wrap justify-center">
-                        <button
-                            v-for="addOn in selectedAddOnsList"
-                            :key="addOn.id"
-                            @click="orderStore.toggleAddOn(addOn)"
-                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-1"
-                        >
-                            {{ addOn.name }} (+₱{{ addOn.price }})
-                        </button>
+                        <AddOnSlider :add-ons="selectedAddOnsList" />
                     </div>
                 </div>
                 <SfButton size="lg" class="w-full" @click="orderStore.finalizeCustomization()">
@@ -94,13 +83,14 @@
 <!--                        Add to list-->
 <!--                    </SfButton>-->
 <!--                </div>-->
-                <div
+                <SfButton
+                    variant="secondary"
                     v-if="!orderStore.isCartUpdating"
                     @click="orderStore.goBackToProducts"
-                    class="bg-primary-100 text-primary-700 flex justify-center gap-1.5 py-1.5 items-center cursor-pointer mb-4 rounded-md w-full">
+                    class=" w-full">
                     <SfIconArrowBack />
                     Go Back to Products
-                </div>
+                </SfButton>
             </div>
         </div>
     </section>
@@ -126,6 +116,7 @@ import {
 import { useOrderStore } from '@/Store/store-order.js';
 import { computed } from 'vue';
 import FlavorSlider from "@/Components/FlavorSlider.vue";
+import AddOnSlider from "@/Components/AddOnSlider.vue";
 
 const orderStore = useOrderStore();
 const inputId = useId();

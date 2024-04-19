@@ -21,11 +21,13 @@
                              class="m-2 border border-neutral-200 rounded-md hover:shadow-lg w-[228px] lg:w-[292px]">
                             <div class="relative">
                                 <SfLink href="#" class="block">
-                                    <img :src="`/${category.image_url}`"
-                                         :alt="category.name"
-                                         class="block object-cover rounded-md aspect-square lg:w-[250px] lg:h-[290px]"
-                                         width="300"
-                                         height="300"/>
+                                    <img
+                                        :src="`/${category.image_url}`"
+                                        :alt="category.name"
+                                        class="block object-cover rounded-md aspect-square lg:w-[250px] lg:h-[290px]"
+                                        width="300"
+                                        height="300"
+                                    />
                                 </SfLink>
                             </div>
                             <div class="p-2 border-t border-neutral-200">
@@ -57,11 +59,13 @@
                              class="m-2 border border-neutral-200 rounded-md hover:shadow-lg w-[228px] lg:w-[292px]">
                             <div class="relative">
                                 <SfLink href="#" class="block">
-                                    <img :src="`/${product.image_url}`"
-                                         :alt="product.name"
-                                         class="block object-cover rounded-md aspect-square lg:w-[250px] lg:h-[290px]"
-                                         width="300"
-                                         height="300"/>
+                                    <img
+                                        :src="`/${product.image_url}`"
+                                        :alt="product.name"
+                                        class="block object-cover rounded-md aspect-square lg:w-[250px] lg:h-[290px]"
+                                        width="300"
+                                        height="300"
+                                    />
                                 </SfLink>
                             </div>
                             <div class="p-2 border-t border-neutral-200">
@@ -159,13 +163,13 @@
 
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, onMounted } from 'vue';
+import { computed, reactive, onMounted } from 'vue';
 import { useOrderStore } from '@/Store/store-order.js';
-import Summary from "@/Pages/Customer/Order/Summary.vue";
-import {SfButton, SfIconArrowBack, SfLink} from "@storefront-ui/vue";
-import CancelOrder from "@/Components/CancelOrder.vue";
-import ProductCustomization from "@/Pages/Customer/Order/ProductCustomization.vue";
+import { SfButton, SfIconArrowBack, SfLink } from "@storefront-ui/vue";
 import ZaWrappeTopBar from "@/Components/ZaWrappeTopBar.vue";
+import ProductCustomization from "@/Pages/Customer/Order/ProductCustomization.vue";
+import Summary from "@/Pages/Customer/Order/Summary.vue";
+import CancelOrder from "@/Components/CancelOrder.vue";
 
 // store
 const orderStore = useOrderStore();
@@ -173,17 +177,13 @@ const orderStore = useOrderStore();
 // computed
 const selectedCategoryProducts = computed(() => orderStore.products);
 
-// onMounted
-onMounted(async () => {
-    if (!orderStore.categories.length) await orderStore.fetchCategories();
-});
-
 // animations
 const beforeEnter = (el) => {
     el.style.opacity = 0;
     el.style.transform = 'translateY(20px)';
 };
 
+// methods
 const enter = (el, done) => {
     el.offsetHeight;
     el.style.transition = 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out';
@@ -197,7 +197,14 @@ const leave = (el, done) => {
     el.style.transform = 'translateY(-20px)';
     done();
 };
+
+// onMounted
+onMounted(async () => {
+    if (!orderStore.categories.length) await orderStore.fetchCategories();
+});
+
 </script>
+
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
@@ -231,10 +238,6 @@ const leave = (el, done) => {
     position: sticky;
     bottom: 0;
     background: white;
-}
-
-.upperCase {
-    text-transform: uppercase !important;
 }
 </style>
 
