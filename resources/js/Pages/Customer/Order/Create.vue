@@ -13,7 +13,11 @@
             >
                 <div v-if="!orderStore.productToCustomize && orderStore.ordering && !orderStore.selectedCategory"
                      class="flex flex-col items-center justify-center">
-                    <h2 class="upperCase"><strong>Select a Category</strong></h2>
+                    <ZaWrappeHeadingOne>
+                        <template #title>
+                            Select a Category
+                        </template>
+                    </ZaWrappeHeadingOne>
                     <div class="flex flex-wrap justify-center w-full">
                         <div v-for="category in orderStore.categories"
                              @click="orderStore.selectProducts(category)"
@@ -51,7 +55,11 @@
                     v-if="orderStore.selectedCategory && !orderStore.productToCustomize"
                     class="flex flex-col items-center justify-center"
                 >
-                    <h2 class="upperCase"><strong>Select a Product from {{ orderStore.selectedCategory.name }}</strong></h2>
+                    <ZaWrappeHeadingOne>
+                        <template #title>
+                            Select a Product from {{ orderStore.selectedCategory.name }}
+                        </template>
+                    </ZaWrappeHeadingOne>
                     <div class="flex flex-wrap justify-center w-full">
                         <div v-for="product in selectedCategoryProducts"
                              :key="product.id"
@@ -92,7 +100,7 @@
                 @leave="leave"
                 class="flex flex-wrap justify-center w-full"
             >
-                <div v-if="orderStore.productToCustomize && orderStore.isCustomizingFlavorAndAddOns" class="space-y-4">
+                <div v-if="orderStore.productToCustomize && orderStore.isCustomizingFlavorAndAddOns">
                     <ProductCustomization/>
                 </div>
             </transition-group>
@@ -170,6 +178,7 @@ import ZaWrappeTopBar from "@/Components/ZaWrappeTopBar.vue";
 import ProductCustomization from "@/Pages/Customer/Order/ProductCustomization.vue";
 import Summary from "@/Pages/Customer/Order/Summary.vue";
 import CancelOrder from "@/Components/CancelOrder.vue";
+import ZaWrappeHeadingOne from "@/Components/ZaWrappeHeadingOne.vue";
 
 // store
 const orderStore = useOrderStore();

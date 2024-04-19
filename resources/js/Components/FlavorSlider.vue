@@ -33,6 +33,7 @@
                 @click="selectFlavor(flavor, index)"
                 @mouseover="activeIndex = index"
                 @focus="activeIndex = index"
+                class="relative type-button"
             >
                 <img
                     :alt="flavor.name"
@@ -81,7 +82,7 @@
                 v-for="(flavor, index) in flavors"
                 :key="`${flavor.name}-${index}`"
                 @click="selectFlavor(flavor, index)"
-                class="flex justify-center h-full basis-full shrink-0 grow snap-center"
+                class="flex justify-center h-full basis-full shrink-0 grow snap-center relative"
             >
                 <img
                     :aria-label="flavor.name"
@@ -90,6 +91,9 @@
                     :alt="flavor.name"
                     :src="flavor.image_url"
                 />
+                <div class="absolute bottom-0 w-full text-center text-white bg-black bg-opacity-50 py-2">
+                    {{ flavor.name }}
+                </div>
             </div>
         </SfScrollable>
     </div>

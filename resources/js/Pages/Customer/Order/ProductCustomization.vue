@@ -1,5 +1,10 @@
 <template>
     <section class="max-w-md mx-auto">
+        <ZaWrappeHeadingOne>
+            <template #title>
+                Customize Your {{ orderStore.productToCustomize.name }}
+            </template>
+        </ZaWrappeHeadingOne>
         <SfLink class="flex justify-center items-center">
             <img
                 :src="orderStore.productToCustomize.image_url"
@@ -9,8 +14,7 @@
                 height="250"
             />
         </SfLink>
-        <h1 class="mt-3 mb-1 font-bold text-lg text-center upperCase">Customize Your {{ orderStore.productToCustomize.name }}</h1>
-        <span class="block font-bold text-xl text-center mb-4">Current Price: ₱{{ orderStore.currentPrice.toFixed(2) }}</span>
+        <span class="block font-bold text-xl text-center my-4">Current Price: ₱{{ orderStore.currentPrice.toFixed(2) }}</span>
         <div class="flex items-center justify-center mt-4 mb-2">
             <SfRating size="xs" :value="4" :max="5" />
             <SfCounter class="ml-1" size="xs">123</SfCounter>
@@ -54,13 +58,21 @@
                     </p>
                 </div>
                 <div v-if="selectedFlavors.length" class="w-full">
-                    <h1 class="text-lg font-medium text-center">Select your Flavor</h1>
+                    <ZaWrappeHeadingOne>
+                        <template #title>
+                            Select your flavor
+                        </template>
+                    </ZaWrappeHeadingOne>
                     <div class="flex flex-wrap justify-center">
                         <FlavorSlider :flavors="selectedFlavors" />
                     </div>
                 </div>
                 <div v-if="selectedAddOnsList.length" class="w-full">
-                    <h3 class="text-lg font-medium">Add Ons</h3>
+                    <ZaWrappeHeadingOne>
+                        <template #title>
+                            Select your Add-Ons
+                        </template>
+                    </ZaWrappeHeadingOne>
                     <div class="flex flex-wrap justify-center">
                         <AddOnSlider :add-ons="selectedAddOnsList" />
                     </div>
@@ -117,6 +129,7 @@ import { useOrderStore } from '@/Store/store-order.js';
 import { computed } from 'vue';
 import FlavorSlider from "@/Components/FlavorSlider.vue";
 import AddOnSlider from "@/Components/AddOnSlider.vue";
+import ZaWrappeHeadingOne from "@/Components/ZaWrappeHeadingOne.vue";
 
 const orderStore = useOrderStore();
 const inputId = useId();

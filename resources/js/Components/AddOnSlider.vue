@@ -26,13 +26,13 @@
                 v-for="(addOn, index) in addOns"
                 :key="`${addOn.name}-${index}-thumbnail`"
                 :ref="(el) => assignRef(el, index)"
-                type="button"
                 :aria-label="addOn.name"
                 :aria-current="activeIndex === index"
                 :class="thumbnailClass(addOn, index)"
                 @click="selectAddOn(addOn, index)"
                 @mouseover="activeIndex = index"
                 @focus="activeIndex = index"
+                class="relative type-button"
             >
                 <img
                     :alt="addOn.name"
@@ -40,12 +40,10 @@
                     height="88"
                     class="border border-neutral-200"
                     :src="addOn.image_url"
-                    :class="{
-                        'bg-black opacity-50 border-2 border-green-950': orderStore.selectedAddOns && orderStore.selectedAddOns.id === addOn.id
-                    }"
+                    :class="{'border-2 border-green-950 opacity-50': isSelected(addOn)}"
                 />
                 <div
-                    v-if="orderStore.selectedAddOns && orderStore.selectedAddOns.id === addOn.id"
+                    v-if="isSelected(addOn)"
                     class="absolute inset-0 flex justify-center items-center"
                 >
                     <svg class="w-6 h-6 text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,7 +79,7 @@
                 v-for="(addOn, index) in addOns"
                 :key="`${addOn.name}-${index}`"
                 @click="selectAddOn(addOn, index)"
-                class="flex justify-center h-full basis-full shrink-0 grow snap-center"
+                class="flex justify-center h-full basis-full shrink-0 grow snap-center relative"
             >
                 <img
                     :aria-label="addOn.name"
@@ -90,13 +88,17 @@
                     :alt="addOn.name"
                     :src="addOn.image_url"
                 />
+                <!-- Add-on name overlay at the bottom of the image -->
+                <div class="absolute bottom-0 w-full text-center text-white bg-black bg-opacity-50 py-2">
+                    {{ addOn.name }}
+                </div>
             </div>
         </SfScrollable>
     </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import {
     SfScrollable,
     SfButton,
@@ -179,5 +181,9 @@ function thumbnailClass(addOn, index) {
 function selectAddOn(addOn, index) {
     orderStore.toggleAddOn(addOn);
     activeIndex.value = index;
+}
+
+const isSelected = (addOn) => {
+    return orderStore.selectedAddOns.some(a => a.id === addOn.id);
 }
 </script>
