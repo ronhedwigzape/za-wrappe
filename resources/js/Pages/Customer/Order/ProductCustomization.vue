@@ -18,7 +18,7 @@
         <div class="flex items-center justify-center mt-4 mb-2">
             <SfRating size="xs" :value="4" :max="5" />
             <SfCounter class="ml-1" size="xs">123</SfCounter>
-            <SfLink href="#" variant="secondary" class="ml-2 text-xs text-neutral-500">123 reviews</SfLink>
+            <SfLink variant="secondary" class="ml-2 text-xs text-neutral-500">123 reviews</SfLink>
         </div>
         <div class="py-4 mb-4 border-gray-200 border-y">
             <div class="flex flex-col items-center space-y-4">

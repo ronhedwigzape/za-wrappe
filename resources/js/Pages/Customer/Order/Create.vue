@@ -118,10 +118,8 @@
             </SfButton>
 
             <!-- Cart Display -->
-            <transition
-                name="slide-up"
-            >
-                <CustomerCart/>
+            <transition name="slide-cart" mode="out-in">
+                <CustomerCart v-if="orderStore.cartVisible" key="cart"/>
             </transition>
 
         </div>
@@ -191,13 +189,17 @@ onMounted(async () => {
     transform: translateY(20px);
 }
 
-.slide-up-enter-active, .slide-up-leave-active {
+.slide-cart-enter-active, .slide-cart-leave-active {
     transition: transform 0.5s ease-in-out;
 }
-.slide-up-enter, .slide-up-leave-to {
+
+.slide-cart-enter-from, .slide-cart-leave-to {
     transform: translateY(100%);
 }
 
+.slide-cart-enter-to, .slide-cart-leave-from {
+    transform: translateY(0);
+}
 .cart-content {
     max-height: 30vh;
     overflow-y: auto;
