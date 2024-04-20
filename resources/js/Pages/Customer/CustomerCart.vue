@@ -42,6 +42,7 @@
         </div>
         <div class="flex gap-x-2 justify-center items-center">
             <SfButton
+                variant="secondary"
                 @click="useOrderStore().continueOrdering"
             >
                 Continue Ordering
