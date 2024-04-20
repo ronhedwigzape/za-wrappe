@@ -1,5 +1,11 @@
 <template>
-    <SfButton @click="open">Review Order</SfButton>
+    <SfButton
+        variant="tertiary"
+        class="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white flex justify-center items-center"
+        @click="open"
+    >
+        <SfIconRemoveShoppingCart size="sm"/>
+    </SfButton>
 
     <!-- Backdrop -->
     <transition
@@ -24,7 +30,7 @@
     >
         <SfModal
             v-model="isOpen"
-            class="max-w-[90%] md:max-w-lg"
+            class="max-w-[60%] md:max-w-lg"
             tag="section"
             role="alertdialog"
             aria-labelledby="promoModalTitle"
@@ -37,42 +43,14 @@
                 <div class="flex flex-col items-center justify-center">
                     <img src="/za_wrappe_logo.png" class="h-40" alt="Za-Wrappe logo"/>
                     <h2 id="promoModalTitle" class="text-2xl font-semibold">
-                        Is this order correct?
+                        Are you sure you want to remove "{{ itemName }}" from the cart?
                     </h2>
                 </div>
             </header>
-            <div v-if="useOrderStore().cartVisible && useOrderStore().cart.length && useOrderStore().ordering">
-                <div class="cart-content">
-                    <transition-group name="list" tag="ul" class="">
-                        <li v-for="(item, index) in useOrderStore().cart"
-                            :key="item.id"
-                            class="mt-2 border-2 !rounded-lg border-dashed border-gray-500"
-                        >
-                            <div class="flex flex-row justify-between items-center border-b-2 border-dashed border-gray-500 p-2">
-                                <div class="font-medium pr-3"> {{ item.quantity }} x {{ item.name }} (₱ {{ item.price }})</div>
-                                <strong class="text-lg">₱ {{ (item.currentPrice).toFixed(2) }}</strong>
-                            </div>
-                            <div class="py-2 px-4 flex justify-between items-center">
-                                <div class="flex flex-col">
-                                    <small class="" v-if="item.flavor">Flavor: <b>{{ item.flavor }}</b></small>
-                                    <div v-if="item.addOns.length" class="">
-                                        <small class="">Add Ons:</small>
-                                        <ul>
-                                            <li class="list-disc ml-6" v-for="addOn in item.addOns" :key="addOn.id">
-                                                <small><b>{{ addOn.name }}</b> (+₱{{ addOn.price }})</small>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </transition-group>
-                </div>
-                <div class="cart-footer py-2 font-bold flex justify-end">Total: ₱{{ parseFloat(useOrderStore().cartTotal).toFixed(2) }}</div>
-            </div>
+
             <footer class="flex justify-end gap-4 mt-4">
                 <SfButton variant="secondary" @click="close">No</SfButton>
-                <SfButton @click="close">Yes</SfButton>
+                <SfButton @click.stop="useOrderStore().removeFromCart(itemId)">Yes</SfButton>
             </footer>
         </SfModal>
     </transition>
@@ -90,6 +68,10 @@ import {
 import { useOrderStore } from '@/Store/store-order.js';
 import CancelOrder from "@/Components/CancelOrder.vue";
 
+defineProps({
+    itemId: String,
+    itemName: String,
+})
 const orderStore = useOrderStore();
 const { isOpen, open, close } = useDisclosure({ initialValue: false });
 </script>

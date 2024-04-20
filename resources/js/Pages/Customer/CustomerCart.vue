@@ -1,11 +1,10 @@
 <template>
     <div v-if="useOrderStore().cartVisible && useOrderStore().cart.length && useOrderStore().ordering"
-         class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4">
+         class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-40 border">
         <div class="flex justify-between items-start">
             <h2 class="text-2xl font-semibold"><SfIconShoppingCart/> Your Cart</h2>
-            <button @click="useOrderStore().cartVisible = !useOrderStore().cartVisible"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Close Cart
+            <button @click="useOrderStore().cartVisible = !useOrderStore().cartVisible">
+                 <SfIconClose/>
             </button>
         </div>
         <!-- Scrollable Content Area -->
@@ -16,38 +15,39 @@
                     @click="useOrderStore().customizeCartItem(item.id)"
                     class="cursor-pointer mt-2 border-2 !rounded-lg border-dashed border-gray-500"
                 >
-                    <div class="flex flex-row justify-between border-b-2 border-dashed border-gray-500 p-2">
-                        <div class="font-medium"> {{ item.quantity }} x {{ item.name }}</div>
-                        <div>₱ {{ item.price }}</div>
+                    <div class="flex flex-row justify-between items-center border-b-2 border-dashed border-gray-500 p-2">
+                        <div class="font-medium pr-3"> {{ item.quantity }} x {{ item.name }} (₱ {{ item.price }})</div>
+                        <strong class="text-lg">₱ {{ (item.currentPrice).toFixed(2) }}</strong>
                     </div>
-                    <small class="list-disc" v-if="item.flavor">Flavor: {{ item.flavor }}</small>
-                    <div class="flex flex-row">
-                        <div class="">
-                            <ul>
-                                <li v-for="addOn in item.addOns" :key="addOn.id">
-                                    Add On: {{ addOn.name }} (+₱{{ addOn.price }} x {{ item.quantity }})
-                                </li>
-                            </ul>
+                    <div class="py-2 px-4 flex justify-between items-center">
+                        <div class="flex flex-col">
+                            <small class="" v-if="item.flavor">Flavor: <b>{{ item.flavor }}</b></small>
+                            <div v-if="item.addOns.length" class="">
+                                <small class="">Add Ons:</small>
+                                <ul>
+                                    <li class="list-disc ml-6" v-for="addOn in item.addOns" :key="addOn.id">
+                                        <small><b>{{ addOn.name }}</b> (+₱{{ addOn.price }})</small>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                        <p class="text-sm">Total Item Price: ₱{{ (item.currentPrice).toFixed(2) }} </p>
-                        <button @click.stop="useOrderStore().removeFromCart(item.id)"
-                                class="bg-red-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                            Remove
-                        </button>
+                        <RemoveItemFromCart :item-id="item.id" :item-name="item.name" />
                     </div>
                 </li>
             </transition-group>
         </div>
         <!-- Fixed Footer Inside the Cart -->
-        <div class="cart-footer p-4 font-bold flex justify-between">
+        <div class="cart-footer py-2 font-bold flex justify-end">
             Cart Total: ₱{{ parseFloat(useOrderStore().cartTotal).toFixed(2) }}
-            <div class="flex gap-x-2">
-                <button @click="useOrderStore().continueOrdering" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    Continue Ordering
-                </button>
-                <Summary/>
-                <CancelOrder/>
-            </div>
+        </div>
+        <div class="flex gap-x-2 justify-center items-center">
+            <SfButton
+                @click="useOrderStore().continueOrdering"
+            >
+                Continue Ordering
+            </SfButton>
+            <Summary/>
+            <CancelOrder/>
         </div>
     </div>
 </template>
@@ -56,7 +56,15 @@
 import Summary from "@/Pages/Customer/Order/Summary.vue";
 import CancelOrder from "@/Components/CancelOrder.vue";
 import {useOrderStore} from "@/Store/store-order.js";
-import {SfIconShoppingCart} from "@storefront-ui/vue";
+import {
+    SfButton,
+    SfIconClose,
+    SfIconCloseSm,
+    SfIconRemove,
+    SfIconRemoveShoppingCart,
+    SfIconShoppingCart
+} from "@storefront-ui/vue";
+import RemoveItemFromCart from "@/Components/RemoveItemFromCart.vue";
 </script>
 
 <style scoped>

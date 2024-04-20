@@ -114,7 +114,7 @@
                 }"
                 :disabled="orderStore.cart.length === 0"
                 class="fixed bottom-0 right-0 m-4 text-white font-bold py-2 px-4 rounded">
-                Open Cart
+                <SfIconShoppingCart size="lg"/>
             </SfButton>
 
             <!-- Cart Display -->
@@ -130,7 +130,14 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, reactive, onMounted } from 'vue';
 import { useOrderStore } from '@/Store/store-order.js';
-import { SfButton, SfIconArrowBack, SfLink } from "@storefront-ui/vue";
+import {
+    SfButton,
+    SfIconArrowBack,
+    SfIconOpenInNew,
+    SfIconShoppingCart,
+    SfIconShoppingCartCheckout,
+    SfLink
+} from "@storefront-ui/vue";
 import ZaWrappeTopBar from "@/Components/ZaWrappeTopBar.vue";
 import ProductCustomization from "@/Pages/Customer/Order/ProductCustomization.vue";
 import Summary from "@/Pages/Customer/Order/Summary.vue";
