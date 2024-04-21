@@ -1,5 +1,8 @@
 <template>
-    <SfButton variant="tertiary" class="border border-red-600 text-red-600 hover:bg-red-600 hover:text-red-50" @click="open">Cancel Order</SfButton>
+    <SfButton variant="tertiary" class="border border-red-600 text-red-600 hover:bg-red-600 hover:text-red-50" @click="open">
+        <SfIconCancel/>
+        Cancel Order
+    </SfButton>
 
     <!-- Backdrop -->
     <transition
@@ -50,7 +53,7 @@
 </template>
 
 <script setup>
-import { SfModal, SfButton, SfIconClose, useDisclosure } from '@storefront-ui/vue';
+import {SfModal, SfButton, SfIconClose, useDisclosure, SfIconCancel} from '@storefront-ui/vue';
 import { useOrderStore } from '@/Store/store-order.js';
 
 const orderStore = useOrderStore();

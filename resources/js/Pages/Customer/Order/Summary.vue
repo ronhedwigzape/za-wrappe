@@ -1,5 +1,5 @@
 <template>
-    <SfButton @click="open">Review Order</SfButton>
+    <SfButton @click="open"><SfIconCheckCircle/> Review Order</SfButton>
 
     <!-- Backdrop -->
     <transition
@@ -85,7 +85,7 @@ import {
     SfIconClose,
     useDisclosure,
     SfIconShoppingCart,
-    SfIconRemoveShoppingCart
+    SfIconRemoveShoppingCart, SfIconCheckCircle
 } from '@storefront-ui/vue';
 import { useOrderStore } from '@/Store/store-order.js';
 import CancelOrder from "@/Components/CancelOrder.vue";

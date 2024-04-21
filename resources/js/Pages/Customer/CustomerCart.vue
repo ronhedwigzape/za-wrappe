@@ -45,6 +45,7 @@
                 variant="secondary"
                 @click="useOrderStore().continueOrdering"
             >
+                <SfIconShoppingCart/>
                 Continue Ordering
             </SfButton>
             <Summary/>
@@ -58,9 +59,10 @@ import Summary from "@/Pages/Customer/Order/Summary.vue";
 import CancelOrder from "@/Components/CancelOrder.vue";
 import {useOrderStore} from "@/Store/store-order.js";
 import {
+    SfBadge,
     SfButton,
     SfIconClose,
-    SfIconCloseSm,
+    SfIconCloseSm, SfIconIndeterminateCheckBox,
     SfIconRemove,
     SfIconRemoveShoppingCart,
     SfIconShoppingCart

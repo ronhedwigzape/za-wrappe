@@ -115,6 +115,7 @@
                 :disabled="orderStore.cart.length === 0"
                 class="fixed bottom-0 right-0 m-4 text-white font-bold py-2 px-4 rounded">
                 <SfIconShoppingCart size="lg"/>
+                <SfBadge :content="orderStore.cart.length" />
             </SfButton>
 
             <!-- Cart Display -->
@@ -131,6 +132,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, reactive, onMounted } from 'vue';
 import { useOrderStore } from '@/Store/store-order.js';
 import {
+    SfBadge,
     SfButton,
     SfIconArrowBack,
     SfIconOpenInNew,
