@@ -41,12 +41,12 @@ const logout = () => {
             <nav class="bg-white border-b border-gray-100">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-5">
+                    <div class="flex justify-between h-10">
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-5 w-auto" />
+                                    <ApplicationMark class="block h-10 w-auto" />
                                 </Link>
                             </div>
 
