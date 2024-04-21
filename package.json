@@ -20,6 +20,7 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@vueuse/core": "^10.9.0",
         "pinia": "^2.1.7",
         "vue3-carousel-3d": "^1.0.4"
     }

@@ -1,7 +1,10 @@
 <template>
-    <SfButton variant="tertiary" class="border border-red-600 text-red-600 hover:bg-red-600 hover:text-red-50" @click="open">
-        <SfIconCancel/>
-        Cancel Order
+    <SfButton
+        variant="tertiary"
+        class="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white flex justify-center items-center"
+        @click="open"
+    >
+        <SfIconRemoveShoppingCart size="sm"/>
     </SfButton>
 
     <!-- Backdrop -->
@@ -27,7 +30,7 @@
     >
         <SfModal
             v-model="isOpen"
-            class="max-w-[90%] md:max-w-lg"
+            class="max-w-[60%] md:max-w-lg"
             tag="section"
             role="alertdialog"
             aria-labelledby="promoModalTitle"
@@ -40,22 +43,35 @@
                 <div class="flex flex-col items-center justify-center">
                     <img src="/za_wrappe_logo.png" class="h-40" alt="Za-Wrappe logo"/>
                     <h2 id="promoModalTitle" class="text-2xl font-semibold">
-                        Are you sure you want to clear your cart? This can't be undone.
+                        Are you sure you want to remove "{{ itemName }}" from the cart?
                     </h2>
                 </div>
             </header>
+
             <footer class="flex justify-end gap-4 mt-4">
                 <SfButton variant="secondary" @click="close">No</SfButton>
-                <SfButton @click="orderStore.cancelOrder" >Yes</SfButton>
+                <SfButton @click.stop="useOrderStore().removeFromCart(itemId)">Yes</SfButton>
             </footer>
         </SfModal>
     </transition>
 </template>
 
 <script setup>
-import {SfModal, SfButton, SfIconClose, useDisclosure, SfIconCancel} from '@storefront-ui/vue';
+import {
+    SfModal,
+    SfButton,
+    SfIconClose,
+    useDisclosure,
+    SfIconShoppingCart,
+    SfIconRemoveShoppingCart
+} from '@storefront-ui/vue';
 import { useOrderStore } from '@/Store/store-order.js';
+import CancelOrder from "@/Components/CancelOrder.vue";
 
+defineProps({
+    itemId: String,
+    itemName: String,
+})
 const orderStore = useOrderStore();
 const { isOpen, open, close } = useDisclosure({ initialValue: false });
 </script>

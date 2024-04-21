@@ -1,8 +1,6 @@
 <template>
     <div>
-        <div class="flex flex-col items-center justify-center">
-            <img src="/za_wrappe_logo.png" alt="za-wrappe-logo" class="h-40">
-        </div>
+        <ZaWrappeTopBar/>
 
         <div v-if="isLoading" class="carousel-shimmer-container">
             <div class="carousel-shimmer-slide" v-for="n in 5" :key="n">
@@ -33,6 +31,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useMenuStore } from '@/Store/store-menu.js';
 import { Carousel3d, Slide } from 'vue3-carousel-3d';
 import {useOrderStore} from "@/Store/store-order.js";
+import ZaWrappeTopBar from "@/Components/ZaWrappeTopBar.vue";
 
 const menuStore = useMenuStore();
 const orderStore = useOrderStore();

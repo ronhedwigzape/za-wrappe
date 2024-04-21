@@ -1,5 +1,5 @@
 <template>
-    <SfButton @click="open">Review Order</SfButton>
+    <SfButton @click="open"><SfIconCheckCircle/> Review Order</SfButton>
 
     <!-- Backdrop -->
     <transition
@@ -41,26 +41,34 @@
                     </h2>
                 </div>
             </header>
-            <div v-if="orderStore.cart.length && orderStore.ordering" class="mt-2">
-                <div class="overflow-y-auto max-h-[600px] scrollable-container">
-                    <ul class="list-disc pl-5">
-                        <li v-for="(item, index) in orderStore.cart" :key="index" class="cursor-pointer mt-2">
-                            <div class="font-medium"> {{ item.quantity }} x {{ item.name }} (₱ {{ item.price }})</div>
-
-                            <div v-if="item.flavor">Flavor: {{ item.flavor }}</div>
-
-                            <div>
-                                <ul>
-                                    <li v-for="addOn in item.addOns" :key="addOn.id">
-                                        Add On: {{ addOn.name }} (+₱{{ addOn.price }} x {{ item.quantity }})
-                                    </li>
-                                </ul>
+            <div v-if="useOrderStore().cartVisible && useOrderStore().cart.length && useOrderStore().ordering">
+                <div class="cart-content">
+                    <transition-group name="list" tag="ul" class="">
+                        <li v-for="(item, index) in useOrderStore().cart"
+                            :key="item.id"
+                            class="mt-2 border-2 !rounded-lg border-dashed border-gray-500"
+                        >
+                            <div class="flex flex-row justify-between items-center border-b-2 border-dashed border-gray-500 p-2">
+                                <div class="font-medium pr-3"> {{ item.quantity }} x {{ item.name }} (₱ {{ item.price }})</div>
+                                <strong class="text-lg">₱ {{ (item.currentPrice).toFixed(2) }}</strong>
                             </div>
-                            <p class="text-sm ">Total Item Price: ₱{{ (item.currentPrice).toFixed(2) }} </p>
+                            <div class="py-2 px-4 flex justify-between items-center">
+                                <div class="flex flex-col">
+                                    <small class="" v-if="item.flavor">Flavor: <b>{{ item.flavor }}</b></small>
+                                    <div v-if="item.addOns.length" class="">
+                                        <small class="">Add Ons:</small>
+                                        <ul>
+                                            <li class="list-disc ml-6" v-for="addOn in item.addOns" :key="addOn.id">
+                                                <small><b>{{ addOn.name }}</b> (+₱{{ addOn.price }})</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </li>
-                    </ul>
+                    </transition-group>
                 </div>
-                <div class="font-bold mt-3">Total: ₱{{ parseFloat(orderStore.cartTotal).toFixed(2) }}</div>
+                <div class="cart-footer py-2 font-bold flex justify-end">Total: ₱{{ parseFloat(useOrderStore().cartTotal).toFixed(2) }}</div>
             </div>
             <footer class="flex justify-end gap-4 mt-4">
                 <SfButton variant="secondary" @click="close">No</SfButton>
@@ -71,8 +79,16 @@
 </template>
 
 <script setup>
-import { SfModal, SfButton, SfIconClose, useDisclosure } from '@storefront-ui/vue';
+import {
+    SfModal,
+    SfButton,
+    SfIconClose,
+    useDisclosure,
+    SfIconShoppingCart,
+    SfIconRemoveShoppingCart, SfIconCheckCircle
+} from '@storefront-ui/vue';
 import { useOrderStore } from '@/Store/store-order.js';
+import CancelOrder from "@/Components/CancelOrder.vue";
 
 const orderStore = useOrderStore();
 const { isOpen, open, close } = useDisclosure({ initialValue: false });
