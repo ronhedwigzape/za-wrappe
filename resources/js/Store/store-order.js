@@ -6,7 +6,7 @@ export const useOrderStore = defineStore('order', {
     state: () => ({
         categories: [],
         products: [],
-        cart: [],
+        cart: JSON.parse(localStorage.getItem('cart')) || [],
         ordering: true,
         categorySpecificFlavors: [],
         categorySpecificAddOns: [],
@@ -153,7 +153,10 @@ export const useOrderStore = defineStore('order', {
                 this.selectedFlavor = this.categorySpecificFlavors.find(flavor => flavor.id === cartItem.selectedFlavorId);
                 this.selectedAddOns = cartItem.addOns;
                 this.quantity = cartItem.quantity;
+                this.isCustomizingFlavorAndAddOns = true;
                 this.isCartUpdating = true;
+            } else {
+                console.error("Item not found in cart for customization");
             }
         },
         async setOrderAwaitingPayment(orderId) {
@@ -212,6 +215,7 @@ export const useOrderStore = defineStore('order', {
                 };
 
                 this.cart.push(cartItem);
+                this.updateLocalStorageCart();
             } else {
                 console.error(`Invalid product price or quantity: ${product}`);
             }
@@ -220,18 +224,22 @@ export const useOrderStore = defineStore('order', {
             const index = this.cart.findIndex(item => item.id === updatedItem.id);
             if (index !== -1) {
                 this.cart[index] = { ...updatedItem };
+                this.updateLocalStorageCart()
             }
         },
         removeFromCart(itemId) {
             if (this.cart.length === 1) {
                 this.cart = this.cart.filter(item => item.id !== itemId);
+                this.updateLocalStorageCart();
                 this.resetSelections();
             } else {
                 this.cart = this.cart.filter(item => item.id !== itemId);
+                this.updateLocalStorageCart();
             }
         },
         clearCart() {
             this.cart = [];
+            this.updateLocalStorageCart();
         },
         selectProduct(product) {
             this.productToCustomize = product;
@@ -278,10 +286,11 @@ export const useOrderStore = defineStore('order', {
                 this.updateCartItem(cartItem);
             } else {
                 this.addToCart(cartItem);
+                if (this.cart.length === 1) {
+                    this.cartVisible = true;
+                }
             }
             this.resetSelections();
-            this.cartVisible = true;
-            this.showError = false;
         },
         resetSelections() {
             this.productToCustomize = null;
@@ -297,8 +306,15 @@ export const useOrderStore = defineStore('order', {
         },
         cancelOrder() {
             this.clearCart();
+            this.clearLocalStorageCart();
             this.resetSelections();
             this.ordering = true;
+        },
+        updateLocalStorageCart() {
+            localStorage.setItem('cart', JSON.stringify(this.cart));
+        },
+        clearLocalStorageCart() {
+            localStorage.removeItem('cart');
         },
     }
 });
