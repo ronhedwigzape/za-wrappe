@@ -35,8 +35,8 @@
                                 </SfLink>
                             </div>
                             <div class="p-2 border-t border-neutral-200">
-                                <SfLink href="#" variant="secondary" class="no-underline text-lg">{{ category.name }}</SfLink>
-                                <small class="block mt-2 font-bold">{{ category.description }}</small>
+                                <SfLink href="#" variant="secondary" class="no-underline text-xl font-extrabold">{{ category.name }}</SfLink>
+                                <small class="block mt-2">{{ category.description }}</small>
                             </div>
                         </div>
                     </div>
@@ -77,8 +77,8 @@
                                 </SfLink>
                             </div>
                             <div class="p-2 border-t border-neutral-200">
-                                <SfLink href="#" variant="secondary" class="no-underline text-lg">{{ product.name }} - ₱{{ product.price }}</SfLink>
-                                <small class="block mt-2 font-bold">{{ product.description }}</small>
+                                <SfLink href="#" variant="secondary" class="no-underline text-xl font-extrabold">{{ product.name }} - ₱{{ product.price }}</SfLink>
+                                <small class="block mt-2">{{ product.description }}</small>
                             </div>
                         </div>
                     </div>
@@ -118,6 +118,9 @@
                 <SfBadge :content="orderStore.cart.length" />
             </SfButton>
 
+            <!--  Show success message after order creation   -->
+            <Success/>
+
             <!-- Cart Display -->
             <transition name="slide-cart" mode="out-in">
                 <CustomerCart v-if="orderStore.cartVisible" key="cart"/>
@@ -146,6 +149,7 @@ import Summary from "@/Pages/Customer/Order/Summary.vue";
 import CancelOrder from "@/Components/CancelOrder.vue";
 import ZaWrappeHeadingOne from "@/Components/ZaWrappeHeadingOne.vue";
 import CustomerCart from "@/Pages/Customer/CustomerCart.vue";
+import Success from "@/Pages/Customer/Order/Success.vue";
 
 // store
 const orderStore = useOrderStore();
