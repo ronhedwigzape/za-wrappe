@@ -27,7 +27,7 @@
     >
         <SfModal
             v-model="isOpen"
-            class="max-w-[90%] md:max-w-lg"
+            class="max-w-[60%] md:max-w-lg"
             tag="section"
             role="alertdialog"
             aria-labelledby="promoModalTitle"

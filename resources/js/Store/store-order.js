@@ -20,7 +20,8 @@ export const useOrderStore = defineStore('order', {
         isCartUpdating: false,
         combinedFruitSodaTeaAndShawarma: [],
         showError: false,
-        cartVisible: false
+        cartVisible: false,
+        orderCreated: false
     }),
     getters: {
         cartTotal: (state) => {
@@ -239,7 +240,7 @@ export const useOrderStore = defineStore('order', {
         },
         clearCart() {
             this.cart = [];
-            this.updateLocalStorageCart();
+            this.clearLocalStorageCart();
         },
         selectProduct(product) {
             this.productToCustomize = product;
@@ -306,7 +307,6 @@ export const useOrderStore = defineStore('order', {
         },
         cancelOrder() {
             this.clearCart();
-            this.clearLocalStorageCart();
             this.resetSelections();
             this.ordering = true;
         },
@@ -316,5 +316,32 @@ export const useOrderStore = defineStore('order', {
         clearLocalStorageCart() {
             localStorage.removeItem('cart');
         },
+        async createOrder(customerContact) {
+            try {
+                const orderData = {
+                    customer_contact: customerContact,
+                    items: this.cart ? this.cart.map(item => ({
+                        product_id: item.id,
+                        quantity: item.quantity,
+                        add_ons: item.selectedAddOns && item.selectedAddOns.length > 0 ? item.selectedAddOns.map(addOn => addOn.id) : [],
+                        flavor_id: item.selectedFlavorId
+                    })) : []
+                };
+
+                const response = await axios.post('/api/orders/create', orderData, {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore().token}`
+                    }
+                });
+
+                this.clearCart();
+
+                return response.data;
+            } catch (error) {
+                console.error('Error creating order:', error);
+                throw error;
+            }
+        }
+
     }
 });

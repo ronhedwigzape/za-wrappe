@@ -15,10 +15,10 @@
         </Carousel3d>
         <div v-if="!menuStore.orderComplete" class="flex flex-col items-center justify-center space-y-6 mt-5">
             <Link :href="route('order')">
-                <SfButton size="lg" class="h-20 font-semibold !bg-neutral-900 w-48" @click="startOrder">Start Order</SfButton>
+                <SfButton size="lg" class="h-20 font-semibold text-xl !bg-neutral-900 w-48" @click="startOrder">Start Order</SfButton>
             </Link>
             <Link :href="route('welcome')">
-                <SfButton size="lg" class="h-20 font-semibold !bg-neutral-900 w-48" @click="exit">Exit</SfButton>
+                <SfButton size="lg" class="h-20 font-semibold text-xl !bg-neutral-900 w-48" @click="exit">Exit</SfButton>
             </Link>
         </div>
     </div>
