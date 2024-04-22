@@ -30,8 +30,7 @@ const closeAndReset = () => {
                     </template>
                 </ZaWrappeHeadingOne>
                 <p class="text-gray-600 px-6">Thank you for your order, #{{ orderId }}. Your order will be sent to the kitchen, after you've completed the payment of ₱{{ totalPrice.toFixed(2) }}.</p>
-                <p class="text-gray-600 px-6">Verification Code: {{ verificationCode }}</p>
-
+                <!--  <p class="text-gray-600 px-6">Verification Code: {{ verificationCode }}</p> -->
             </div>
             <SfButton variant="primary" size="lg" class="mt-4 text-xl" @click="closeAndReset">Okay</SfButton>
         </div>
