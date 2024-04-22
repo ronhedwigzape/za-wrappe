@@ -124,7 +124,7 @@
                 :verification-code="orderStore.order.verification_code"
                 :order-id="orderStore.order.order_id"
                 :total-price="orderStore.order.total_price"
-            "/>
+            />
 
             <!-- Cart Display -->
             <transition name="slide-cart" mode="out-in">
