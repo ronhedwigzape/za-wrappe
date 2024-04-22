@@ -21,7 +21,8 @@ export const useOrderStore = defineStore('order', {
         combinedFruitSodaTeaAndShawarma: [],
         showError: false,
         cartVisible: false,
-        orderCreated: false
+        orderCreated: false,
+        order: {}
     }),
     getters: {
         cartTotal: (state) => {
@@ -336,7 +337,7 @@ export const useOrderStore = defineStore('order', {
 
                 this.clearCart();
 
-                return response.data;
+                this.order = response.data;
             } catch (error) {
                 console.error('Error creating order:', error);
                 throw error;
