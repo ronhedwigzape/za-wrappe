@@ -137,21 +137,17 @@
 
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, reactive, onMounted } from 'vue';
+import {computed, reactive, onMounted, ref, onUnmounted} from 'vue';
 import { useOrderStore } from '@/Store/store-order.js';
 import {
     SfBadge,
     SfButton,
     SfIconArrowBack,
-    SfIconOpenInNew,
     SfIconShoppingCart,
-    SfIconShoppingCartCheckout,
     SfLink
 } from "@storefront-ui/vue";
 import ZaWrappeTopBar from "@/Components/ZaWrappeTopBar.vue";
 import ProductCustomization from "@/Pages/Customer/Order/ProductCustomization.vue";
-import Summary from "@/Pages/Customer/Order/Summary.vue";
-import CancelOrder from "@/Components/CancelOrder.vue";
 import ZaWrappeHeadingOne from "@/Components/ZaWrappeHeadingOne.vue";
 import CustomerCart from "@/Pages/Customer/CustomerCart.vue";
 import Success from "@/Pages/Customer/Order/Success.vue";
@@ -161,6 +157,10 @@ const orderStore = useOrderStore();
 
 // computed
 const selectedCategoryProducts = computed(() => orderStore.products);
+
+// data
+let idleTimer = ref(null);
+const idleTime = ref(60000);
 
 // animations
 const beforeEnter = (el) => {
@@ -188,6 +188,32 @@ onMounted(async () => {
     if (!orderStore.categories.length) await orderStore.fetchCategories();
 });
 
+function resetTimer() {
+    clearTimeout(idleTimer.value);
+    idleTimer = setTimeout(() => {
+        window.location.href = '/initialize';
+    }, idleTime.value);
+}
+
+function setupIdleTimer() {
+    document.addEventListener('mousemove', resetTimer);
+    document.addEventListener('keypress', resetTimer);
+    resetTimer();
+}
+
+function cleanup() {
+    clearTimeout(idleTimer.value);
+    document.removeEventListener('mousemove', resetTimer);
+    document.removeEventListener('keypress', resetTimer);
+}
+
+onMounted(() => {
+    setupIdleTimer();
+});
+
+onUnmounted(() => {
+    cleanup();
+});
 </script>
 
 
