@@ -160,7 +160,7 @@ const selectedCategoryProducts = computed(() => orderStore.products);
 
 // data
 let idleTimer = ref(null);
-const idleTime = ref(60000);
+const idleTime = ref(180000);
 
 // animations
 const beforeEnter = (el) => {
