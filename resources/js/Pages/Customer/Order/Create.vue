@@ -193,9 +193,9 @@ function resetTimer() {
     idleTimer = setTimeout(() => {
         window.location.href = '/initialize';
     }, idleTime.value);
-    // clears cart items and reset selections
-    orderStore.clearCart()
-    orderStore.resetSelections();
+    // // clears cart items and reset selections
+    // orderStore.clearCart()
+    // orderStore.resetSelections();
 }
 
 function setupIdleTimer() {
