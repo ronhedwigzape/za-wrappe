@@ -32,6 +32,7 @@
 
 <script setup>
 import { SfButton } from '@storefront-ui/vue';
+import {useStore} from "@/stores/index.js";
 
 const displayDetails = [
     {
@@ -39,10 +40,10 @@ const displayDetails = [
         subtitle: 'Happiness in Every Sip and Wrap',
         description: 'Explore our menu, customize your order, and enjoy an innovative dining experience.',
         callToAction: 'Get Started',
-        image: 'assets/img/milktea.jpg',
-        route: '/initialize',
+        image: 'assets/img/shawarma.jpg',
+        route: `${useStore().appURL}/initialize`,
         backgroundColor: 'backgroundColor',
-        textColor: 'text-white',
+        textColor: 'text-black',
         reverse: false,
     },
 ];
@@ -50,7 +51,7 @@ const displayDetails = [
 
 <style scoped>
 .tw-backgroundColor {
-    background-color: #522100;
+    background-color: #f1eee5;
     background-size: cover;
 }
 
