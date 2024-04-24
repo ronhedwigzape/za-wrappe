@@ -33,8 +33,6 @@ if($conn->connect_error) {
 | API SECRET_KEY Configuration
 |-----------------------------------------------------------------------
 | Enter your RECAPTCHA_SECRET_KEY for your Google reCAPTCHA.
-| Enter your VONAGE_API_KEY for your Vonage SMS API.
-| Enter your VONAGE_API_SECRET for your Vonage SMS API.
 |
 */
 
