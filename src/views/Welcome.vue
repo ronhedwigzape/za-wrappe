@@ -4,7 +4,6 @@ import TopNavbar from "@/components/navbar/TopNavbar.vue";
 </script>
 
 <template>
-    <TopNavbar/>
     <v-main>
         <Hero/>
     </v-main>
