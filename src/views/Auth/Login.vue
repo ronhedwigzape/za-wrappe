@@ -1,10 +1,10 @@
 <script setup>
-
 import {reactive, ref} from "vue";
 import {useStore} from "@/stores";
 import {useAuthStore} from "@/stores/store-auth";
 import {useRouter} from "vue-router";
 import $ from 'jquery';
+import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
 
 // data
 const dialog = ref(false);
@@ -44,7 +44,7 @@ const handleSubmit = async () => {
             }
             data = JSON.parse(data);
             authStore.setUser(data.user);
-            router.replace({name: data.user.userType});
+            router.replace({name: data.user.userType });
         },
         error: (error) => {
             if (loading.value) {
@@ -60,28 +60,15 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-    <v-row class="d-flex justify-center align-center">
-        <v-card class="pa-1" width="500">
-            <v-card-title>
-                <v-btn
-                    variant="text"
-                    class="mt-2 float-end rounded"
-                    @click="dialog = false"
-                >
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-                <v-col class="d-flex justify-center flex-column align-center">
-                    <p class="text-lg-h2 text-md-h3 text-h4 pally">Welcome Back!</p>
-                    <p class="text-subtitle-1 supreme text-grey-lighten-1">Sign in to continue</p>
-                </v-col>
-            </v-card-title>
+    <v-row class="tw-min-h-screen tw-flex tw-flex-col sm:tw-justify-center tw-items-center tw-pt-6 sm:tw-pt-0 tw-bg-gray-100">
+        <ZaWrappeLogo/>
+
+        <v-card :elevation="3" class="tw-w-full sm:tw-max-w-md tw-mt-6 tw-px-6 tw-py-4 tw-bg-white tw-overflow-hidden sm:tw-rounded-lg">
             <v-card-text>
                 <v-container>
-                    <v-form
-                        @submit.prevent="handleSubmit"
-                    >
+                    <v-form @submit.prevent="handleSubmit">
                         <v-row>
-                            <v-col cols="12" class="pb-0">
+                            <v-col cols="12" class="pb-2">
                                 <v-text-field
                                     label="Username"
                                     variant="outlined"
@@ -91,7 +78,7 @@ const handleSubmit = async () => {
                                     :density="$vuetify.display.mdAndDown ? 'compact' : 'comfortable'"
                                 ></v-text-field>
                             </v-col>
-                            <v-col cols="12" class="py-0">
+                            <v-col cols="12" class="py-2">
                                 <v-text-field
                                     label="Password"
                                     variant="outlined"
@@ -105,16 +92,18 @@ const handleSubmit = async () => {
                                 ></v-text-field>
                             </v-col>
                         </v-row>
-                        <v-btn
-                            color="orange-accent-2 mt-4"
-                            variant="tonal"
-                            type="submit"
-                            :loading="loading"
-                            :disabled="loading || !username || username.length === 0 || !password || password.length === 0"
-                            block
-                        >
-                            Sign in
-                        </v-btn>
+                        <v-row>
+                            <v-col class="tw-flex tw-justify-end" cols="12">
+                                <v-btn
+                                    class="!tw-bg-gray-800 !tw-text-white"
+                                    type="submit"
+                                    :loading="loading"
+                                    :disabled="loading || !username || username.length === 0 || !password || password.length === 0"
+                                >
+                                    Log in
+                                </v-btn>
+                            </v-col>
+                        </v-row>
                     </v-form>
                 </v-container>
             </v-card-text>

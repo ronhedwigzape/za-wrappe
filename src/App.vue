@@ -40,7 +40,7 @@ const getUser = async () => {
             if (data.user) {
                 authStore.setUser(data.user);
                 router.replace({
-                    name: data.user.userType
+                    name: data.user.userType.toLowerCase()
                 });
             }
             loading.value = false;
