@@ -27,6 +27,8 @@ class Category extends App {
             $this->name = $row['name'];
             $this->description = $row['description'];
             $this->imageUrl = $row['image_url'];
+        } else {
+            self::returnError('HTTP/1.1 404', 'Load Category Error: Category [id = ' . $this->id . '] does not exist.');
         }
         $stmt->close();
     }
@@ -35,19 +37,32 @@ class Category extends App {
         if ($this->id) {
             $stmt = $this->conn->prepare("UPDATE categories SET name = ?, description = ?, image_url = ? WHERE id = ?");
             $stmt->bind_param("sssi", $this->name, $this->description, $this->imageUrl, $this->id);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 404', 'Update Category Error: No Category updated or Category [id = ' . $this->id . '] does not exist.');
+            }
         } else {
             $stmt = $this->conn->prepare("INSERT INTO categories (name, description, image_url) VALUES (?, ?, ?)");
             $stmt->bind_param("sss", $this->name, $this->description, $this->imageUrl);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 400', 'Create Category Error: Unable to create Category.');
+            }
+            $this->id = $this->conn->insert_id;
         }
-        $stmt->execute();
-        if (!$this->id) $this->id = $this->conn->insert_id;
         $stmt->close();
     }
 
     public function delete() {
+        if (!$this->id) {
+            self::returnError('HTTP/1.1 404', 'Delete Category Error: Category ID is missing.');
+        }
         $stmt = $this->conn->prepare("DELETE FROM categories WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            self::returnError('HTTP/1.1 404', 'Delete Category Error: Category [id = ' . $this->id . '] does not exist.');
+        }
         $stmt->close();
     }
 

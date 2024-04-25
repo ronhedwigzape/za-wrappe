@@ -33,6 +33,8 @@ class Payment extends App {
             $this->paymentMethod = $row['payment_method'];
             $this->transactionId = $row['transaction_id'];
             $this->processedAt = $row['processed_at'];
+        } else {
+            self::returnError('HTTP/1.1 404', 'Load Payment Error: Payment [id = ' . $this->id . '] does not exist.');
         }
         $stmt->close();
     }
@@ -41,19 +43,32 @@ class Payment extends App {
         if ($this->id) {
             $stmt = $this->conn->prepare("UPDATE payments SET order_id = ?, amount = ?, transaction_status = ?, payment_method = ?, transaction_id = ?, processed_at = ? WHERE id = ?");
             $stmt->bind_param("idssssi", $this->orderId, $this->amount, $this->transactionStatus, $this->paymentMethod, $this->transactionId, $this->processedAt, $this->id);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 404', 'Update Payment Error: No Payment updated or Payment [id = ' . $this->id . '] does not exist.');
+            }
         } else {
             $stmt = $this->conn->prepare("INSERT INTO payments (order_id, amount, transaction_status, payment_method, transaction_id, processed_at) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("idssss", $this->orderId, $this->amount, $this->transactionStatus, $this->paymentMethod, $this->transactionId, $this->processedAt);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 400', 'Create Payment Error: Unable to create Payment.');
+            }
+            $this->id = $this->conn->insert_id;
         }
-        $stmt->execute();
-        if (!$this->id) $this->id = $this->conn->insert_id;
         $stmt->close();
     }
 
     public function delete() {
+        if (!$this->id) {
+            self::returnError('HTTP/1.1 404', 'Delete Payment Error: Payment ID is missing.');
+        }
         $stmt = $this->conn->prepare("DELETE FROM payments WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            self::returnError('HTTP/1.1 404', 'Delete Payment Error: Payment [id = ' . $this->id . '] does not exist.');
+        }
         $stmt->close();
     }
 

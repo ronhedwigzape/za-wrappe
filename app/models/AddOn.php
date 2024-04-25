@@ -31,6 +31,8 @@ class AddOn extends App {
             $this->imageUrl = $row['image_url'];
             $this->price = $row['price'];
             $this->active = $row['active'];
+        } else {
+            self::returnError('HTTP/1.1 404', 'Load AddOn Error: AddOn [id = ' . $this->id . '] does not exist.');
         }
         $stmt->close();
     }
@@ -38,20 +40,33 @@ class AddOn extends App {
     public function save() {
         if ($this->id) {
             $stmt = $this->conn->prepare("UPDATE add_ons SET name = ?, description = ?, image_url = ?, price = ?, active = ? WHERE id = ?");
-            $stmt->bind_param("sssdsi", $this->name, $this->description, $this->imageUrl, $this->price, $this->active, $this->id);
+            $stmt->bind_param("sssdi", $this->name, $this->description, $this->imageUrl, $this->price, $this->active, $this->id);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 404', 'Update AddOn Error: No AddOn updated or AddOn [id = ' . $this->id . '] does not exist.');
+            }
         } else {
             $stmt = $this->conn->prepare("INSERT INTO add_ons (name, description, image_url, price, active) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssdd", $this->name, $this->description, $this->imageUrl, $this->price, $this->active);
+            $stmt->bind_param("sssdi", $this->name, $this->description, $this->imageUrl, $this->price, $this->active);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 400', 'Create AddOn Error: Unable to create AddOn.');
+            }
+            $this->id = $this->conn->insert_id;
         }
-        $stmt->execute();
-        if (!$this->id) $this->id = $this->conn->insert_id;
         $stmt->close();
     }
 
     public function delete() {
+        if (!$this->id) {
+            self::returnError('HTTP/1.1 404', 'Delete AddOn Error: AddOn ID is missing.');
+        }
         $stmt = $this->conn->prepare("DELETE FROM add_ons WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            self::returnError('HTTP/1.1 404', 'Delete AddOn Error: AddOn [id = ' . $this->id . '] does not exist.');
+        }
         $stmt->close();
     }
 

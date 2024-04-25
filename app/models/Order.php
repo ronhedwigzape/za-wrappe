@@ -31,6 +31,8 @@ class Order extends App {
             $this->totalPrice = $row['total_price'];
             $this->verificationCode = $row['verification_code'];
             $this->paymentStatus = $row['payment_status'];
+        } else {
+            self::returnError('HTTP/1.1 404', 'Load Order Error: Order [id = ' . $this->id . '] does not exist.');
         }
         $stmt->close();
     }
@@ -38,23 +40,35 @@ class Order extends App {
     public function save() {
         if ($this->id) {
             $stmt = $this->conn->prepare("UPDATE orders SET status = ?, customer_contact = ?, total_price = ?, verification_code = ?, payment_status = ? WHERE id = ?");
-            $stmt->bind_param("ssdsii", $this->status, $this->customerContact, $this->totalPrice, $this->verificationCode, $this->paymentStatus, $this->id);
+            $stmt->bind_param("ssdssi", $this->status, $this->customerContact, $this->totalPrice, $this->verificationCode, $this->paymentStatus, $this->id);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 404', 'Update Order Error: No Order updated or Order [id = ' . $this->id . '] does not exist.');
+            }
         } else {
             $stmt = $this->conn->prepare("INSERT INTO orders (status, customer_contact, total_price, verification_code, payment_status) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssdsi", $this->status, $this->customerContact, $this->totalPrice, $this->verificationCode, $this->paymentStatus);
+            $stmt->bind_param("ssdss", $this->status, $this->customerContact, $this->totalPrice, $this->verificationCode, $this->paymentStatus);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 400', 'Create Order Error: Unable to create Order.');
+            }
+            $this->id = $this->conn->insert_id;
         }
-        $stmt->execute();
-        if (!$this->id) $this->id = $this->conn->insert_id;
         $stmt->close();
     }
 
     public function delete() {
+        if (!$this->id) {
+            self::returnError('HTTP/1.1 404', 'Delete Order Error: Order ID is missing.');
+        }
         $stmt = $this->conn->prepare("DELETE FROM orders WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            self::returnError('HTTP/1.1 404', 'Delete Order Error: Order [id = ' . $this->id . '] does not exist.');
+        }
         $stmt->close();
     }
-
     public function orderItems() {
         require_once 'OrderItem.php';
         $stmt = $this->conn->prepare("SELECT id FROM order_items WHERE order_id = ?");

@@ -27,6 +27,8 @@ class Inventory extends App {
             $this->productId = $row['product_id'];
             $this->count = $row['count'];
             $this->lowStockThreshold = $row['low_stock_threshold'];
+        } else {
+            self::returnError('HTTP/1.1 404', 'Load Inventory Error: Inventory [id = ' . $this->id . '] does not exist.');
         }
         $stmt->close();
     }
@@ -35,19 +37,32 @@ class Inventory extends App {
         if ($this->id) {
             $stmt = $this->conn->prepare("UPDATE inventories SET product_id = ?, count = ?, low_stock_threshold = ? WHERE id = ?");
             $stmt->bind_param("iiii", $this->productId, $this->count, $this->lowStockThreshold, $this->id);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 404', 'Update Inventory Error: No Inventory updated or Inventory [id = ' . $this->id . '] does not exist.');
+            }
         } else {
             $stmt = $this->conn->prepare("INSERT INTO inventories (product_id, count, low_stock_threshold) VALUES (?, ?, ?)");
             $stmt->bind_param("iii", $this->productId, $this->count, $this->lowStockThreshold);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 400', 'Create Inventory Error: Unable to create Inventory.');
+            }
+            $this->id = $this->conn->insert_id;
         }
-        $stmt->execute();
-        if (!$this->id) $this->id = $this->conn->insert_id;
         $stmt->close();
     }
 
     public function delete() {
+        if (!$this->id) {
+            self::returnError('HTTP/1.1 404', 'Delete Inventory Error: Inventory ID is missing.');
+        }
         $stmt = $this->conn->prepare("DELETE FROM inventories WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            self::returnError('HTTP/1.1 404', 'Delete Inventory Error: Inventory [id = ' . $this->id . '] does not exist.');
+        }
         $stmt->close();
     }
 

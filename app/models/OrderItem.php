@@ -35,6 +35,8 @@ class OrderItem extends App {
             $this->quantity = $row['quantity'];
             $this->customizations = $row['customizations'];
             $this->subtotal = $row['subtotal'];
+        } else {
+            self::returnError('HTTP/1.1 404', 'Load OrderItem Error: OrderItem [id = ' . $this->id . '] does not exist.');
         }
         $stmt->close();
     }
@@ -44,19 +46,32 @@ class OrderItem extends App {
         if ($this->id) {
             $stmt = $this->conn->prepare("UPDATE order_items SET order_id = ?, product_id = ?, add_on_ids = ?, flavor_id = ?, quantity = ?, customizations = ?, subtotal = ? WHERE id = ?");
             $stmt->bind_param("iisissdi", $this->orderId, $this->productId, $jsonAddOnIds, $this->flavorId, $this->quantity, $this->customizations, $this->subtotal, $this->id);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 404', 'Update OrderItem Error: No OrderItem updated or OrderItem [id = ' . $this->id . '] does not exist.');
+            }
         } else {
             $stmt = $this->conn->prepare("INSERT INTO order_items (order_id, product_id, add_on_ids, flavor_id, quantity, customizations, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("iisissd", $this->orderId, $this->productId, $jsonAddOnIds, $this->flavorId, $this->quantity, $this->customizations, $this->subtotal);
+            $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                self::returnError('HTTP/1.1 400', 'Create OrderItem Error: Unable to create OrderItem.');
+            }
+            $this->id = $this->conn->insert_id;
         }
-        $stmt->execute();
-        if (!$this->id) $this->id = $this->conn->insert_id;
         $stmt->close();
     }
 
     public function delete() {
+        if (!$this->id) {
+            self::returnError('HTTP/1.1 404', 'Delete OrderItem Error: OrderItem ID is missing.');
+        }
         $stmt = $this->conn->prepare("DELETE FROM order_items WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            self::returnError('HTTP/1.1 404', 'Delete OrderItem Error: OrderItem [id = ' . $this->id . '] does not exist.');
+        }
         $stmt->close();
     }
 
