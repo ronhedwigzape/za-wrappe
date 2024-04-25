@@ -36,28 +36,6 @@ else if (isset($_POST['createAccount'])) {
     $stmt->execute();
 }
 
-//
-else if (isset($_POST['g-recaptcha-response'])) {
-    $secret_key = RECAPTCHA_SECRET_KEY;
-    $response = $_POST['g-recaptcha-response'];
-    $url = "https://www.google.com/recaptcha/api/siteverify?secret={$secret_key}&response={$response}";
-    $verify = json_decode(file_get_contents($url));
-    $solved = false;
-
-    if ($verify->success) {
-        // reCAPTCHA was correctly solved
-        echo json_encode([
-           'solved' => true
-        ]);
-    } else {
-        // reCAPTCHA was not solved correctly
-        echo json_encode([
-            'solved' => false
-        ]);
-    }
-}
-
-
 // user sign-in
 else if(isset($_POST['username']) && isset($_POST['password'])) {
     require_once 'models/Admin.php';

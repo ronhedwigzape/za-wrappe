@@ -7,7 +7,7 @@ $authUser = getUser();
 if(!$authUser)
     denyAccess();
 
-else if($authUser['userType'] !== 'Merchant')
+else if($authUser['userType'] !== 'merchant')
     denyAccess();
 
 else {

@@ -7,7 +7,7 @@ $authUser = getUser();
 if(!$authUser)
     denyAccess();
 
-else if($authUser['userType'] !== 'Admin')
+else if($authUser['userType'] !== 'admin')
     denyAccess();
 
 else {
