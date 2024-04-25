@@ -205,32 +205,4 @@ class Merchant extends User
     }
 
 
-    /***************************************************************************
-     * Notify the Customer that the booking has been confirmed
-     *
-     * @param Customer $recipient
-     * @param string $message
-     * @return void
-     */
-    public function notifyCustomer($recipient, $message)
-    {
-
-        // check sender id
-        if(!self::exists($this->id))
-            App::returnError('HTTP/1.1 404', 'Error: Merchant [id = ' . $this->id . '] does not exist.');
-
-        // check recipient id
-        $recipient_id = $recipient->getId();
-        if (!$recipient_id)
-            App::returnError('HTTP/1.1 404', 'Error: recipient [id = ' . $recipient_id . '] does not exist.');
-
-        // check message
-        if (!$message)
-            App::returnError('HTTP/1.1 404', 'Error: message does not exist.');
-
-        $stmt = $this->conn->prepare("INSERT INTO $this->table_notifications(sender_id, recipient_id, message) VALUES(?, ?, ?)");
-        $stmt->bind_param("iis", $this->id,  $recipient_id, $message);
-        $stmt->execute();
-    }
-
 }
