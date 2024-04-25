@@ -20,6 +20,60 @@ class CustomerVerification extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $customerVerification = new self();
+            $customerVerification->id = $row['id'];
+            $customerVerification->orderId = $row['order_id'];
+            $customerVerification->customerContact = $row['customer_contact'];
+            $customerVerification->verificationCode = $row['verification_code'];
+            $customerVerification->verifiedAt = $row['verified_at'];
+            $customerVerification->attempts = $row['attempts'];
+            return $customerVerification;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM customer_verifications WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'order_id' => $this->orderId,
+            'customer_contact' => $this->customerContact,
+            'verification_code' => $this->verificationCode,
+            'verified_at' => $this->verifiedAt,
+            'attempts' => $this->attempts,
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM customer_verifications");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $customerVerifications = [];
+        while ($row = $result->fetch_assoc()) {
+            $customerVerifications[] = self::executeFind($stmt);
+        }
+        return $customerVerifications;
+    }
+
+    public static function rows() {
+        return array_map(function ($customerVerification) {
+            return $customerVerification->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM customer_verifications WHERE id = ?");
         $stmt->bind_param("i", $this->id);

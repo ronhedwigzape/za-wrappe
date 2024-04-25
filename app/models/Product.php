@@ -21,6 +21,62 @@ class Product extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $product = new self();
+            $product->id = $row['id'];
+            $product->name = $row['name'];
+            $product->description = $row['description'];
+            $product->price = $row['price'];
+            $product->categoryId = $row['category_id'];
+            $product->imageUrl = $row['image_url'];
+            $product->active = $row['active'];
+            return $product;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM products WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'price' => $this->price,
+            'category_id' => $this->categoryId,
+            'image_url' => $this->imageUrl,
+            'active' => $this->active
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM products");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $products[] = self::executeFind($stmt);
+        }
+        return $products;
+    }
+
+    public static function rows() {
+        return array_map(function ($product) {
+            return $product->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM products WHERE id = ?");
         $stmt->bind_param("i", $this->id);

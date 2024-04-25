@@ -22,6 +22,64 @@ class OrderItem extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $orderItem = new self();
+            $orderItem->id = $row['id'];
+            $orderItem->orderId = $row['order_id'];
+            $orderItem->productId = $row['product_id'];
+            $orderItem->addOnIds = json_decode($row['add_on_ids'], true); // Assuming it's stored as JSON
+            $orderItem->flavorId = $row['flavor_id'];
+            $orderItem->quantity = $row['quantity'];
+            $orderItem->customizations = $row['customizations'];
+            $orderItem->subtotal = $row['subtotal'];
+            return $orderItem;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM order_items WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'order_id' => $this->orderId,
+            'product_id' => $this->productId,
+            'add_on_ids' => $this->addOnIds,
+            'flavor_id' => $this->flavorId,
+            'quantity' => $this->quantity,
+            'customizations' => $this->customizations,
+            'subtotal' => $this->subtotal
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM order_items");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $orderItems = [];
+        while ($row = $result->fetch_assoc()) {
+            $orderItems[] = self::executeFind($stmt);
+        }
+        return $orderItems;
+    }
+
+    public static function rows() {
+        return array_map(function ($orderItem) {
+            return $orderItem->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM order_items WHERE id = ?");
         $stmt->bind_param("i", $this->id);

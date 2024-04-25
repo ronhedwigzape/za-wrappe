@@ -20,6 +20,60 @@ class Order extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $order = new self();
+            $order->id = $row['id'];
+            $order->status = $row['status'];
+            $order->customerContact = $row['customer_contact'];
+            $order->totalPrice = $row['total_price'];
+            $order->verificationCode = $row['verification_code'];
+            $order->paymentStatus = $row['payment_status'];
+            return $order;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM orders WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'status' => $this->status,
+            'customerContact' => $this->customerContact,
+            'totalPrice' => $this->totalPrice,
+            'verificationCode' => $this->verificationCode,
+            'paymentStatus' => $this->paymentStatus
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM orders");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $orders = [];
+        while ($row = $result->fetch_assoc()) {
+            $orders[] = self::executeFind($stmt);
+        }
+        return $orders;
+    }
+
+    public static function rows() {
+        return array_map(function ($order) {
+            return $order->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM orders WHERE id = ?");
         $stmt->bind_param("i", $this->id);

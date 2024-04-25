@@ -21,6 +21,62 @@ class Payment extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $payment = new self();
+            $payment->id = $row['id'];
+            $payment->orderId = $row['order_id'];
+            $payment->amount = $row['amount'];
+            $payment->transactionStatus = $row['transaction_status'];
+            $payment->paymentMethod = $row['payment_method'];
+            $payment->transactionId = $row['transaction_id'];
+            $payment->processedAt = $row['processed_at'];
+            return $payment;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM payments WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'order_id' => $this->orderId,
+            'amount' => $this->amount,
+            'transaction_status' => $this->transactionStatus,
+            'payment_method' => $this->paymentMethod,
+            'transaction_id' => $this->transactionId,
+            'processed_at' => $this->processedAt
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM payments");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $payments = [];
+        while ($row = $result->fetch_assoc()) {
+            $payments[] = self::executeFind($stmt);
+        }
+        return $payments;
+    }
+
+    public static function rows() {
+        return array_map(function ($payment) {
+            return $payment->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM payments WHERE id = ?");
         $stmt->bind_param("i", $this->id);

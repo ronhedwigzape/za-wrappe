@@ -18,6 +18,56 @@ class Inventory extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $inventory = new self();
+            $inventory->id = $row['id'];
+            $inventory->productId = $row['product_id'];
+            $inventory->count = $row['count'];
+            $inventory->lowStockThreshold = $row['low_stock_threshold'];
+            return $inventory;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM inventories WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'product_id' => $this->productId,
+            'count' => $this->count,
+            'low_stock_threshold' => $this->lowStockThreshold,
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM inventories");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $inventories = [];
+        while ($row = $result->fetch_assoc()) {
+            $inventories[] = self::executeFind($stmt);
+        }
+        return $inventories;
+    }
+
+    public static function rows() {
+        return array_map(function ($inventories) {
+            return $inventories->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM inventories WHERE id = ?");
         $stmt->bind_param("i", $this->id);

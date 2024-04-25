@@ -18,6 +18,56 @@ class TransactionSlip extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $transactionSlip = new self();
+            $transactionSlip->id = $row['id'];
+            $transactionSlip->orderId = $row['order_id'];
+            $transactionSlip->issuedAt = $row['issued_at'];
+            $transactionSlip->code = $row['code'];
+            return $transactionSlip;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM transaction_slips WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'order_id' => $this->orderId,
+            'issued_at' => $this->issuedAt,
+            'code' => $this->code
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM transaction_slips");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $transactionSlips = [];
+        while ($row = $result->fetch_assoc()) {
+            $transactionSlips[] = self::executeFind($stmt);
+        }
+        return $transactionSlips;
+    }
+
+    public static function rows() {
+        return array_map(function ($transactionSlip) {
+            return $transactionSlip->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM transaction_slips WHERE id = ?");
         $stmt->bind_param("i", $this->id);

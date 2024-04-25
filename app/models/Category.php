@@ -18,6 +18,56 @@ class Category extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $category = new self();
+            $category->id = $row['id'];
+            $category->name = $row['name'];
+            $category->description = $row['description'];
+            $category->imageUrl = $row['image_url'];
+            return $category;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM categories WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'image_url' => $this->imageUrl
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM categories");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $categories = [];
+        while ($row = $result->fetch_assoc()) {
+            $categories[] = self::executeFind($stmt);
+        }
+        return $categories;
+    }
+
+    public static function rows() {
+        return array_map(function ($category) {
+            return $category->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM categories WHERE id = ?");
         $stmt->bind_param("i", $this->id);

@@ -19,6 +19,58 @@ class Flavor extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $flavor = new self();
+            $flavor->id = $row['id'];
+            $flavor->name = $row['name'];
+            $flavor->description = $row['description'];
+            $flavor->imageUrl = $row['image_url'];
+            $flavor->active = $row['active'];
+            return $flavor;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM flavors WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'image_url' => $this->imageUrl,
+            'active' => $this->active
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM flavors");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $flavors = [];
+        while ($row = $result->fetch_assoc()) {
+            $flavors[] = self::executeFind($stmt);
+        }
+        return $flavors;
+    }
+
+    public static function rows() {
+        return array_map(function ($flavors) {
+            return $flavors->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM flavors WHERE id = ?");
         $stmt->bind_param("i", $this->id);

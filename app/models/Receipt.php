@@ -18,6 +18,56 @@ class Receipt extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $receipt = new self();
+            $receipt->id = $row['id'];
+            $receipt->paymentId = $row['payment_id'];
+            $receipt->issuedAt = $row['issued_at'];
+            $receipt->details = $row['details'];
+            return $receipt;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM receipts WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'payment_id' => $this->paymentId,
+            'issued_at' => $this->issuedAt,
+            'details' => $this->details
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM receipts");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $receipts = [];
+        while ($row = $result->fetch_assoc()) {
+            $receipts[] = self::executeFind($stmt);
+        }
+        return receipts;
+    }
+
+    public static function rows() {
+        return array_map(function ($receipt) {
+            return $receipt->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM receipts WHERE id = ?");
         $stmt->bind_param("i", $this->id);

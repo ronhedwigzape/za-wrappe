@@ -20,6 +20,60 @@ class AddOn extends App {
         }
     }
 
+    private static function executeFind($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $addOn = new self();
+            $addOn->id = $row['id'];
+            $addOn->name = $row['name'];
+            $addOn->description = $row['description'];
+            $addOn->imageUrl = $row['image_url'];
+            $addOn->price = $row['price'];
+            $addOn->active = $row['active'];
+            return $addOn;
+        }
+        return false;
+    }
+
+    public static function findById($id) {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM add_ons WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return self::executeFind($stmt);
+    }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'image_url' => $this->imageUrl,
+            'price' => $this->price,
+            'active' => $this->active
+        ];
+    }
+
+    public static function all() {
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM add_ons");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $addOns = [];
+        while ($row = $result->fetch_assoc()) {
+            $addOns[] = self::executeFind($stmt);
+        }
+        return $addOns;
+    }
+
+    public static function rows() {
+        return array_map(function ($addOn) {
+            return $addOn->toArray();
+        }, self::all());
+    }
+
+    public static function exists($id) {
+        return (self::findById($id) != false);
+    }
+
     private function load() {
         $stmt = $this->conn->prepare("SELECT * FROM add_ons WHERE id = ?");
         $stmt->bind_param("i", $this->id);
