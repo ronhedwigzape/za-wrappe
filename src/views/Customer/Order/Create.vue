@@ -1,12 +1,13 @@
 <script setup>
 
+import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
 </script>
 
 <template>
-<p>Select category</p>
+    <div>
+        <ZaWrappeLogo/>
 
-    <router-link to="/customer/order-success">Complete order</router-link>
-
+    </div>
 </template>
 
 <style scoped>
