@@ -13,7 +13,7 @@ class Customer extends User
      */
     public function __construct($username = '', $password = '')
     {
-        parent::__construct($username, $password, 'Customer');
+        parent::__construct($username, $password, 'customer');
     }
 
 

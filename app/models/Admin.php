@@ -12,7 +12,7 @@ class Admin extends User
      */
     public function __construct($username = '', $password = '')
     {
-        parent::__construct($username, $password, 'Admin');
+        parent::__construct($username, $password, 'admin');
     }
 
 
