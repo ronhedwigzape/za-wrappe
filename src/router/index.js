@@ -8,17 +8,34 @@ const routes = [
     component: () => import('../views/Welcome.vue'),
   },
   {
-    path: '/Admin',
+    path: '/admin',
     name: 'admin',
     component: () => import('@/views/Admin/Dashboard.vue'),
   },
   {
-    path: '/Customer',
+    path: '/customer',
     name: 'customer',
     component: () => import('@/views/Customer/Dashboard.vue'),
+    children: [
+      {
+        path: 'initialize',
+        name: 'initialize',
+        component: () => import('@/views/Customer/Order/Initialize.vue'),
+      },
+      {
+        path: 'order',
+        name: 'order',
+        component: () => import('@/views/Customer/Order/Create.vue'),
+      },
+      {
+        path: 'order-success',
+        name: 'order-success',
+        component: () => import('@/views/Customer/Order/Success.vue'),
+      }
+    ]
   },
   {
-    path: '/Merchant',
+    path: '/merchant',
     name: 'merchant',
     component: () => import('@/views/Merchant/Dashboard.vue'),
   },
@@ -39,10 +56,12 @@ router.beforeEach((to, from, next) => {
       next();
     }
   } else {
-    if (user.userType !== to.name) {
-      next({ name: user.userType });
-    } else {
+    if (to.matched.some(record => record.name === user.userType || record.name.startsWith(user.userType + '-'))) {
       next();
+      console.log("User type:", user.userType, "Navigating to:", to.name);
+    } else {
+      console.log("User type:", user.userType, "Navigating to:", to.name);
+      next({ name: user.userType });
     }
   }
 });

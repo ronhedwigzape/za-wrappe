@@ -1,16 +1,23 @@
 <template>
     <v-main>
-        <Hero/>
-        <Footer/>
+        <Hero v-if="!initialized && !order && !success"/>
+        <router-view/>
     </v-main>
 </template>
 
 <script setup>
-
-import TopNavbar from "@/components/navbar/TopNavbar.vue";
+import {ref, watch} from 'vue';
 import Hero from "@/components/hero/Hero.vue";
+import {useRouter} from "vue-router";
+
+const initialized = ref(false);
+const order = ref(false);
+const success = ref(false);
+const router = useRouter();
+
+watch(() => router.currentRoute.value.name, (newRoute) => {
+    initialized.value = newRoute === 'initialize';
+    order.value = newRoute === 'order'
+    success.value = newRoute === 'order-success'
+});
 </script>
-
-<style scoped>
-
-</style>

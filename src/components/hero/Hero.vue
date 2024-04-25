@@ -2,27 +2,23 @@
     <div class="tw-backgroundColor tw-min-h-screen">
         <div class="tw-flex tw-flex-col tw-gap-6 tw-md:tw-flex-row">
             <div
-                v-for="{ title, subtitle, description, callToAction, image, backgroundColor, route, reverse, textColor } in displayDetails"
-                :key="title"
+                v-for="detail in displayDetails"
+                :key="detail.title"
+                @click="navigateTo(`${detail.route}`)"
                 :class="[
-        `tw-relative tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-md:tw-items-center tw-md:tw-basis-1/2 ${backgroundColor}`,
-        { 'tw-flex-col-reverse': reverse },
-      ]"
+                    `tw-relative tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-md:tw-items-center tw-md:tw-basis-1/2 ${detail.backgroundColor}`,
+                    { 'tw-flex-col-reverse': reverse },
+                ]"
             >
                 <div class="tw-image-container tw-flex tw-items-center tw-w-full">
-                    <img :src="image" :alt="title" class="tw-full-width-image"/>
+                    <img :src="detail.image" :alt="detail.title" class="tw-full-width-image"/>
                 </div>
-                <a
-                    :class="`tw-absolute tw-w-full tw-h-full tw-z-1 tw-focus-visible:tw-outline tw-focus-visible:tw-rounded-lg`"
-                    :aria-label="title"
-                    :href="route"
-                />
                 <div class="tw-flex tw-flex-col tw-items-center tw-p-4 tw-text-center tw-md:tw-p-10">
-                    <p :class="`tw-mb-2 tw-font-bold tw-tracking-widest tw-uppercase tw-typography-headline-6 ${textColor}`">{{ subtitle }}</p>
-                    <p :class="`tw-mb-4 tw-font-bold tw-typography-display-2 ${textColor}`">{{ title }}</p>
-                    <p :class="`tw-mb-4 tw-typography-text-lg ${textColor}`">{{ description }}</p>
+                    <p :class="`tw-mb-2 tw-font-bold tw-tracking-widest tw-uppercase tw-typography-headline-6 ${detail.textColor}`">{{ detail.subtitle }}</p>
+                    <p :class="`tw-mb-4 tw-font-bold tw-typography-display-2 ${detail.textColor}`">{{ detail.title }}</p>
+                    <p :class="`tw-mb-4 tw-typography-text-lg ${detail.textColor}`">{{ detail.description }}</p>
                     <SfButton class="tw-font-semibold !tw-bg-neutral-900 tw-rounded">
-                        {{ callToAction }}
+                        {{ detail.callToAction }}
                     </SfButton>
                 </div>
             </div>
@@ -31,8 +27,15 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import { SfButton } from '@storefront-ui/vue';
-import {useStore} from "@/stores/index.js";
+
+const router = useRouter();
+
+const navigateTo = (path) => {
+    console.log("Navigating to:", path);
+    router.push(path).catch(err => console.error('Router error:', err));
+};
 
 const displayDetails = [
     {
@@ -41,7 +44,7 @@ const displayDetails = [
         description: 'Explore our menu, customize your order, and enjoy an innovative dining experience.',
         callToAction: 'Get Started',
         image: 'assets/img/shawarma.jpg',
-        route: `${useStore().appURL}/initialize`,
+        route: '/customer/initialize',
         backgroundColor: 'backgroundColor',
         textColor: 'text-black',
         reverse: false,
