@@ -5,8 +5,6 @@ require_once 'User.php';
 class Merchant extends User
 {
 
-    protected $table_notifications = 'notifications';
-
     /***************************************************************************
      * Merchant constructor
      *
