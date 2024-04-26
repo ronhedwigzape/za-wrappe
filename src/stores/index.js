@@ -29,9 +29,9 @@ export const useStore = defineStore('store', {
         // get assets url
         assetsUrl(state) {
             if (window.location.hostname === 'localhost' && window.location.port === '5004')
-                return `assets/`
+                return `assets`
             else
-                return `public/`
+                return `public`
         }
 
     }

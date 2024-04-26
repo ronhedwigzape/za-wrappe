@@ -4,7 +4,7 @@
             <div
                 v-for="detail in displayDetails"
                 :key="detail.title"
-                @click="navigateTo(`${detail.route}`)"
+                @click="navigateTo(detail.route)"
                 :class="[
                     `tw-relative tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-md:tw-items-center tw-md:tw-basis-1/2 ${detail.backgroundColor}`,
                     { 'tw-flex-col-reverse': reverse },
@@ -17,7 +17,7 @@
                     <p :class="`tw-mb-2 tw-font-bold tw-tracking-widest tw-uppercase tw-typography-headline-6 ${detail.textColor}`">{{ detail.subtitle }}</p>
                     <p :class="`tw-mb-4 tw-font-bold tw-typography-display-2 ${detail.textColor}`">{{ detail.title }}</p>
                     <p :class="`tw-mb-4 tw-typography-text-lg ${detail.textColor}`">{{ detail.description }}</p>
-                    <v-btn class="tw-font-semibold !tw-bg-neutral-900 tw-rounded">
+                    <v-btn class="tw-font-semibold !tw-bg-neutral-900 tw-rounded !tw-text-white">
                         {{ detail.callToAction }}
                     </v-btn>
                 </div>
@@ -43,7 +43,7 @@ const displayDetails = [
         subtitle: 'Happiness in Every Sip and Wrap',
         description: 'Explore our menu, customize your order, and enjoy an innovative dining experience.',
         callToAction: 'Get Started',
-        image: `${useStore().assetsUrl}img/shawarma.jpg`,
+        image: `${useStore().assetsUrl}/img/shawarma.jpg`,
         route: '/customer/initialize',
         backgroundColor: 'backgroundColor',
         textColor: 'text-black',
