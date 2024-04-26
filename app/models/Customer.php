@@ -191,5 +191,315 @@ class Customer extends User
         $stmt->execute();
     }
 
+    /***************************************************************************
+     * Retrieves all categories from the database.
+     *
+     * This function fetches all rows from the 'categories' table and formats each category's details
+     * into an associative array. The function returns an array of these category details.
+     *
+     * @return array Returns an array of associative arrays, each containing details of a category.
+     */
+    public function fetchCategories() {
+        $stmt = $this->conn->prepare("SELECT * FROM categories");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $categories = [];
+        while ($row = $result->fetch_assoc()) {
+            $categories[] = [
+                'id' => $row['id'],
+                'image_url' => $row['image_url'],
+                'name' => $row['name'],
+                'description' => $row['description'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at']
+            ];
+        }
+        return $categories;
+    }
+
+    /***************************************************************************
+     * Retrieves details of a specific category by its ID.
+     *
+     * This function fetches a single category from the 'categories' table based on the given category ID.
+     * If found, it returns an array of the category's details; if not, it returns null.
+     *
+     * @param int $categoryId The ID of the category to fetch.
+     * @return array|null Returns an associative array containing the category's details, or null if not found.
+     */
+    public function fetchCategory($categoryId) {
+        $stmt = $this->conn->prepare("SELECT * FROM categories WHERE id = ?");
+        $stmt->bind_param("i", $categoryId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($category = $result->fetch_assoc()) {
+            return [
+                'id' => $category['id'],
+                'image_url' => $category['image_url'],
+                'name' => $category['name'],
+                'description' => $category['description'],
+                'created_at' => $category['created_at'],
+                'updated_at' => $category['updated_at']
+            ];
+        }
+        return null;
+    }
+
+    /***************************************************************************
+     * Fetches all flavors associated with a specific category.
+     *
+     * This function retrieves flavors linked to a given category through a many-to-many relationship.
+     * It returns an array of flavor details, each including relational data from the pivot table.
+     *
+     * @param int $categoryId The category ID for which to fetch flavors.
+     * @return array Returns an array of associative arrays, each containing details of a flavor.
+     */
+    public function fetchCategoryFlavors($categoryId) {
+        $stmt = $this->conn->prepare("SELECT f.*, cf.category_id FROM flavors f JOIN category_flavor cf ON f.id = cf.flavor_id WHERE cf.category_id = ?");
+        $stmt->bind_param("i", $categoryId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $flavors = [];
+        while ($row = $result->fetch_assoc()) {
+            $flavors[] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'description' => $row['description'],
+                'image_url' => $row['image_url'],
+                'active' => $row['active'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'pivot' => [
+                    'category_id' => $row['category_id'],
+                    'flavor_id' => $row['id']
+                ]
+            ];
+        }
+        return $flavors;
+    }
+
+    /***************************************************************************
+     * Fetches all add-ons associated with a specific category.
+     *
+     * Similar to fetching flavors, this function retrieves add-ons linked to a specific category.
+     * It returns detailed information for each add-on, including pricing and active status.
+     *
+     * @param int $categoryId The category ID for which to fetch add-ons.
+     * @return array Returns an array of associative arrays, each containing details of an add-on.
+     */
+    public function fetchCategoryAddOns($categoryId) {
+        $stmt = $this->conn->prepare("SELECT a.*, ca.category_id FROM add_ons a JOIN category_add_on ca ON a.id = ca.add_on_id WHERE ca.category_id = ?");
+        $stmt->bind_param("i", $categoryId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $add_ons = [];
+        while ($row = $result->fetch_assoc()) {
+            $add_ons[] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'description' => $row['description'],
+                'image_url' => $row['image_url'],
+                'price' => $row['price'],
+                'active' => $row['active'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'pivot' => [
+                    'category_id' => $row['category_id'],
+                    'add_on_id' => $row['id']
+                ]
+            ];
+        }
+        return $add_ons;
+    }
+
+    /***************************************************************************
+     * Retrieves products by category, including inventory details.
+     *
+     * This function fetches active products within a specified category and joins them with inventory data.
+     * It returns an array of products, each including inventory details like stock count and low stock threshold.
+     *
+     * @param int $categoryId The category ID to filter products by.
+     * @return array Returns an array of associative arrays, each containing product details and associated inventory data.
+     */
+    public function fetchProductsByCategory($categoryId) {
+        $stmt = $this->conn->prepare("
+            SELECT 
+                p.*, 
+                i.id AS inventory_id, 
+                i.count, 
+                i.low_stock_threshold, 
+                i.created_at AS inventory_created_at, 
+                i.updated_at AS inventory_updated_at 
+            FROM 
+                products p
+            LEFT JOIN 
+                inventories i ON p.id = i.product_id
+            WHERE 
+                p.category_id = ? AND 
+                p.active = 1
+        ");
+        $stmt->bind_param("i", $categoryId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $products = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $products[] = [
+                'id' => $row['id'],
+                'category_id' => $row['category_id'],
+                'name' => $row['name'],
+                'description' => $row['description'],
+                'price' => $row['price'],
+                'image_url' => $row['image_url'],
+                'active' => $row['active'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'inventory' => [
+                    'id' => $row['inventory_id'],
+                    'product_id' => $row['id'],
+                    'count' => $row['count'],
+                    'low_stock_threshold' => $row['low_stock_threshold'],
+                    'created_at' => $row['inventory_created_at'],
+                    'updated_at' => $row['inventory_updated_at']
+                ]
+            ];
+        }
+
+        return $products;
+    }
+
+    /***************************************************************************
+     * Generates a 10-character hexadecimal verification code.
+     *
+     * This method uses PHP's `random_bytes` function to generate a secure random byte sequence,
+     * which is then converted to a hexadecimal string.
+     *
+     * @return string Returns the generated verification code.
+     */
+    private function generateVerificationCode() {
+        return bin2hex(random_bytes(5));
+    }
+
+    /***************************************************************************
+     * Retrieves the price of a product by its ID from the database.
+     *
+     * This method executes a prepared statement to fetch the price of a specified product
+     * from the `products` table. If the product is found, it returns its price; otherwise, it returns 0.
+     *
+     * @param int $productId The ID of the product for which the price is to be fetched.
+     * @return float Returns the price of the product, or 0 if the product is not found.
+     */
+    private function getProductPrice($productId) {
+        $stmt = $this->conn->prepare("SELECT price FROM products WHERE id = ?");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            return $row['price'];
+        }
+        return 0;
+    }
+
+    /***************************************************************************
+     * Calculates the total price of selected add-ons by their IDs.
+     *
+     * This method sums up the prices of active add-ons specified by their IDs. It handles multiple add-ons
+     * and returns the total additional cost.
+     *
+     * @param array $addOnIds An array of add-on IDs for which the prices are to be summed.
+     * @return float Returns the total price of the add-ons.
+     */
+    private function getAddOnsPrice($addOnIds) {
+        if (empty($addOnIds)) {
+            return 0;
+        }
+        $totalAddOnsPrice = 0;
+        foreach ($addOnIds as $addOnId) {
+            $stmt = $this->conn->prepare("SELECT price FROM add_ons WHERE id = ? AND active = 1");
+            $stmt->bind_param("i", $addOnId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $totalAddOnsPrice += $row['price'];
+            }
+        }
+        return $totalAddOnsPrice;
+    }
+
+    /***************************************************************************
+     * Calculates the subtotal for a product including its add-ons, based on quantity.
+     *
+     * This method calculates the total cost of a product, considering the base product price,
+     * add-on prices, and the specified quantity. It leverages other private methods to fetch
+     * product and add-on prices.
+     *
+     * @param int $productId The product ID.
+     * @param int $quantity The quantity of the product.
+     * @param array $addOnIds Array of add-on IDs to include in pricing.
+     * @return float Returns the calculated subtotal.
+     */
+    private function calculateSubtotal($productId, $quantity, $addOnIds) {
+        $productPrice = $this->getProductPrice($productId);
+        $addOnsPrice = $this->getAddOnsPrice($addOnIds);
+        return ($productPrice + $addOnsPrice) * $quantity;
+    }
+
+    /***************************************************************************
+     * Creates a new order in the database with associated order items.
+     *
+     * This function starts by initiating a transaction, then proceeds to calculate the total price of the order
+     * based on the items included. It inserts a main order entry with a unique verification code. Subsequently,
+     * it inserts each item of the order into the `order_items` table with details such as product ID, quantity,
+     * add-ons, flavor, and the calculated subtotal for that item. If all operations are successful, it commits
+     * the transaction. If an exception occurs, it rolls back the transaction and returns an error.
+     *
+     * @param array $orderData Contains all necessary information about the order, including customer contact,
+     *                         items (each with product ID, quantity, add-ons, and flavor ID).
+     * @return array Returns an associative array with a success message, order ID, verification code, and
+     *               formatted total price if the order is successfully created, or an error message if it fails.
+     * @throws Exception Propagates any exceptions thrown during the database operations.
+     */
+    public function createOrder($orderData) {
+        $this->conn->begin_transaction();
+        try {
+            $totalPrice = 0;
+            $items = $orderData['items'];
+
+            // Calculate total price for the order
+            foreach ($items as $item) {
+                $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], $item['add_ons']);
+                $totalPrice += $subtotal;
+            }
+
+            // Insert the main order entry
+            $verificationCode = $this->generateVerificationCode();
+            $stmt = $this->conn->prepare("INSERT INTO orders (customer_contact, total_price, status, payment_status, verification_code) VALUES (?, ?, 'Awaiting Payment', 'Pending', ?)");
+            $stmt->bind_param("sds", $orderData['customer_contact'], $totalPrice, $verificationCode);
+            $stmt->execute();
+            $orderId = $this->conn->insert_id;
+
+            // Handle each order item
+            foreach ($items as $item) {
+                $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], $item['add_ons']);
+                $addOnIdsJson = json_encode($item['add_ons']);
+                $stmt = $this->conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, add_on_ids, flavor_id, subtotal) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("iiissd", $orderId, $item['product_id'], $item['quantity'], $addOnIdsJson, $item['flavor_id'], $subtotal);
+                $stmt->execute();
+            }
+
+            // Commit transaction
+            $this->conn->commit();
+            return [
+                "message" => "Order created successfully.",
+                "order_id" => $orderId,
+                "verification_code" => $verificationCode,
+                "total_price" => number_format($totalPrice, 2)
+            ];
+        } catch (Exception $e) {
+            // Rollback transaction in case of error
+            $this->conn->rollback();
+            return ["error" => "Failed to create order: " . $e->getMessage()];
+        }
+    }
 
 }
