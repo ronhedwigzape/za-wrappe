@@ -19,7 +19,6 @@
     "vuetify": "^3.5.17"
   },
   "devDependencies": {
-    "@storefront-ui/vue": "^2.6.2",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
