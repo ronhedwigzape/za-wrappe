@@ -7,7 +7,7 @@
 
 <script setup>
 import {ref, watch} from 'vue';
-import Hero from "@/components/hero/Hero.vue";
+import Hero from "@/components/hero/ZaWrappeHero.vue";
 import {useRouter} from "vue-router";
 
 const initialized = ref(false);
