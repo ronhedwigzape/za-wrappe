@@ -20,12 +20,19 @@ export const useStore = defineStore('store', {
 
         // get app url
         appURL(state) {
-            const location = window.location;
-            if (location.hostname === 'localhost' && location.port === '5004')
+            if (window.location.hostname === 'localhost' && window.location.port === '5004')
                 return `http://localhost${import.meta.env.BASE_URL}${state.app.backendDir}`;
             else
-                return `${location.protocol}//${location.hostname}${import.meta.env.BASE_URL}${state.app.backendDir}`;
+                return `${window.location.protocol}//${window.location.hostname}${import.meta.env.BASE_URL}${state.app.backendDir}`;
         },
+
+        // get assets url
+        assetsUrl(state) {
+            if (window.location.hostname === 'localhost' && window.location.port === '5004')
+                return `assets/`
+            else
+                return `public/`
+        }
 
     }
 
