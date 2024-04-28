@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@storefront-ui/vue": "^2.6.2",
+    "@vueuse/core": "^10.9.0",
     "jquery": "^3.7.1",
     "pinia": "^2.1.7",
     "vite-plugin-vuetify": "^2.0.3",
