@@ -20,11 +20,20 @@ else {
     else {
 
         // get all Customer bookings
-        if (isset($_GET['getOrders'])) {
-            echo json_encode([
-                'orders' => ''
+        if (isset($_GET['fetchCategories'])) {
+            echo json_encode($customer->fetchCategories());
+        }
 
-            ]);
+        else if (isset($_GET['fetchProductsByCategory'])) {
+            echo json_encode($customer->fetchProductsByCategory($_GET['fetchProductsByCategory']));
+        }
+
+        else if (isset($_GET['fetchCategoryFlavors'])) {
+            echo json_encode($customer->fetchCategoryFlavors($_GET['fetchCategoryFlavors']));
+        }
+
+        else if (isset($_GET['fetchCategoryAddOns'])) {
+            echo json_encode($customer->fetchCategoryAddOns($_GET['fetchCategoryAddOns']));
         }
 
         else
