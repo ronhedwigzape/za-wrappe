@@ -1,0 +1,68 @@
+<template>
+    <v-dialog max-width="500">
+        <template v-slot:activator="{ props: activatorProps }">
+            <v-btn
+                v-bind="activatorProps"
+                color="surface-variant"
+                text="Open Dialog"
+                variant="flat"
+                icon="mdi-cart-remove"
+            />
+        </template>
+
+        <template v-slot:default="{ isActive }">
+            <v-card title="Cart Item Removal">
+                <v-card-text>
+                    Are you sure you want to remove "{{ itemName }}" from the cart?
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                        text="No"
+                        @click="isActive.value = false"
+                    ></v-btn>
+                    <v-btn
+                        text="Yes"
+                        @click.stop="useOrderStore().removeFromCart(itemId)"
+                    >
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </template>
+    </v-dialog>
+</template>
+
+<script setup>
+
+import {useOrderStore} from "@/stores/store-order.js";
+
+defineProps({
+    itemId: String,
+    itemName: String,
+})
+
+</script>
+
+<style scoped>
+.scrollable-container {
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.scrollable-container::-webkit-scrollbar-track {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+}
+
+.scrollable-container::-webkit-scrollbar-thumb {
+    background-color: #8c8c8c;
+    border-radius: 10px;
+}
+
+.scrollable-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+</style>

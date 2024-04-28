@@ -1,8 +1,6 @@
 <template>
-    <v-main>
-        <Hero v-if="!initialized && !order && !success"/>
-        <router-view/>
-    </v-main>
+    <Hero v-if="!initialized && !order && !success"/>
+    <router-view/>
 </template>
 
 <script setup>

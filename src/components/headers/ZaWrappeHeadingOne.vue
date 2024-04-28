@@ -1,5 +1,5 @@
 <template>
-    <h2 class="upperCase text-3xl mx-5 my-3 text-center">
+    <h2 class="tw-uppercase tw-text-3xl tw-mx-5 tw-my-3 tw-text-center">
         <strong>
             <slot name="title" />
         </strong>

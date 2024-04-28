@@ -1,14 +1,16 @@
 <template>
     <v-app>
-        <!-- loader -->
-        <div v-if="loading" class="d-flex justify-center align-center" style="height: 100vh;">
-            <div class="loader">
-                <span class="hour"></span>
-                <span class="min"></span>
-                <span class="circle"></span>
+        <v-main>
+            <!-- loader -->
+            <div v-if="loading" class="d-flex justify-center align-center" style="height: 100vh;">
+                <div class="loader">
+                    <span class="hour"></span>
+                    <span class="min"></span>
+                    <span class="circle"></span>
+                </div>
             </div>
-        </div>
-        <router-view v-else />
+            <router-view v-else />
+        </v-main>
     </v-app>
 </template>
 
