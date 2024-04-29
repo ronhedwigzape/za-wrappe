@@ -127,13 +127,11 @@
                 :order-id="orderStore.order.order_id"
                 :total-price="orderStore.order.total_price"
             />
-
-            <!-- Cart Display -->
-            <transition name="slide-cart" mode="out-in">
-                <CustomerCart v-if="orderStore.cartVisible" key="cart"/>
-            </transition>
-
         </div>
+        <!-- Cart Display -->
+        <transition name="slide-cart" mode="out-in">
+            <CustomerCart v-if="orderStore.cartVisible" key="cart"/>
+        </transition>
     </div>
 </template>
 
