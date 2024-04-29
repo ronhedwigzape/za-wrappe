@@ -33,7 +33,7 @@
                             v-model.number="orderStore.quantity"
                             type="number"
                             class="tw-appearance-none tw-px-2 tw-mx-2 tw-w-12 tw-text-center tw-bg-transparent tw-font-medium [&::-webkit-inner-spin-button]:tw-appearance-none [&::-webkit-inner-spin-button]:tw-display-none [&::-webkit-inner-spin-button]:tw-m-0 [&::-webkit-outer-spin-button]:tw-display-none [&::-webkit-outer-spin-button]:tw-m-0 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:tw-appearance-none disabled:tw-placeholder-disabled-900 focus-visible:tw-outline focus-visible:tw-outline-offset focus-visible:tw-rounded-sm"                            min="1"
-                            :max="999"
+                            :max="useOrderStore().productToCustomize.inventory.count"
                             @input="handleOnChange"
                         />
                         <v-btn
