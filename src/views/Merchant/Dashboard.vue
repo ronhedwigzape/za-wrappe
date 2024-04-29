@@ -1,8 +1,6 @@
 <template>
     <TopNavbar/>
     <v-main>
-
-        <Footer/>
     </v-main>
 </template>
 <script setup>
