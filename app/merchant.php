@@ -19,11 +19,9 @@ else {
 
     else {
 
-        // fetch restaurant bookings
-        if (isset($_GET['getRestaurantBookings'])) {
-            echo json_encode([
-                'orders' => ''
-            ]);
+        // fetch all orders
+        if (isset($_GET['fetchAllOrders'])) {
+            echo json_encode($merchant->fetchAllOrders());
         }
 
         else
