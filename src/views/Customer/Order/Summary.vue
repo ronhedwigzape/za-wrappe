@@ -59,26 +59,33 @@
                         </div>
                         <div class="tw-pb-6">
                             <h2 class="tw-typography-label-lg tw-mb-2">Your contact: </h2>
-                            <v-input
+                            <v-text-field
+                                variant="outlined"
                                 v-model="customerContact"
-                                placeholder="e.g., 09123456789"
-                                :valid="isPhoneValid"
-                                :error-message="errorMessage"
+                                placeholder="Format: +639123456789 or 09123456789"
+                                :color="isPhoneValid ? 'green' : ''"
+                                :error-messages="errorMessage"
+                                :hint="isPhoneValid ? 'Phone number format is correct.' : ''"
                                 @input="validatePhone"
+                                :rules="rules"
                                 size="base"
                                 style="border: none; outline: none !important; box-shadow: none;"
+                                clearable
                             />
+
                         </div>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer/>
                         <v-btn
                             text="No"
-                            @click="isActive.value = false"
+                            @click="resetForm(isActive)"
+                            color="red"
                         />
                         <v-btn
                             :disabled="!isPhoneValid" @click="createOrder"
                             text="Yes"
+                            color="green"
                         />
                     </v-card-actions>
                 </v-card>
@@ -88,7 +95,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {reactive, ref} from 'vue';
 import {useOrderStore} from "@/stores/store-order.js";
 import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
 import ZaWrappeHeadingOne from "@/components/headers/ZaWrappeHeadingOne.vue";
@@ -96,11 +103,14 @@ import ZaWrappeHeadingOne from "@/components/headers/ZaWrappeHeadingOne.vue";
 const customerContact = ref('');
 const isPhoneValid = ref(false);
 const errorMessage = ref('');
-
+const rules = reactive([
+    value => !!value || 'Field is required',
+    value => /^(?:\+639|639|09)\d{9}$/.test(value) || 'Invalid phone number format.'
+]);
 const validatePhone = () => {
     const regex = /^(?:\+639|639|09)\d{9}$/;
     isPhoneValid.value = regex.test(customerContact.value);
-    errorMessage.value = isPhoneValid.value ? '' : 'Invalid phone number format';
+    errorMessage.value = isPhoneValid.value ? '' : 'Invalid phone number format.';
 };
 
 const createOrder = async () => {
@@ -115,6 +125,14 @@ const createOrder = async () => {
         }
     }
 };
+
+const resetForm = (isActive) => {
+    isActive.value = false;
+    customerContact.value = '';
+    errorMessage.value = '';
+    isPhoneValid.value = false;
+};
+
 
 </script>
 
