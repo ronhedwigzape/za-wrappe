@@ -2,8 +2,9 @@
     <v-app>
         <v-main>
             <!-- loader -->
-            <div v-if="loading" class="d-flex justify-center align-center" style="height: 100vh;">
-                <div class="loader">
+            <div v-if="loading" class="tw-flex tw-flex-col tw-justify-center tw-items-center" style="height: 100vh;">
+                <za-wrappe-logo/>
+                <div class="loader tw-h-6">
                     <span class="hour"></span>
                     <span class="min"></span>
                     <span class="circle"></span>
@@ -20,6 +21,7 @@ import {useStore} from "@/stores";
 import {useAuthStore} from "@/stores/store-auth";
 import {useRouter} from "vue-router";
 import $ from 'jquery';
+import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
 
 const store = useStore();
 const authStore = useAuthStore();
@@ -59,21 +61,19 @@ onMounted(() => {
     getUser();
 });
 
-
-
 </script>
 <style scoped>
 .loader {
     width: 65px;
     height: 65px;
-    border: 8px solid #ee9b00a6;
+    border: 8px solid rgba(49, 48, 47, 0.65);
     border-radius: 50px;
     position: relative;
 }
 
 .loader span {
     display: block;
-    background: #ee9b00;
+    background: #000000;
 }
 
 .loader .hour ,
