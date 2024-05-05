@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 28, 2024 at 01:01 PM
+-- Generation Time: May 05, 2024 at 10:38 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -352,16 +352,23 @@ INSERT INTO `inventories` (`id`, `product_id`, `count`, `low_stock_threshold`, `
 
 CREATE TABLE `merchants` (
   `id` int(255) UNSIGNED NOT NULL,
+  `avatar` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `phone` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
-  `restaurant_id` int(255) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `merchants`
+--
+
+INSERT INTO `merchants` (`id`, `avatar`, `username`, `password`, `name`, `email`, `phone`, `address`, `created_at`, `updated_at`) VALUES
+(1, 'avatar.png', 'merchant', 'merchant', 'Za-Wrappe Merchant', 'merchant@za-wrappe.com', '09123456789', '@Za-Wrappe', '2024-04-28 11:43:52', '2024-04-28 11:46:05');
 
 -- --------------------------------------------------------
 
@@ -1062,7 +1069,7 @@ ALTER TABLE `inventories`
 -- AUTO_INCREMENT for table `merchants`
 --
 ALTER TABLE `merchants`
-  MODIFY `id` int(255) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(255) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notifications`
