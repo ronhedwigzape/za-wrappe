@@ -34,7 +34,7 @@
                 @click="selectFlavor(flavor, startIndex + index)"
                 @mouseover="activeIndex = startIndex + index"
                 @focus="activeIndex = startIndex + index"
-                class="tw-relative tw-type-button"
+                class="tw-relative tw-type-button tw-px-2 tw-py-0.5"
             >
                 <img
                     :alt="flavor.name"

@@ -40,6 +40,19 @@
                             </div>
                         </div>
                     </div>
+                    <router-link
+                        :to="{ name: 'initialize' }"
+                        class="tw-inline-block tw-py-8"
+                    >
+                        <v-btn
+                            class="hover:tw-bg-gray-700 tw-font-bold tw-px-4 tw-rounded"
+                            size="large"
+                        >
+                            <v-icon class="mr-1">mdi-arrow-left</v-icon>
+                            Return to Home
+                        </v-btn>
+                    </router-link>
+
                 </div>
             </transition-group>
 
@@ -83,9 +96,12 @@
                         </div>
                     </div>
 
-                    <v-btn @click="useOrderStore().goBackToCategories"
-                              class="hover:tw-bg-gray-700 tw-font-bold tw-py-2 tw-px-4 tw-rounded">
-                        <v-icon>mdi-arrow-left</v-icon>
+                    <v-btn
+                        @click="useOrderStore().goBackToCategories"
+                        class="hover:tw-bg-gray-700 tw-font-bold tw-my-8 tw-px-4 tw-rounded"
+                        size="large"
+                    >
+                        <v-icon class="mr-1">mdi-arrow-left</v-icon>
                         Back to Categories
                     </v-btn>
                 </div>

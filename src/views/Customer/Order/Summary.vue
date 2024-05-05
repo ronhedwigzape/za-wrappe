@@ -20,11 +20,14 @@
             </template>
 
             <template v-slot:default="{ isActive }">
-                <v-card title="Is this order correct?">
+                <v-card>
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
+                        <ZaWrappeLogo/>
+                    </div>
+                    <v-card-title class="!tw-text-2xl text-center">
+                        Is this order correct?
+                    </v-card-title>
                     <v-card-text>
-                        <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
-                            <ZaWrappeLogo/>
-                        </div>
                         <div class="scrollable-container" v-if="useOrderStore().cartVisible && useOrderStore().cart.length && useOrderStore().ordering">
                             <div class="cart-content">
                                 <transition-group name="list" tag="ul">
@@ -88,6 +91,7 @@
 import { ref } from 'vue';
 import {useOrderStore} from "@/stores/store-order.js";
 import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
+import ZaWrappeHeadingOne from "@/components/headers/ZaWrappeHeadingOne.vue";
 
 const customerContact = ref('');
 const isPhoneValid = ref(false);

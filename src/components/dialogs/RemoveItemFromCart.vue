@@ -11,7 +11,13 @@
         </template>
 
         <template v-slot:default="{ isActive }">
-            <v-card title="Cart Item Removal">
+            <v-card>
+                <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
+                    <ZaWrappeLogo/>
+                </div>
+                <v-card-title class="!tw-text-2xl text-center">
+                    Cart Item Removal
+                </v-card-title>
                 <v-card-text>
                     Are you sure you want to remove "{{ itemName }}" from the cart?
                 </v-card-text>
@@ -22,10 +28,12 @@
                     <v-btn
                         text="No"
                         @click="isActive.value = false"
+                        color="green"
                     ></v-btn>
                     <v-btn
                         text="Yes"
                         @click.stop="useOrderStore().removeFromCart(itemId)"
+                        color="red"
                     >
                     </v-btn>
                 </v-card-actions>
@@ -35,8 +43,8 @@
 </template>
 
 <script setup>
-
 import {useOrderStore} from "@/stores/store-order.js";
+import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
 
 defineProps({
     itemId: String,

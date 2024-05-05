@@ -32,21 +32,22 @@
                         <input
                             v-model.number="orderStore.quantity"
                             type="number"
-                            class="tw-appearance-none tw-px-2 tw-mx-2 tw-w-12 tw-text-center tw-bg-transparent tw-font-medium [&::-webkit-inner-spin-button]:tw-appearance-none [&::-webkit-inner-spin-button]:tw-display-none [&::-webkit-inner-spin-button]:tw-m-0 [&::-webkit-outer-spin-button]:tw-display-none [&::-webkit-outer-spin-button]:tw-m-0 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:tw-appearance-none disabled:tw-placeholder-disabled-900 focus-visible:tw-outline focus-visible:tw-outline-offset focus-visible:tw-rounded-sm"                            min="1"
-                            :max="useOrderStore().productToCustomize.inventory.count"
+                            class="tw-appearance-none tw-px-2 tw-mx-2 tw-w-12 tw-text-center tw-bg-transparent tw-font-medium [&::-webkit-inner-spin-button]:tw-appearance-none [&::-webkit-inner-spin-button]:tw-display-none [&::-webkit-inner-spin-button]:tw-m-0 [&::-webkit-outer-spin-button]:tw-display-none [&::-webkit-outer-spin-button]:tw-m-0 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:tw-appearance-none disabled:tw-placeholder-disabled-900 focus-visible:tw-outline focus-visible:tw-outline-offset focus-visible:tw-rounded-sm"
+                            min="1"
+                            :max="orderStore.productToCustomize.inventory.count"
                             @input="handleOnChange"
                         />
                         <v-btn
-                            :disabled="orderStore.quantity >= 999"
+                            :disabled="orderStore.quantity >= orderStore.productToCustomize.inventory.count"
                             square
                             class="!tw-rounded-full"
                             icon="mdi-plus"
                             aria-label="Increase value"
-                            @click="orderStore.quantity < 999 ? orderStore.quantity++ : null"
+                            @click="orderStore.quantity < orderStore.productToCustomize.inventory.count ? orderStore.quantity++ : null"
                         />
                     </div>
                     <p class="tw-my-3 tw-text-xs tw-text-neutral-500">
-                        <strong class="tw-text-neutral-900">{{ useOrderStore().productToCustomize.inventory.count }}</strong> in stock
+                        <strong class="tw-text-neutral-900">{{ orderStore.productToCustomize.inventory.count }}</strong> in stock
                     </p>
                 </div>
                 <div v-if="selectedFlavors.length" class="tw-w-full">
@@ -72,7 +73,8 @@
                 <v-btn
                     size="large"
                     class="tw-w-full"
-                    :prepend-icon="`${orderStore.isCartUpdating ? 'mdi-update' : 'mdi-add'}`"
+                    color="grey-darken-4"
+                    :prepend-icon="`${orderStore.isCartUpdating ? 'mdi-update' : 'mdi-cart-plus'}`"
                     :text="`${orderStore.isCartUpdating ? 'Update item to cart' : 'Add to cart'}`"
                     @click="orderStore.finalizeCustomization()"
                 />
@@ -80,6 +82,7 @@
                     v-if="!orderStore.isCartUpdating"
                     @click="orderStore.goBackToProducts"
                     class="tw-w-full"
+                    size="large"
                     text="Go Back to Products"
                     prepend-icon="mdi-arrow-left"
                 />
@@ -88,10 +91,8 @@
     </section>
 </template>
 
-
 <script setup>
-
-import {useOrderStore} from "@/stores/store-order.js";
+import { useOrderStore } from "@/stores/store-order.js";
 import { computed } from 'vue';
 import FlavorSlider from "@/components/sliders/FlavorSlider.vue";
 import AddOnSlider from "@/components/sliders/AddOnSlider.vue";
@@ -103,8 +104,10 @@ function handleOnChange(event) {
     const target = event.target;
     const currentValue = target && target.value;
     const nextValue = parseInt(currentValue, 10);
+    const maxInventoryCount = orderStore.productToCustomize.inventory.count;
+
     if (!isNaN(nextValue)) {
-        orderStore.quantity = Math.max(1, Math.min(999, nextValue));
+        orderStore.quantity = Math.max(1, Math.min(maxInventoryCount, nextValue));
     }
 }
 

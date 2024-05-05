@@ -3,14 +3,20 @@
         <template v-slot:activator="{ props: activatorProps }">
             <v-btn
                 v-bind="activatorProps"
-                color="surface-variant"
-                text="Open Dialog"
+                color="red-darken-3"
+                text="Cancel Order"
                 variant="flat"
-            ></v-btn>
+            />
         </template>
 
         <template v-slot:default="{ isActive }">
-            <v-card title="Clear Cart">
+            <v-card>
+                <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
+                    <ZaWrappeLogo/>
+                </div>
+                <v-card-title class="!tw-text-2xl text-center">
+                    Cancel Order
+                </v-card-title>
                 <v-card-text>
                     Are you sure you want to clear your cart? This can't be undone.
                 </v-card-text>
@@ -19,10 +25,12 @@
                     <v-btn
                         text="No"
                         @click="isActive.value = false"
+                        color="green"
                     />
                     <v-btn
                         text="Yes"
                         @click="orderStore.cancelOrder"
+                        color="red"
                     />
                 </v-card-actions>
             </v-card>
@@ -32,6 +40,7 @@
 
 <script setup>
 import {useOrderStore} from "@/stores/store-order.js";
+import ZaWrappeLogo from "@/components/logo/ZaWrappeLogo.vue";
 const orderStore = useOrderStore();
 </script>
 

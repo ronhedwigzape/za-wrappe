@@ -1,10 +1,10 @@
 <template>
     <div v-if="useOrderStore().cartVisible && useOrderStore().cart.length && useOrderStore().ordering"
          class="tw-fixed tw-bottom-0 tw-left-0 tw-right-0 tw-bg-white tw-shadow-lg tw-p-4 tw-z-40 tw-border">
-        <div class="tw-flex tw-justify-between tw-items-start">
+        <div class="tw-flex tw-justify-between tw-items-start my-3">
             <h2 class="tw-text-2xl tw-font-semibold"><v-icon>mdi-cart</v-icon> Your Cart</h2>
-            <v-btn @click="useOrderStore().cartVisible = !useOrderStore().cartVisible">
-                <v-icon>mdi-close-box</v-icon>
+            <v-btn :elevation="1" @click="useOrderStore().cartVisible = !useOrderStore().cartVisible">
+                <v-icon>mdi-close</v-icon>
             </v-btn>
         </div>
         <!-- Scrollable Content Area -->
@@ -37,12 +37,14 @@
             </transition-group>
         </div>
         <!-- Fixed Footer Inside the Cart -->
-        <div class="cart-footer tw-py-2 tw-font-bold tw-flex tw-justify-end">
+        <div class="cart-footer tw-py-2 tw-font-bold tw-flex tw-justify-end text-uppercase">
             Cart Total: ₱{{ parseFloat(useOrderStore().cartTotal).toFixed(2) }}
         </div>
         <div class="tw-flex tw-gap-x-2 tw-justify-center tw-items-center">
             <v-btn
                 @click="useOrderStore().continueOrdering"
+                variant="tonal"
+                color="green"
             >
                 <v-icon>mdi-cart</v-icon>
                 Continue Ordering
