@@ -2,7 +2,10 @@
     <div>
         <ZaWrappeLogo/>
 
-        <div @click="closeCartIfClicked()" class="tw-max-w-4xl tw-mx-auto tw-p-4">
+        <div
+            @click="closeCartIfClicked()"
+            class="tw-max-w-4xl tw-mx-auto tw-p-4"
+        >
             <!-- Category Selection -->
             <transition-group
                 name="fade"

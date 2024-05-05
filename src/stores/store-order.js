@@ -275,35 +275,33 @@ export const useOrderStore = defineStore('order', {
             }
         },
         finalizeCustomization() {
-            if (!this.selectedFlavor) {
-                this.showError = true;
-                setTimeout(() => {
-                    this.showError = false;
-                }, 3000);
-                return;
-            }
-
-            const cartItem = {
-                id: this.productToCustomize.id,
-                ...this.productToCustomize,
-                variant: this.productToCustomize,
-                selectedFlavorId: this.selectedFlavor ? this.selectedFlavor.id : null,
-                selectedAddOnsIds: this.selectedAddOns.map(addOn => addOn.id),
-                flavor: this.selectedFlavor ? this.selectedFlavor.name : 'None',
-                addOns: this.selectedAddOns,
-                currentPrice: this.currentPrice,
-                quantity: this.quantity,
-                customizations: this.customizations,
-            };
-            if (this.isCartUpdating) {
-                this.updateCartItem(cartItem);
+            if (!this.selectedFlavor && !this.isCartUpdating) {
+                alert('Please select a flavor before adding to cart!');
+            } else if (!this.selectedFlavor && this.isCartUpdating) {
+                alert('Please select a flavor');
             } else {
-                this.addToCart(cartItem);
-                if (this.cart.length === 1) {
-                    this.cartVisible = true;
+                const cartItem = {
+                    id: this.productToCustomize.id,
+                    ...this.productToCustomize,
+                    variant: this.productToCustomize,
+                    selectedFlavorId: this.selectedFlavor ? this.selectedFlavor.id : null,
+                    selectedAddOnsIds: this.selectedAddOns.map(addOn => addOn.id),
+                    flavor: this.selectedFlavor ? this.selectedFlavor.name : 'None',
+                    addOns: this.selectedAddOns,
+                    currentPrice: this.currentPrice,
+                    quantity: this.quantity,
+                    customizations: this.customizations,
+                };
+                if (this.isCartUpdating) {
+                    this.updateCartItem(cartItem);
+                } else {
+                    this.addToCart(cartItem);
+                    if (this.cart.length === 1) {
+                        this.cartVisible = true;
+                    }
                 }
+                this.resetSelections();
             }
-            this.resetSelections();
         },
         resetSelections() {
             this.productToCustomize = null;

@@ -27,6 +27,7 @@
                             class="!tw-rounded-full"
                             aria-label="Decrease value"
                             icon="mdi-minus"
+                            color="grey-darken-4"
                             @click="orderStore.quantity > 1 ? orderStore.quantity-- : null"
                         />
                         <input
@@ -42,6 +43,7 @@
                             square
                             class="!tw-rounded-full"
                             icon="mdi-plus"
+                            color="grey-darken-4"
                             aria-label="Increase value"
                             @click="orderStore.quantity < orderStore.productToCustomize.inventory.count ? orderStore.quantity++ : null"
                         />

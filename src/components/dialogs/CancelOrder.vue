@@ -14,7 +14,7 @@
                 <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
                     <ZaWrappeLogo/>
                 </div>
-                <v-card-title class="!tw-text-2xl text-center">
+                <v-card-title class="!tw-text-2xl text-center !tw-font-bold">
                     Cancel Order
                 </v-card-title>
                 <v-card-text>
