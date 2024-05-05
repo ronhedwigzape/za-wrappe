@@ -2,7 +2,7 @@
     <div>
         <ZaWrappeLogo/>
 
-        <div class="tw-max-w-4xl tw-mx-auto tw-p-4">
+        <div @click="closeCartIfClicked()" class="tw-max-w-4xl tw-mx-auto tw-p-4">
             <!-- Category Selection -->
             <transition-group
                 name="fade"
@@ -11,7 +11,7 @@
                 @enter="enter"
                 @leave="leave"
             >
-                <div v-if="!orderStore.productToCustomize && orderStore.ordering && !orderStore.selectedCategory"
+                <div v-if="!useOrderStore().productToCustomize && useOrderStore().ordering && !useOrderStore().selectedCategory"
                      class="tw-flex tw-flex-col tw-items-center tw-justify-center">
                     <ZaWrappeHeadingOne>
                         <template #title>
@@ -19,8 +19,8 @@
                         </template>
                     </ZaWrappeHeadingOne>
                     <div class="tw-flex tw-flex-wrap tw-justify-center tw-w-full">
-                        <div v-for="category in orderStore.categories"
-                             @click="orderStore.selectProducts(category)"
+                        <div v-for="category in useOrderStore().categories"
+                             @click="useOrderStore().selectProducts(category)"
                              :key="category.id"
                              class="tw-m-2 tw-border tw-border-neutral-200 tw-rounded-md hover:tw-shadow-lg tw-w-[228px] lg:tw-w-[292px]">
                             <div class="tw-relative">
@@ -52,18 +52,18 @@
                 @leave="leave"
             >
                 <div
-                    v-if="orderStore.selectedCategory && !orderStore.productToCustomize"
+                    v-if="useOrderStore().selectedCategory && !useOrderStore().productToCustomize"
                     class="tw-flex tw-flex-col tw-items-center tw-justify-center"
                 >
                     <ZaWrappeHeadingOne>
                         <template #title>
-                            Select a Product from {{ orderStore.selectedCategory.name }}
+                            Select a Product from {{ useOrderStore().selectedCategory.name }}
                         </template>
                     </ZaWrappeHeadingOne>
                     <div class="tw-flex tw-flex-wrap tw-justify-center tw-w-full">
                         <div v-for="product in selectedCategoryProducts"
                              :key="product.id"
-                             @click="orderStore.selectProduct(product)"
+                             @click="useOrderStore().selectProduct(product)"
                              class="tw-m-2 tw-border tw-border-neutral-200 tw-rounded-md hover:tw-shadow-lg tw-w-[228px] lg:tw-w-[292px]">
                             <div class="tw-relative">
                                 <div class="tw-block">
@@ -83,7 +83,7 @@
                         </div>
                     </div>
 
-                    <v-btn @click="orderStore.goBackToCategories"
+                    <v-btn @click="useOrderStore().goBackToCategories"
                               class="hover:tw-bg-gray-700 tw-font-bold tw-py-2 tw-px-4 tw-rounded">
                         <v-icon>mdi-arrow-left</v-icon>
                         Back to Categories
@@ -100,37 +100,38 @@
                 @leave="leave"
                 class="tw-flex tw-flex-wrap tw-justify-center tw-w-full"
             >
-                <div v-if="orderStore.productToCustomize && orderStore.isCustomizingFlavorAndAddOns">
+                <div v-if="useOrderStore().productToCustomize && useOrderStore().isCustomizingFlavorAndAddOns">
                     <ProductCustomization/>
                 </div>
             </transition-group>
 
-            <!-- Toggle Button for Cart -->
-            <v-btn
-                @click="orderStore.cartVisible = !orderStore.cartVisible"
-                class="!tw-fixed !tw-bottom-0 !tw-right-0 !tw-m-4 !tw-font-bold !tw-py-2 !tw-px-4 !tw-rounded"
-                :class="{
-                    'tw-bg-red-700 hover:tw-bg-red-700 tw-cursor-not-allowed': orderStore.cart.length === 0,
-                    'tw-bg-blue-500 tw-cursor-pointer': orderStore.cart.length > 0
-                }"
-                :disabled="orderStore.cart.length === 0"
-            >
-                <v-badge color="error" :content="orderStore.cart.length">
-                    <v-icon size="x-large">mdi-cart-outline</v-icon>
-                </v-badge>
-            </v-btn>
-
             <!--  Show success message after order creation   -->
             <Success
-                :message="orderStore.order.message"
-                :verification-code="orderStore.order.verification_code"
-                :order-id="orderStore.order.order_id"
-                :total-price="orderStore.order.total_price"
+                :message="useOrderStore().order.message"
+                :verification-code="useOrderStore().order.verification_code"
+                :order-id="useOrderStore().order.order_id"
+                :total-price="useOrderStore().order.total_price"
             />
         </div>
+
+        <!-- Toggle Button for Cart -->
+        <v-btn
+            @click="useOrderStore().cartVisible = !useOrderStore().cartVisible"
+            class="!tw-fixed !tw-bottom-0 !tw-right-0 !tw-m-4 !tw-font-bold !tw-py-2 !tw-px-4 !tw-rounded"
+            :class="{
+                    'tw-bg-red-700 hover:tw-bg-red-700 tw-cursor-not-allowed': useOrderStore().cart.length === 0,
+                    'tw-bg-blue-500 tw-cursor-pointer': useOrderStore().cart.length > 0
+                }"
+            :disabled="useOrderStore().cart.length === 0"
+        >
+            <v-badge color="error" :content="useOrderStore().cart.length">
+                <v-icon size="x-large">mdi-cart-outline</v-icon>
+            </v-badge>
+        </v-btn>
+
         <!-- Cart Display -->
         <transition name="slide-cart" mode="out-in">
-            <CustomerCart v-if="orderStore.cartVisible" key="cart"/>
+            <CustomerCart v-if="useOrderStore().cartVisible" key="cart"/>
         </transition>
     </div>
 </template>
@@ -145,10 +146,9 @@ import ZaWrappeHeadingOne from "@/components/headers/ZaWrappeHeadingOne.vue";
 import CustomerCart from "@/views/Customer/Cart.vue";
 import Success from "@/views/Customer/Order/Success.vue";
 // store
-const orderStore = useOrderStore();
 
 // computed
-const selectedCategoryProducts = computed(() => orderStore.products);
+const selectedCategoryProducts = computed(() => useOrderStore().products);
 
 // animations
 const beforeEnter = (el) => {
@@ -171,9 +171,15 @@ const leave = (el, done) => {
     done();
 };
 
+const closeCartIfClicked = () => {
+    if (useOrderStore().cartVisible === true) {
+        useOrderStore().cartVisible = false;
+    }
+}
+
 // onMounted
 onMounted(async () => {
-    if (!orderStore.categories.length) await orderStore.fetchCategories();
+    if (!useOrderStore().categories.length) await useOrderStore().fetchCategories();
 });
 </script>
 
