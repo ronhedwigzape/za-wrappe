@@ -5,16 +5,17 @@
             class="tw-items-center tw-w-full [&::-webkit-scrollbar]:tw-hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             direction="vertical"
             :active-index="activeIndex"
-            :previous-disabled="activeIndex === 0"
-            :next-disabled="activeIndex === flavors.length - 1"
+            :previous-disabled="startIndex === 0"
+            :next-disabled="endIndex >= props.flavors.length"
             buttons-placement="floating"
             drag
         >
+            <!-- Previous Button -->
             <template #previousButton="defaultProps">
                 <SfButton
-                    v-if="!firstThumbVisible"
+                    v-if="startIndex > 0"
                     v-bind="defaultProps"
-                    :disabled="activeIndex === 0"
+                    @click="scrollPrevious"
                     class="tw-absolute !tw-rounded-full tw-z-10 tw-top-4 tw-rotate-90 tw-bg-white"
                     variant="secondary"
                     size="sm"
@@ -23,17 +24,16 @@
                     <SfIconChevronLeft size="sm" />
                 </SfButton>
             </template>
+
+            <!-- Display 4 Visible Thumbnails -->
             <div
-                v-for="(flavor, index) in flavors"
-                :key="`${flavor.name}-${index}-thumbnail`"
-                :ref="(el) => assignRef(el, index)"
-                type="button"
+                v-for="(flavor, index) in visibleThumbnails"
+                :key="`${flavor.name}-${startIndex + index}-thumbnail`"
                 :aria-label="flavor.name"
-                :aria-current="activeIndex === index"
-                :class="thumbnailClass(flavor, index)"
-                @click="selectFlavor(flavor, index)"
-                @mouseover="activeIndex = index"
-                @focus="activeIndex = index"
+                :aria-current="activeIndex === startIndex + index"
+                @click="selectFlavor(flavor, startIndex + index)"
+                @mouseover="activeIndex = startIndex + index"
+                @focus="activeIndex = startIndex + index"
                 class="tw-relative tw-type-button"
             >
                 <img
@@ -43,8 +43,8 @@
                     class="tw-border tw-border-neutral-200"
                     :src="`../img/${flavor.image_url}`"
                     :class="{
-                        'tw-bg-black tw-opacity-50 tw-border-2 tw-border-green-950': orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id
-                    }"
+                'tw-bg-black tw-opacity-50 tw-border-2 tw-border-green-950': orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id
+            }"
                 />
                 <div
                     v-if="orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id"
@@ -55,11 +55,13 @@
                     </svg>
                 </div>
             </div>
+
+            <!-- Next Button -->
             <template #nextButton="defaultProps">
                 <SfButton
-                    v-if="!lastThumbVisible"
+                    v-if="endIndex < props.flavors.length"
                     v-bind="defaultProps"
-                    :disabled="activeIndex === flavors.length"
+                    @click="scrollNext"
                     class="tw-absolute !tw-rounded-full tw-z-10 tw-bottom-4 tw-rotate-90 tw-bg-white"
                     variant="secondary"
                     size="sm"
@@ -88,20 +90,34 @@
                 <img
                     :aria-label="flavor.name"
                     :aria-hidden="activeIndex !== index"
-                    class="tw-object-cover tw-w-auto tw-h-full"
                     :alt="flavor.name"
+                    :class="[
+                'tw-object-cover tw-w-auto tw-h-full',
+                {
+                    'tw-border-4 tw-border-primary-700 tw-opacity-50': orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id,
+                }
+            ]"
                     :src="`../img/${flavor.image_url}`"
                 />
+                <div
+                    v-if="orderStore.selectedFlavor && orderStore.selectedFlavor.id === flavor.id"
+                    class="tw-absolute tw-inset-0 tw-flex tw-justify-center tw-items-center"
+                >
+                    <svg class="tw-w-1/5 tw-h-1/5 tw-text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
                 <div class="tw-absolute tw-bottom-0 tw-w-full tw-text-center tw-text-white tw-bg-black tw-bg-opacity-50 tw-py-2">
                     {{ flavor.name }}
                 </div>
             </div>
         </SfScrollable>
+
     </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import {computed, ref, watch} from 'vue';
 import {
     SfScrollable,
     SfButton,
@@ -122,6 +138,8 @@ const lastThumbRef = ref(null);
 const firstThumbVisible = ref(false);
 const lastThumbVisible = ref(false);
 const activeIndex = ref(0);
+const startIndex = ref(0);
+const maxVisibleThumbnails = 4;
 
 watch(
     thumbsRef,
@@ -154,6 +172,9 @@ watch(
     { immediate: true },
 );
 
+const endIndex = computed(() => Math.min(startIndex.value + maxVisibleThumbnails, props.flavors.length));
+const visibleThumbnails = computed(() => props.flavors.slice(startIndex.value, endIndex.value));
+
 const onDragged = ({ swipeRight, swipeLeft }) => {
     if (swipeRight && activeIndex.value > 0) {
         activeIndex.value -= 1;
@@ -181,6 +202,19 @@ function thumbnailClass(flavor, index) {
     ];
 }
 
+function scrollNext() {
+    if (startIndex.value + maxVisibleThumbnails < props.flavors.length) {
+        startIndex.value += maxVisibleThumbnails;
+    }
+}
+
+function scrollPrevious() {
+    if (startIndex.value > 0) {
+        startIndex.value = Math.max(startIndex.value - maxVisibleThumbnails, 0);
+    }
+}
+
+// Select a flavor and update the active index
 function selectFlavor(flavor, index) {
     orderStore.selectFlavor(flavor);
     activeIndex.value = index;
