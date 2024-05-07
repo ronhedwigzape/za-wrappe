@@ -216,18 +216,26 @@ export const useOrderStore = defineStore('order', {
             console.log("Adding product to cart:", product);
             if (typeof parseFloat(product.currentPrice) === 'number' && Number.isInteger(product.quantity)) {
                 const selectedFlavorDetail = this.categorySpecificFlavors.find(flavor => flavor.id === product.selectedFlavorId) || null;
-
                 const selectedAddOnsDetails = (product.selectedAddOnsIds || [])
                     .map(addOnId => this.categorySpecificAddOns.find(a => a.id === addOnId))
                     .filter(Boolean);
 
-                const cartItem = {
-                    ...product,
-                    selectedFlavor: selectedFlavorDetail,
-                    addOns: selectedAddOnsDetails,
-                };
+                const existingCartItemIndex = this.cart.findIndex(item =>
+                    item.id === product.id &&
+                    item.selectedFlavorId === product.selectedFlavorId &&
+                    JSON.stringify(item.selectedAddOnsIds.sort()) === JSON.stringify(product.selectedAddOnsIds.sort())
+                );
 
-                this.cart.push(cartItem);
+                if (existingCartItemIndex > -1) {
+                    this.cart[existingCartItemIndex].quantity += product.quantity;
+                } else {
+                    const cartItem = {
+                        ...product,
+                        selectedFlavor: selectedFlavorDetail,
+                        addOns: selectedAddOnsDetails,
+                    };
+                    this.cart.push(cartItem);
+                }
                 this.updateLocalStorageCart();
             } else {
                 console.error(`Invalid product price or quantity: ${product}`);
@@ -236,8 +244,20 @@ export const useOrderStore = defineStore('order', {
         updateCartItem(updatedItem) {
             const index = this.cart.findIndex(item => item.id === updatedItem.id);
             if (index !== -1) {
-                this.cart[index] = { ...updatedItem };
-                this.updateLocalStorageCart()
+                const existingCartItemIndex = this.cart.findIndex((item, idx) =>
+                    idx !== index &&
+                    item.id === updatedItem.id &&
+                    item.selectedFlavorId === updatedItem.selectedFlavorId &&
+                    JSON.stringify(item.selectedAddOnsIds.sort()) === JSON.stringify(updatedItem.selectedAddOnsIds.sort())
+                );
+
+                if (existingCartItemIndex > -1) {
+                    this.cart[existingCartItemIndex].quantity += updatedItem.quantity;
+                    this.cart.splice(index, 1); // Remove the original item
+                } else {
+                    this.cart[index] = {...updatedItem};
+                }
+                this.updateLocalStorageCart();
             }
         },
         removeFromCart(itemId) {
@@ -328,6 +348,7 @@ export const useOrderStore = defineStore('order', {
         },
         async createOrder(customerContact) {
             try {
+                // console.log("Cart before creating order:", JSON.stringify(this.cart, null, 2));
                 const orderData = {
                     customer_contact: customerContact,
                     items: this.cart ? this.cart.map(item => ({
@@ -337,16 +358,23 @@ export const useOrderStore = defineStore('order', {
                         flavor_id: item.selectedFlavorId
                     })) : []
                 };
+                // console.log("Order data being sent:", JSON.stringify(orderData, null, 2));
 
                 const response = await $.ajax({
                     url: `${useStore().appURL}/${useAuthStore().getUser.userType}.php`,
                     type: 'POST',
                     xhrFields: { withCredentials: true },
-                    data: { orderData }
+                    data: { orderData },
+                    success: (data) => {
+                        data = JSON.parse(data);
+                        // console.log("Order response:", data);
+                    },
+                    error: (error) => {
+                        alert(`ERROR ${error.status}: ${error.statusText}`);
+                    },
                 });
 
                 this.clearCart();
-
                 this.order = response.data;
             } catch (error) {
                 console.error('Error creating order:', error);
