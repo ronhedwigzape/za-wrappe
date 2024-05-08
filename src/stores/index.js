@@ -7,7 +7,6 @@ export const useStore = defineStore('store', {
             app: {
                 backendDir: 'app',
                 title: 'Za-Wrappe',
-                brand: ''
             }
         }
     },

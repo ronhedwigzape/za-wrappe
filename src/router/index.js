@@ -11,6 +11,23 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: () => import('@/views/Admin/Dashboard.vue'),
+    children: [
+      {
+        path: 'products',
+        name: 'products',
+        component: () => import('@/views/Admin/Products.vue'),
+      },
+      {
+        path: 'inventory',
+        name: 'inventory',
+        component: () => import('@/views/Admin/Inventory.vue'),
+      },
+      {
+        path: 'users',
+        name: 'users',
+        component: () => import('@/views/Admin/Users.vue'),
+      }
+    ]
   },
   {
     path: '/customer',
@@ -37,7 +54,19 @@ const routes = [
   {
     path: '/merchant',
     name: 'merchant',
-    component: () => import('@/views/Merchant/Dashboard.vue'),
+    component: () => import('@/views/Merchant/Dashboard.vue'), // realtime order monitoring
+    children: [
+      {
+        path: 'reports',
+        name: 'reports',
+        component: () => import('@/views/Merchant/Reports.vue'),
+      },
+      {
+        path: 'notifications',
+        name: 'notifications',
+        component: () => import('@/views/Merchant/Notifications.vue'),
+      },
+    ]
   },
 ];
 

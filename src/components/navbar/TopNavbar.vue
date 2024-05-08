@@ -1,6 +1,8 @@
 <template>
-    <v-app-bar>
-        <v-app-bar-title class="pally">{{ store.app.brand }}</v-app-bar-title>
+    <v-app-bar
+        color="black"
+    >
+        <v-app-bar-title :text="store.app.title"/>
         <v-spacer/>
         <v-btn
             v-if="$vuetify.display.smAndDown"
@@ -44,9 +46,7 @@ import $ from "jquery";
 // data
 const dialog = ref(false);
 const theme = useTheme();
-const darkMode = ref(true);
 const merchants = reactive([]);
-const notifications = reactive([]);
 const authStore = useAuthStore();
 const store = useStore();
 
