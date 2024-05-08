@@ -136,6 +136,7 @@
 
         <!-- Toggle Button for Cart -->
         <v-btn
+            size="x-large"
             v-if="!useOrderStore().orderCreated"
             @click="useOrderStore().cartVisible = !useOrderStore().cartVisible"
             class="!tw-fixed !tw-bottom-0 !tw-right-0 !tw-m-4 !tw-font-bold !tw-py-2 !tw-px-4 !tw-rounded"
