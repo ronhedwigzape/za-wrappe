@@ -1,5 +1,5 @@
 <template>
-    <div v-if="useOrderStore().cartVisible && useOrderStore().cart.length && useOrderStore().ordering"
+    <div v-if="useOrderStore().cartVisible && useOrderStore().cart.length"
          class="tw-fixed tw-bottom-0 tw-left-0 tw-right-0 tw-bg-white tw-shadow-lg tw-p-4 tw-z-40 tw-border">
         <div class="tw-flex tw-justify-between tw-items-start my-3">
             <h2 class="tw-text-2xl tw-font-semibold"><v-icon>mdi-cart</v-icon> Your Cart</h2>

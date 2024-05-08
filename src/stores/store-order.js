@@ -316,9 +316,6 @@ export const useOrderStore = defineStore('order', {
                     this.updateCartItem(cartItem);
                 } else {
                     this.addToCart(cartItem);
-                    if (this.cart.length === 1) {
-                        this.cartVisible = true;
-                    }
                 }
                 this.resetSelections();
             }
