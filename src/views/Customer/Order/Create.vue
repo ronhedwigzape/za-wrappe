@@ -126,6 +126,7 @@
 
             <!--  Show success message after order creation   -->
             <Success
+                v-if="useOrderStore().orderCreated"
                 :message="useOrderStore().order.message"
                 :verification-code="useOrderStore().order.verification_code"
                 :order-id="useOrderStore().order.order_id"
