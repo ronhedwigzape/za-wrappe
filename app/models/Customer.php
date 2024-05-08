@@ -467,7 +467,8 @@ class Customer extends User
 
             // Calculate total price for the order
             foreach ($items as $item) {
-                $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], $item['add_ons']);
+                $addOns = isset($item['add_ons']) ? $item['add_ons'] : [];
+                $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], $addOns);
                 $totalPrice += $subtotal;
             }
 
@@ -480,8 +481,8 @@ class Customer extends User
 
             // Handle each order item
             foreach ($items as $item) {
-                $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], $item['add_ons']);
-                $addOnIdsJson = json_encode($item['add_ons']);
+                $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], isset($item['add_ons']) ? $item['add_ons'] : []);
+                $addOnIdsJson = json_encode(isset($item['add_ons']) ? $item['add_ons'] : []);
                 $stmt = $this->conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, add_on_ids, flavor_id, subtotal) VALUES (?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("iiissd", $orderId, $item['product_id'], $item['quantity'], $addOnIdsJson, $item['flavor_id'], $subtotal);
                 $stmt->execute();
