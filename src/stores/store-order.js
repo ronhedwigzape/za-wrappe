@@ -348,39 +348,41 @@ export const useOrderStore = defineStore('order', {
         },
         async createOrder(customerContact) {
             try {
-                // console.log("Cart before creating order:", JSON.stringify(this.cart, null, 2));
+                // console.log("Final Cart before creating order:", JSON.stringify(this.cart, null, 2));
                 const orderData = {
                     customer_contact: customerContact,
-                    items: this.cart ? this.cart.map(item => ({
+                    items: this.cart.map(item => ({
                         product_id: item.id,
                         quantity: item.quantity,
-                        add_ons: item.selectedAddOns && item.selectedAddOns.length > 0 ? item.selectedAddOns.map(addOn => addOn.id) : [],
+                        add_ons: item.addOns.map(addOn => addOn.id), // Make sure addOns is the correct field
                         flavor_id: item.selectedFlavorId
-                    })) : []
+                    }))
                 };
+
                 // console.log("Order data being sent:", JSON.stringify(orderData, null, 2));
 
-                const response = await $.ajax({
+                await $.ajax({
                     url: `${useStore().appURL}/${useAuthStore().getUser.userType}.php`,
                     type: 'POST',
                     xhrFields: { withCredentials: true },
                     data: { orderData },
                     success: (data) => {
                         data = JSON.parse(data);
-                        // console.log("Order response:", data);
+                        this.order = data;
                     },
                     error: (error) => {
+                        console.error("AJAX error:", error);
                         alert(`ERROR ${error.status}: ${error.statusText}`);
                     },
                 });
 
                 this.clearCart();
-                this.order = response.data;
             } catch (error) {
-                console.error('Error creating order:', error);
+                // console.error('Error creating order:', error);
                 throw error;
             }
         }
+
 
     }
 });
