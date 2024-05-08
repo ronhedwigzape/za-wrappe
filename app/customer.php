@@ -18,8 +18,6 @@ else {
         denyAccess();
 
     else {
-
-        // get all Customer bookings
         if (isset($_GET['fetchCategories'])) {
             echo json_encode($customer->fetchCategories());
         }
@@ -35,6 +33,11 @@ else {
         else if (isset($_GET['fetchCategoryAddOns'])) {
             echo json_encode($customer->fetchCategoryAddOns($_GET['fetchCategoryAddOns']));
         }
+
+        else if (isset($_POST['orderData'])) {
+            echo json_encode($customer->createOrder($_POST['orderData']));
+        }
+
 
         else
             denyAccess();
