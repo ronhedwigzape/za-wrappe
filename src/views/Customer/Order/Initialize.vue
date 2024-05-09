@@ -1,6 +1,6 @@
 <template>
     <div class="">
-        <ZaWrappeLogo/>
+        <ZaWrappeLogo :height="13"/>
 
         <div v-if="isLoading" class="carousel-shimmer-container">
             <div class="carousel-shimmer-slide" v-for="n in 5" :key="n">

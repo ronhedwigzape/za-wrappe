@@ -4,34 +4,7 @@
     >
         <v-app-bar-title :text="store.app.title"/>
         <v-spacer/>
-        <v-btn
-            v-if="$vuetify.display.smAndDown"
-            stacked
-        >
-            <v-icon>mdi-menu</v-icon>
-            <v-menu
-                activator="parent"
-                :close-on-content-click="false"
-            >
-                <v-list width="250" height="190">
-                    <v-list-item-title class="text-h5 px-4 py-4 position-sticky pally">Menu</v-list-item-title>
-                    <v-list-item v-if="authStore.isAuthenticated" class="py-2 d-flex justify-center">
-                        <v-chip
-                            class="me-3"
-                            pill
-                        >
-                            <v-avatar start>
-                                <v-img :src="authStore.getUser.avatar"></v-img>
-                            </v-avatar>
-                            {{ authStore.getUser.name }}
-                        </v-chip>
-                    </v-list-item>
-                    <v-list-item v-if="authStore.isAuthenticated" class="py-2 d-flex justify-center">
-                        <SignOut/>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
-        </v-btn>
+        <menu-button/>
     </v-app-bar>
 </template>
 
@@ -42,6 +15,7 @@ import SignOut from "@/components/dialogs/SignOutDialog.vue";
 import {useAuthStore} from "@/stores/store-auth";
 import {useStore} from "@/stores";
 import $ from "jquery";
+import MenuButton from "@/components/buttons/MenuButton.vue";
 
 // data
 const dialog = ref(false);

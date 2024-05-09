@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ZaWrappeLogo/>
+        <ZaWrappeLogo :height="13"/>
 
         <div
             @click="closeCartIfClicked()"

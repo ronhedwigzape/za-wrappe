@@ -22,7 +22,7 @@
             <template v-slot:default="{ isActive }">
                 <v-card>
                     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
-                        <ZaWrappeLogo/>
+                        <ZaWrappeLogo :height="13"/>
                     </div>
                     <v-card-title class="!tw-text-2xl text-center !tw-font-bold">
                         Is this order correct?

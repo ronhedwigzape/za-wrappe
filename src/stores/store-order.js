@@ -23,7 +23,10 @@ export const useOrderStore = defineStore('order', {
         showError: false,
         cartVisible: false,
         orderCreated: false,
-        order: {}
+        order: {},
+        orders: null,
+        reports: null,
+        notifications: null
     }),
     getters: {
         cartTotal: (state) => {
@@ -154,6 +157,60 @@ export const useOrderStore = defineStore('order', {
                 console.error("Failed to fetch data", error);
                 alert(`ERROR ${error.status}: ${error.statusText}`);
             }
+        },
+        async fetchAllOrders() {
+            await $.ajax({
+                url: `${useStore().appURL}/merchant.php`,
+                type: 'GET',
+                xhrFields: {
+                    withCredentials: true
+                },
+                data: {
+                    fetchAllOrders: true
+                },
+                success: (data) => {
+                    this.orders = JSON.parse(data);
+                },
+                error: (error) => {
+                    alert(`ERROR ${error.status}: ${error.statusText}`);
+                },
+            });
+        },
+        async fetchSalesReport(timeFrame) {
+            await $.ajax({
+                url: `${useStore().appURL}/merchant.php`,
+                type: 'GET',
+                xhrFields: {
+                    withCredentials: true
+                },
+                data: {
+                    fetchSalesReport: timeFrame
+                },
+                success: (data) => {
+                    this.reports = JSON.parse(data);
+                },
+                error: (error) => {
+                    alert(`ERROR ${error.status}: ${error.statusText}`);
+                },
+            });
+        },
+        async fetchNotifications() {
+            await $.ajax({
+                url: `${useStore().appURL}/merchant.php`,
+                type: 'GET',
+                xhrFields: {
+                    withCredentials: true
+                },
+                data: {
+                    fetchNotificationsFromCustomers: true
+                },
+                success: (data) => {
+                    this.notifications = JSON.parse(data);
+                },
+                error: (error) => {
+                    alert(`ERROR ${error.status}: ${error.statusText}`);
+                },
+            });
         },
         async goBackToProducts() {
             if (this.selectedCategory && !this.selectedCategoryProducts.length) {
@@ -378,7 +435,7 @@ export const useOrderStore = defineStore('order', {
                 // console.error('Error creating order:', error);
                 throw error;
             }
-        }
+        },
 
 
     }

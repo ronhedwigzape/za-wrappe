@@ -22,7 +22,7 @@ const closeAndReset = () => {
     <!-- Order Success Message -->
     <transition name="fade">
         <div v-if="useOrderStore().orderCreated" class="tw-fixed tw-inset-0 tw-bg-white tw-flex tw-flex-col tw-items-center tw-justify-center tw-px-4 tw-text-center">
-            <ZaWrappeLogo/>
+            <ZaWrappeLogo :height="13"/>
             <div class="tw-py-6">
                 <v-icon size="x-large" class="tw-text-green-500 tw-text-7xl">mdi-check-circle</v-icon>
                 <ZaWrappeHeadingOne>
