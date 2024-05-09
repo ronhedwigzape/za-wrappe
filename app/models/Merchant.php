@@ -724,6 +724,8 @@ class Merchant extends User
             $notification->sender_id = $row['sender_id'];
             $notification->status = $row['status'];
             $notification->message = $row['message'];
+            $notification->created_at = $row['created_at'];
+            $notification->updated_at = $row['updated_at'];
             $notifications[] = $notification;
         }
         $stmt->close();
