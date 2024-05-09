@@ -710,6 +710,7 @@ class Merchant extends User
     }
 
     public function fetchNotificationsFromCustomers() {
+        require_once 'Notification.php';
         $stmt = $this->conn->prepare("SELECT * FROM notifications WHERE type = 'customer_to_merchant' AND receiver_id = ?");
         $stmt->bind_param("i", $this->id);
         $stmt->execute();
@@ -719,8 +720,8 @@ class Merchant extends User
             $notification = new Notification();
             $notification->id = $row['id'];
             $notification->type = $row['type'];
-            $notification->receiverId = $row['receiver_id'];
-            $notification->senderId = $row['sender_id'];
+            $notification->receiver_id = $row['receiver_id'];
+            $notification->sender_id = $row['sender_id'];
             $notification->status = $row['status'];
             $notification->message = $row['message'];
             $notifications[] = $notification;
