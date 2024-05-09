@@ -282,7 +282,10 @@ class Merchant extends User
     public function fetchAllOrders() {
         $stmt = $this->conn->prepare("
         SELECT 
-            o.*, oi.id as order_item_id, oi.*, p.*, i.id as inventory_id, i.* 
+            o.id as order_id, o.status, o.customer_contact, o.total_price, o.verification_code, o.payment_status, o.created_at, o.updated_at,
+            oi.id as order_item_id, oi.product_id, oi.quantity, oi.subtotal, oi.add_on_ids, oi.flavor_id,
+            p.id as product_id, p.name, p.category_id, p.description, p.price, p.image_url, p.active, p.created_at as product_created_at, p.updated_at as product_updated_at,
+            i.id as inventory_id, i.count, i.low_stock_threshold, i.created_at as inventory_created_at, i.updated_at as inventory_updated_at
         FROM 
             orders o
         LEFT JOIN 
@@ -300,10 +303,10 @@ class Merchant extends User
         $orders = [];
 
         while ($row = $result->fetch_assoc()) {
-            $orderId = $row['id'];
+            $orderId = $row['order_id'];
             if (!isset($orders[$orderId])) {
                 $orders[$orderId] = [
-                    'id' => $row['id'],
+                    'id' => $orderId,
                     'status' => $row['status'],
                     'customer_contact' => $row['customer_contact'],
                     'total_price' => $row['total_price'],
@@ -318,8 +321,8 @@ class Merchant extends User
             if ($row['order_item_id']) {
                 $orders[$orderId]['order_items'][] = [
                     'id' => $row['order_item_id'],
-                    'order_id' => $row['order_id'],
                     'product_id' => $row['product_id'],
+                    'order_id' => $row['order_id'],
                     'quantity' => $row['quantity'],
                     'subtotal' => $row['subtotal'],
                     'add_on_ids' => $row['add_on_ids'],
