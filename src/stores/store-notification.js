@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import $ from "jquery";
+import {useStore} from "@/stores/index.js";
 
-export const useStore = defineStore('notification', {
+export const useNotificationStore = defineStore('notification', {
 
     state:() => {
         return {
@@ -9,7 +10,6 @@ export const useStore = defineStore('notification', {
         }
     },
     getters: {
-
 
     },
     actions: {
