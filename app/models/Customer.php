@@ -488,6 +488,22 @@ class Customer extends User
                 $stmt->execute();
             }
 
+            // Generate transaction slip
+            $transactionSlip = new TransactionSlip();
+            $transactionSlip->order_id = $orderId;
+            $transactionSlip->customer_contact = $orderData['customer_contact'];
+            $transactionSlip->total_price = $totalPrice;
+            $transactionSlip->save();
+
+            // Create customer verification
+            $customerVerification = new CustomerVerification();
+            $customerVerification->order_id = $orderId;
+            $customerVerification->verification_code = $verificationCode;
+            $customerVerification->save();
+
+            // Send notification to the merchant
+            $this->sendNotificationToMerchant(1, "New order received. Order ID: $orderId");
+
             // Commit transaction
             $this->conn->commit();
             return [
@@ -501,6 +517,16 @@ class Customer extends User
             $this->conn->rollback();
             return ["error" => "Failed to create order: " . $e->getMessage()];
         }
+    }
+
+    public function sendNotificationToMerchant($receiverId, $message) {
+        $notification = new Notification();
+        $notification->type = 'customer_to_merchant';
+        $notification->receiverId = $receiverId;
+        $notification->senderId = $this->id;
+        $notification->status = 'unread';
+        $notification->message = $message;
+        $notification->save();
     }
 
 }
