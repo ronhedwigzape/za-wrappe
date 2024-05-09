@@ -1,7 +1,10 @@
 <template>
     <TopNavbar/>
     <v-main>
-        <router-view/>
+        <div v-if="$route.path === '/merchant'">
+            hi, this is dashboard for merchants
+        </div>
+        <router-view v-else/>
     </v-main>
 </template>
 <script setup>

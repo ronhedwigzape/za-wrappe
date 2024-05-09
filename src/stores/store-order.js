@@ -26,7 +26,6 @@ export const useOrderStore = defineStore('order', {
         order: {},
         orders: null,
         reports: null,
-        notifications: null
     }),
     getters: {
         cartTotal: (state) => {
@@ -188,24 +187,6 @@ export const useOrderStore = defineStore('order', {
                 },
                 success: (data) => {
                     this.reports = JSON.parse(data);
-                },
-                error: (error) => {
-                    alert(`ERROR ${error.status}: ${error.statusText}`);
-                },
-            });
-        },
-        async fetchNotifications() {
-            await $.ajax({
-                url: `${useStore().appURL}/merchant.php`,
-                type: 'GET',
-                xhrFields: {
-                    withCredentials: true
-                },
-                data: {
-                    fetchNotificationsFromCustomers: true
-                },
-                success: (data) => {
-                    this.notifications = JSON.parse(data);
                 },
                 error: (error) => {
                     alert(`ERROR ${error.status}: ${error.statusText}`);

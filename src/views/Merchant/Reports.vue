@@ -3,7 +3,9 @@
 </script>
 
 <template>
-
+    <div>
+        this is reports
+    </div>
 </template>
 
 <style scoped>
