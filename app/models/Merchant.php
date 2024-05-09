@@ -280,17 +280,17 @@ class Merchant extends User
      */
     public function fetchAllOrders() {
         $stmt = $this->conn->prepare("
-            SELECT 
-                o.*, oi.*, p.*, i.* 
-            FROM 
-                orders o
-            LEFT JOIN 
-                order_items oi ON o.id = oi.order_id
-            LEFT JOIN 
-                products p ON oi.product_id = p.id
-            LEFT JOIN 
-                inventories i ON p.id = i.product_id
-        ");
+        SELECT 
+            o.*, oi.id as order_item_id, oi.*, p.*, i.id as inventory_id, i.* 
+        FROM 
+            orders o
+        LEFT JOIN 
+            order_items oi ON o.id = oi.order_id
+        LEFT JOIN 
+            products p ON oi.product_id = p.id
+        LEFT JOIN 
+            inventories i ON p.id = i.product_id
+    ");
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -312,9 +312,9 @@ class Merchant extends User
                 ];
             }
 
-            if ($row['order_id']) {
+            if ($row['order_item_id']) {
                 $orders[$orderId]['order_items'][] = [
-                    'id' => $row['oi_id'],
+                    'id' => $row['order_item_id'],
                     'order_id' => $row['order_id'],
                     'product_id' => $row['product_id'],
                     'quantity' => $row['quantity'],
