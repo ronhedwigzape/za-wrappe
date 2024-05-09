@@ -13,6 +13,7 @@
                         flat
                         v-bind="props"
                         stacked
+                        block
                     >
                         <v-icon>mdi-dots-vertical</v-icon>
                     </v-btn>
@@ -59,9 +60,8 @@
     <v-btn
         v-if="$vuetify.display.smAndDown"
         prepend-icon="mdi-logout"
-        class="px-16 text-red-darken-3 text-uppercase"
+        class="px-16 text-red-darken-3 text-uppercase !tw-font-bold"
         variant="tonal"
-        @click=""
     >
         Sign out
         <v-dialog
@@ -70,7 +70,7 @@
             max-width="400"
         >
             <v-card>
-                <v-card-title class="bg-orange-accent-2">
+                <v-card-title class="bg-black !tw-font-bold">
                     <v-icon id="remind">mdi-alert-circle</v-icon>
                     Confirm Sign Out
                 </v-card-title>
@@ -78,7 +78,8 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn
-                        color="orange-accent-2"
+                        color="green"
+                        class="!tw-font-bold"
                         variant="text"
                         @click="dialog1 = false"
                         :disabled="signingOut"
@@ -86,8 +87,9 @@
                         Go Back
                     </v-btn>
                     <v-btn
-                        color="orange-accent-4"
-                        variant="text"
+                        color="red"
+                        class="!tw-font-bold"
+                        variant="tonal"
                         @click="signOut"
                         :loading="signingOut"
                     >
