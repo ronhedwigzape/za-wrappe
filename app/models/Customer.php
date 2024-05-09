@@ -368,6 +368,63 @@ class Customer extends User
         return $products;
     }
 
+    public function fetchOrder($orderId) {
+        $stmt = $this->conn->prepare("SELECT o.*, oi.*, p.*, i.* FROM orders o
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.id
+        LEFT JOIN inventories i ON p.id = i.product_id
+        WHERE o.id = ?");
+        $stmt->bind_param("i", $orderId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $order = null;
+        while ($row = $result->fetch_assoc()) {
+            if (!$order) {
+                $order = [
+                    'id' => $row['id'],
+                    'status' => $row['status'],
+                    'customer_contact' => $row['customer_contact'],
+                    'total_price' => $row['total_price'],
+                    'verification_code' => $row['verification_code'],
+                    'payment_status' => $row['payment_status'],
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'order_items' => []
+                ];
+            }
+            if ($row['order_id']) {
+                $order['order_items'][] = [
+                    'id' => $row['order_id'],
+                    'product_id' => $row['product_id'],
+                    'quantity' => $row['quantity'],
+                    'subtotal' => $row['subtotal'],
+                    'add_on_ids' => $row['add_on_ids'],
+                    'flavor_id' => $row['flavor_id'],
+                    'product' => [
+                        'id' => $row['product_id'],
+                        'name' => $row['name'],
+                        'category_id' => $row['category_id'],
+                        'description' => $row['description'],
+                        'price' => $row['price'],
+                        'image_url' => $row['image_url'],
+                        'active' => $row['active'],
+                        'created_at' => $row['created_at'],
+                        'updated_at' => $row['updated_at']
+                    ],
+                    'inventory' => [
+                        'id' => $row['id'],
+                        'count' => $row['count'],
+                        'product_id' => $row['product_id'],
+                        'low_stock_threshold' => $row['low_stock_threshold'],
+                        'created_at' => $row['created_at'],
+                        'updated_at' => $row['updated_at']
+                    ]
+                ];
+            }
+        }
+        return $order;
+    }
+
     /***************************************************************************
      * Generates a 10-character hexadecimal verification code.
      *
@@ -490,19 +547,17 @@ class Customer extends User
 
             // Generate transaction slip
             $transactionSlip = new TransactionSlip();
-            $transactionSlip->order_id = $orderId;
-            $transactionSlip->customer_contact = $orderData['customer_contact'];
-            $transactionSlip->total_price = $totalPrice;
+            $transactionSlip->orderId = $orderId;
             $transactionSlip->save();
 
             // Create customer verification
             $customerVerification = new CustomerVerification();
-            $customerVerification->order_id = $orderId;
-            $customerVerification->verification_code = $verificationCode;
+            $customerVerification->orderId = $orderId;
+            $customerVerification->verificationCode = $verificationCode;
             $customerVerification->save();
 
             // Send notification to the merchant
-            $this->sendNotificationToMerchant(1, "New order received. Order ID: $orderId");
+            $this->sendNotificationToMerchant(1, $orderId);
 
             // Commit transaction
             $this->conn->commit();
@@ -519,13 +574,37 @@ class Customer extends User
         }
     }
 
-    public function sendNotificationToMerchant($receiverId, $message) {
+    public function sendNotificationToMerchant($receiverId, $orderId) {
+        // Fetch the order details
+        $order = $this->fetchOrder($orderId);
+
+        // Prepare the notification message
+        $message = "New order received. Order ID: $orderId\n\n";
+        $message .= "Order Details:\n";
+        $message .= "Customer Contact: " . $order['customer_contact'] . "\n";
+        $message .= "Total Price: " . number_format($order['total_price'], 2) . "\n";
+        $message .= "Verification Code: " . $order['verification_code'] . "\n";
+        $message .= "Payment Status: " . $order['payment_status'] . "\n";
+        $message .= "Created At: " . $order['created_at'] . "\n\n";
+
+        $message .= "Order Items:\n";
+        foreach ($order['order_items'] as $item) {
+            $message .= "- Product: " . $item['product']['name'] . "\n";
+            $message .= "  Quantity: " . $item['quantity'] . "\n";
+            $message .= "  Subtotal: " . number_format($item['subtotal'], 2) . "\n";
+            $message .= "  Add-ons: " . implode(', ', json_decode($item['add_on_ids'])) . "\n";
+            $message .= "  Flavor: " . $item['flavor_id'] . "\n\n";
+        }
+
+        // Create the notification
         $notification = new Notification();
         $notification->type = 'customer_to_merchant';
-        $notification->receiverId = $receiverId;
-        $notification->senderId = $this->id;
+        $notification->receiver_id = $receiverId;
+        $notification->sender_id = $this->id;
         $notification->status = 'unread';
         $notification->message = $message;
+        $notification->created_at = date('Y-m-d H:i:s');
+        $notification->updated_at = date('Y-m-d H:i:s');
         $notification->save();
     }
 
