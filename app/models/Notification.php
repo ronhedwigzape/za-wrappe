@@ -7,7 +7,8 @@ class Notification extends App {
 
     public $id;
     public $type;
-    public $relatedId;
+    public $receiverId;
+    public $senderId;
     public $status;
     public $message;
 
@@ -26,7 +27,8 @@ class Notification extends App {
             $notification = new self();
             $notification->id = $row['id'];
             $notification->type = $row['type'];
-            $notification->relatedId = $row['related_id'];
+            $notification->receiverId = $row['receiver_id'];
+            $notification->senderId = $row['sender_id'];
             $notification->status = $row['status'];
             $notification->message = $row['message'];
             return $notification;
@@ -44,7 +46,8 @@ class Notification extends App {
         return [
             'id' => $this->id,
             'type' => $this->type,
-            'relatedId' => $this->relatedId,
+            'receiverId' => $this->receiverId,
+            'senderId' => $this->senderId,
             'status' => $this->status,
             'message' => $this->message
         ];
@@ -78,7 +81,8 @@ class Notification extends App {
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
             $this->type = $row['type'];
-            $this->relatedId = $row['related_id'];
+            $this->receiverId = $row['receiver_id'];
+            $this->senderId = $row['sender_id'];
             $this->status = $row['status'];
             $this->message = $row['message'];
         } else {
@@ -89,15 +93,15 @@ class Notification extends App {
 
     public function save() {
         if ($this->id) {
-            $stmt = $this->conn->prepare("UPDATE notifications SET type = ?, related_id = ?, status = ?, message = ? WHERE id = ?");
-            $stmt->bind_param("siiss", $this->type, $this->relatedId, $this->status, $this->message, $this->id);
+            $stmt = $this->conn->prepare("UPDATE notifications SET type = ?, receiver_id = ?, sender_id = ?, status = ?, message = ? WHERE id = ?");
+            $stmt->bind_param("siissi", $this->type, $this->receiverId, $this->senderId, $this->status, $this->message, $this->id);
             $stmt->execute();
             if ($stmt->affected_rows === 0) {
                 self::returnError('HTTP/1.1 404', 'Update Notification Error: No Notification updated or Notification [id = ' . $this->id . '] does not exist.');
             }
         } else {
-            $stmt = $this->conn->prepare("INSERT INTO notifications (type, related_id, status, message) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("siis", $this->type, $this->relatedId, $this->status, $this->message);
+            $stmt = $this->conn->prepare("INSERT INTO notifications (type, receiver_id, sender_id, status, message) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("siiss", $this->type, $this->receiverId, $this->senderId, $this->status, $this->message);
             $stmt->execute();
             if ($stmt->affected_rows === 0) {
                 self::returnError('HTTP/1.1 400', 'Create Notification Error: Unable to create Notification.');
