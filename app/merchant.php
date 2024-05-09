@@ -24,7 +24,7 @@ else {
             echo json_encode($merchant->fetchAllOrders());
         }
 
-        // fetch daily reports
+        // fetch reports
         else if (isset($_GET['fetchSalesReport'])) {
             echo json_encode($merchant->fetchSalesReport($_GET['fetchReports']));
         }

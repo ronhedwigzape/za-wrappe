@@ -517,6 +517,7 @@ class Customer extends User
      * @throws Exception Propagates any exceptions thrown during the database operations.
      */
     public function createOrder($orderData) {
+        require_once 'CustomerVerification.php';
         $this->conn->begin_transaction();
         try {
             $totalPrice = 0;
@@ -531,7 +532,7 @@ class Customer extends User
 
             // Insert the main order entry
             $verificationCode = $this->generateVerificationCode();
-            $stmt = $this->conn->prepare("INSERT INTO orders (customer_contact, total_price, status, payment_status, verification_code) VALUES (?, ?, 'Awaiting Payment', 'Pending', ?)");
+            $stmt = $this->conn->prepare("INSERT INTO orders (customer_contact, total_price, status, payment_status, verification_code, created_at, updated_at) VALUES (?, ?, 'Awaiting Payment', 'Pending', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
             $stmt->bind_param("sds", $orderData['customer_contact'], $totalPrice, $verificationCode);
             $stmt->execute();
             $orderId = $this->conn->insert_id;
@@ -545,15 +546,12 @@ class Customer extends User
                 $stmt->execute();
             }
 
-            // Generate transaction slip
-            $transactionSlip = new TransactionSlip();
-            $transactionSlip->orderId = $orderId;
-            $transactionSlip->save();
-
             // Create customer verification
             $customerVerification = new CustomerVerification();
             $customerVerification->orderId = $orderId;
+            $customerVerification->customerContact = $orderData['customer_contact'];
             $customerVerification->verificationCode = $verificationCode;
+            $customerVerification->attempts = 0;
             $customerVerification->save();
 
             // Send notification to the merchant
@@ -575,6 +573,7 @@ class Customer extends User
     }
 
     public function sendNotificationToMerchant($receiverId, $orderId) {
+        require_once 'Notification.php';
         // Fetch the order details
         $order = $this->fetchOrder($orderId);
 
@@ -592,7 +591,12 @@ class Customer extends User
             $message .= "- Product: " . $item['product']['name'] . "\n";
             $message .= "  Quantity: " . $item['quantity'] . "\n";
             $message .= "  Subtotal: " . number_format($item['subtotal'], 2) . "\n";
-            $message .= "  Add-ons: " . implode(', ', json_decode($item['add_on_ids'])) . "\n";
+            $addOnIds = json_decode($item['add_on_ids']);
+            if (is_array($addOnIds) && !empty($addOnIds)) {
+                $message .= "  Add-ons: " . implode(', ', $addOnIds) . "\n";
+            } else {
+                $message .= "  Add-ons: None\n";
+            }
             $message .= "  Flavor: " . $item['flavor_id'] . "\n\n";
         }
 
@@ -607,5 +611,6 @@ class Customer extends User
         $notification->updated_at = date('Y-m-d H:i:s');
         $notification->save();
     }
+
 
 }

@@ -271,10 +271,11 @@ class Merchant extends User
     }
 
     /***************************************************************************
-     * Fetches all orders from the database along with detailed information.
+     * Fetches all orders from the database along with detailed information, sorted by the latest orders first.
      *
      * This function retrieves all orders and their related details including order items, product details,
-     * and inventory status, structuring them into a comprehensive array of orders.
+     * and inventory status, structuring them into a comprehensive array of orders. The orders are sorted
+     * based on their creation date, with the latest orders appearing first.
      *
      * @return array Returns an array of associative arrays, each containing detailed information about an order.
      */
@@ -290,6 +291,8 @@ class Merchant extends User
             products p ON oi.product_id = p.id
         LEFT JOIN 
             inventories i ON p.id = i.product_id
+        ORDER BY
+            o.created_at DESC
     ");
         $stmt->execute();
         $result = $stmt->get_result();
@@ -345,6 +348,70 @@ class Merchant extends User
         }
 
         return array_values($orders);
+    }
+
+    /***************************************************************************
+     * Fetches the latest order from the database.
+     *
+     * This function retrieves the most recent order along with its associated items, products,
+     * and inventory details. It uses the `created_at` timestamp to determine the latest order.
+     *
+     * @return array|null Returns an associative array containing detailed information about the latest order or null if no orders are found.
+     */
+    public function fetchLatestOrder() {
+        $stmt = $this->conn->prepare("SELECT o.*, oi.*, p.*, i.* FROM orders o
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.id
+        LEFT JOIN inventories i ON p.id = i.product_id
+        WHERE o.id = (SELECT id FROM orders ORDER BY created_at DESC LIMIT 1)");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $order = null;
+        while ($row = $result->fetch_assoc()) {
+            if (!$order) {
+                $order = [
+                    'id' => $row['id'],
+                    'status' => $row['status'],
+                    'customer_contact' => $row['customer_contact'],
+                    'total_price' => $row['total_price'],
+                    'verification_code' => $row['verification_code'],
+                    'payment_status' => $row['payment_status'],
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'order_items' => []
+                ];
+            }
+            if ($row['order_id']) {
+                $order['order_items'][] = [
+                    'id' => $row['order_id'],
+                    'product_id' => $row['product_id'],
+                    'quantity' => $row['quantity'],
+                    'subtotal' => $row['subtotal'],
+                    'add_on_ids' => $row['add_on_ids'],
+                    'flavor_id' => $row['flavor_id'],
+                    'product' => [
+                        'id' => $row['product_id'],
+                        'name' => $row['name'],
+                        'category_id' => $row['category_id'],
+                        'description' => $row['description'],
+                        'price' => $row['price'],
+                        'image_url' => $row['image_url'],
+                        'active' => $row['active'],
+                        'created_at' => $row['created_at'],
+                        'updated_at' => $row['updated_at']
+                    ],
+                    'inventory' => [
+                        'id' => $row['id'],
+                        'count' => $row['count'],
+                        'product_id' => $row['product_id'],
+                        'low_stock_threshold' => $row['low_stock_threshold'],
+                        'created_at' => $row['created_at'],
+                        'updated_at' => $row['updated_at']
+                    ]
+                ];
+            }
+        }
+        return $order;
     }
 
     /***************************************************************************
