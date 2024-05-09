@@ -21,14 +21,6 @@
                         </v-chip>
                     </span>
                 </v-list-item>
-                <v-list-item
-                    link
-                    prepend-icon="mdi-chart-bar"
-                    class="pl-10 py-2 d-flex justify-start bg-black"
-                    @click="navigateToReports"
-                >
-                    Sales Report
-                </v-list-item>
                 <v-list-item class="py-2 d-flex justify-center">
                     <SignOut/>
                 </v-list-item>
