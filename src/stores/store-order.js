@@ -169,6 +169,9 @@ export const useOrderStore = defineStore('order', {
                 },
                 success: (data) => {
                     this.orders = JSON.parse(data);
+                        setTimeout(() => {
+                            this.fetchAllOrders();
+                        }, 3100);
                 },
                 error: (error) => {
                     alert(`ERROR ${error.status}: ${error.statusText}`);

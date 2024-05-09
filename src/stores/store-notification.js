@@ -39,7 +39,7 @@ export const useNotificationStore = defineStore('notification', {
                     // Set a new interval to fetch notifications every 2 seconds
                     this.intervalId = setInterval(() => {
                         this.fetchNotifications();
-                    }, 2500);
+                    }, 2200);
                 },
                 error: (error) => {
                     alert(`ERROR ${error.status}: ${error.statusText}`);
