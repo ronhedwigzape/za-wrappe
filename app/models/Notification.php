@@ -7,10 +7,12 @@ class Notification extends App {
 
     public $id;
     public $type;
-    public $receiverId;
-    public $senderId;
+    public $receiver_id;
+    public $sender_id;
     public $status;
     public $message;
+    public $created_at;
+    public $updated_at;
 
     public function __construct($id = null) {
         parent::__construct();
@@ -27,10 +29,12 @@ class Notification extends App {
             $notification = new self();
             $notification->id = $row['id'];
             $notification->type = $row['type'];
-            $notification->receiverId = $row['receiver_id'];
-            $notification->senderId = $row['sender_id'];
+            $notification->receiver_id = $row['receiver_id'];
+            $notification->sender_id = $row['sender_id'];
             $notification->status = $row['status'];
             $notification->message = $row['message'];
+            $notification->created_at = $row['created_at'];
+            $notification->updated_at = $row['updated_at'];
             return $notification;
         }
         return false;
@@ -46,10 +50,12 @@ class Notification extends App {
         return [
             'id' => $this->id,
             'type' => $this->type,
-            'receiverId' => $this->receiverId,
-            'senderId' => $this->senderId,
+            'receiver_id' => $this->receiver_id,
+            'sender_id' => $this->sender_id,
             'status' => $this->status,
-            'message' => $this->message
+            'message' => $this->message,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 
@@ -81,10 +87,12 @@ class Notification extends App {
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
             $this->type = $row['type'];
-            $this->receiverId = $row['receiver_id'];
-            $this->senderId = $row['sender_id'];
+            $this->receiver_id = $row['receiver_id'];
+            $this->sender_id = $row['sender_id'];
             $this->status = $row['status'];
             $this->message = $row['message'];
+            $this->created_at = $row['created_at'];
+            $this->updated_at = $row['updated_at'];
         } else {
             self::returnError('HTTP/1.1 404', 'Load Notification Error: Notification [id = ' . $this->id . '] does not exist.');
         }
@@ -93,15 +101,15 @@ class Notification extends App {
 
     public function save() {
         if ($this->id) {
-            $stmt = $this->conn->prepare("UPDATE notifications SET type = ?, receiver_id = ?, sender_id = ?, status = ?, message = ? WHERE id = ?");
-            $stmt->bind_param("siissi", $this->type, $this->receiverId, $this->senderId, $this->status, $this->message, $this->id);
+            $stmt = $this->conn->prepare("UPDATE notifications SET type = ?, receiver_id = ?, sender_id = ?, status = ?, message = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->bind_param("siissi", $this->type, $this->receiver_id, $this->sender_id, $this->status, $this->message, $this->id);
             $stmt->execute();
             if ($stmt->affected_rows === 0) {
                 self::returnError('HTTP/1.1 404', 'Update Notification Error: No Notification updated or Notification [id = ' . $this->id . '] does not exist.');
             }
         } else {
-            $stmt = $this->conn->prepare("INSERT INTO notifications (type, receiver_id, sender_id, status, message) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("siiss", $this->type, $this->receiverId, $this->senderId, $this->status, $this->message);
+            $stmt = $this->conn->prepare("INSERT INTO notifications (type, receiver_id, sender_id, status, message, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->bind_param("siiss", $this->type, $this->receiver_id, $this->sender_id, $this->status, $this->message);
             $stmt->execute();
             if ($stmt->affected_rows === 0) {
                 self::returnError('HTTP/1.1 400', 'Create Notification Error: Unable to create Notification.');
