@@ -152,6 +152,8 @@ class Order extends App {
     }
 
     public function processPaymentAndGenerateReceipt($amount, $paymentMethod, $transactionId) {
+        require_once 'Payment.php';
+        require_once 'Receipt.php';
         // Check if the payment amount matches the order's total price
         if ($this->totalPrice != $amount) {
             throw new Exception("Payment amount does not match the order total.");

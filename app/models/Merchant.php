@@ -1,4 +1,7 @@
 <?php
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 require_once 'User.php';
 
@@ -808,64 +811,222 @@ class Merchant extends User
         return $notifications;
     }
 
-    public function receivePayment($orderId) {
-        $order = new Order($orderId);
-        try {
-            $order->markAsPaymentReceived();
-            echo "Order status updated to Payment Received.";
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
-    }
-
     /***************************************************************************
      * Cancels an order, changing its status in the database to 'Cancelled'.
      *
      * This function updates the status of an order to 'Cancelled', reflecting changes such as halted processing or shipping.
      *
      * @param int $orderId The ID of the order to cancel.
-     * @return void
+     * @return false|string
      */
     public function cancelOrder($orderId) {
+        require_once 'Order.php';
         $order = new Order($orderId);
         try {
             $order->markAsCancelled();
-            echo "Order status updated to Cancelled.";
+            echo json_encode(["success" => true, "message" => "Order status updated to Cancelled."]);
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
         }
+        exit();
     }
 
     public function prepareOrder($orderId) {
+        require_once 'Order.php';
         $order = new Order($orderId);
         try {
             $order->markAsPreparing();
-            echo "Order status updated to Preparing Order.";
+            echo json_encode(["success" => true, "message" => "Order status updated to Preparing Order."]);
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
         }
+        exit();
     }
 
     public function setOrderReadyForPickup($orderId) {
+        require_once 'Order.php';
         $order = new Order($orderId);
         try {
             $order->markAsReadyForPickup();
-            echo "Order status updated to Ready for Pickup.";
+            echo json_encode(["success" => true, "message" => "Order status updated to Ready for Pickup."]);
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
         }
+        exit();
     }
 
     public function processPaymentAndGenerateReceipt($orderId, $amount, $paymentMethod, $transactionId) {
+        require_once 'Order.php';
         $order = new Order($orderId);
         try {
             $result = $order->processPaymentAndGenerateReceipt($amount, $paymentMethod, $transactionId);
             return [
+                "success" => true,
                 "message" => "Payment processed and receipt generated successfully.",
                 "details" => $result
             ];
         } catch (Exception $e) {
-            return ["error" => $e->getMessage()];
+            return [
+                "success" => false,
+                "error" => $e->getMessage()
+            ];
+        }
+    }
+
+
+    public function exportOrdersToXLS() {
+        $orders = $this->fetchAllOrders(); // Fetch all orders including related data
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Headers
+        $headers = [
+            'Order ID', 'Status', 'Customer Contact', 'Total Price', 'Verification Code', 'Payment Status', 'Created At', 'Updated At',
+            'Item ID', 'Product ID', 'Quantity', 'Subtotal', 'Add-on IDs', 'Flavor ID', 'Product Name', 'Product Description', 'Product Price', 'Product Image URL', 'Product Active', 'Product Created At', 'Product Updated At',
+            'Inventory Count', 'Low Stock Threshold', 'Inventory Created At', 'Inventory Updated At',
+            'Payment ID', 'Transaction ID', 'Payment Amount', 'Payment Method', 'Payment Status', 'Payment Processed At',
+            'Receipt ID', 'Receipt Details', 'Receipt Issued At'
+        ];
+
+        // Set headers in the first row
+        $columnIndex = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($columnIndex . '1', $header);
+            $columnIndex++;
+        }
+
+        $rowIndex = 2;
+        foreach ($orders as $order) {
+            $baseColumnIndex = 'A';
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['id']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['status']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['customer_contact']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['total_price']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['verification_code']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['payment_status']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['created_at']);
+            $sheet->setCellValue($baseColumnIndex++ . $rowIndex, $order['updated_at']);
+
+            foreach ($order['order_items'] as $item) {
+                $itemColumnIndex = $baseColumnIndex;
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['id']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product_id']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['quantity']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['subtotal']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['add_on_ids']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['flavor_id']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['name']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['description']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['price']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['image_url']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['active']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['created_at']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['updated_at']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['inventory']['count']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['inventory']['low_stock_threshold']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['inventory']['created_at']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['inventory']['updated_at']);
+
+                if ($order['payment']) {
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['payment']['id']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['payment']['transaction_id']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['payment']['amount']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['payment']['payment_method']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['payment']['transaction_status']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['payment']['processed_at']);
+                }
+
+                if ($order['receipt']) {
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['receipt']['id']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['receipt']['details']);
+                    $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $order['receipt']['issued_at']);
+                }
+
+                $rowIndex++;
+            }
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'detailed_orders_' . date('Ymd') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        $writer->save('php://output');
+    }
+
+    public function importOrdersFromXLS($filePath) {
+        try {
+            $result = $this->importOrdersFromXLSLogic($filePath); // Assume this is the actual import logic
+            return json_encode(["success" => true, "message" => "Orders imported successfully.", "data" => $result]);
+        } catch (Exception $e) {
+            return json_encode(["success" => false, "message" => "Error importing orders: " . $e->getMessage()]);
+        }
+    }
+
+    public function importOrdersFromXLSLogic($filePath) {
+        $spreadsheet = IOFactory::load($filePath);
+        $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+        foreach ($sheetData as $index => $row) {
+            if ($index === 1) continue; // Skip the header row
+
+            // Create or load an order
+            $order = new Order($row[0] ?? null); // Pass the order ID if it exists
+            $order->status = $row[1] ?? '';
+            $order->customerContact = $row[2] ?? '';
+            $order->totalPrice = $row[3] ?? 0;
+            $order->verificationCode = $row[4] ?? '';
+            $order->paymentStatus = $row[5] ?? '';
+            $order->createdAt = $row[6] ?? '';
+            $order->updatedAt = $row[7] ?? '';
+            $order->save();
+
+            // Assuming each order has multiple items, loop through items
+            for ($i = 8; $i < count($row); $i += 25) {
+                $orderItem = new OrderItem();
+                $orderItem->orderId = $order->id;
+                $orderItem->productId = $row[$i + 1] ?? 0;
+                $orderItem->quantity = $row[$i + 2] ?? 0;
+                $orderItem->subtotal = $row[$i + 3] ?? 0;
+                $orderItem->addOnIds = $row[$i + 4] ?? '';
+                $orderItem->flavorId = $row[$i + 5] ?? 0;
+                $orderItem->save();
+
+                // Handle product details if necessary
+                $product = new Product($orderItem->productId);
+                $product->name = $row[$i + 6] ?? '';
+                $product->description = $row[$i + 7] ?? '';
+                $product->price = $row[$i + 8] ?? 0;
+                $product->image_url = $row[$i + 9] ?? '';
+                $product->active = $row[$i + 10] ?? 1;
+                $product->save();
+
+                // Handle inventory if necessary
+                $inventory = new Inventory($product->id);
+                $inventory->count = $row[$i + 11] ?? 0;
+                $inventory->lowStockThreshold = $row[$i + 12] ?? 0;
+                $inventory->save();
+            }
+
+            // Optionally handle payments and receipts if present
+            if (!empty($row[25])) {
+                $payment = new Payment();
+                $payment->orderId = $order->id;
+                $payment->transactionId = $row[26] ?? '';
+                $payment->amount = $row[27] ?? 0;
+                $payment->paymentMethod = $row[28] ?? '';
+                $payment->transactionStatus = $row[29] ?? '';
+                $payment->processedAt = $row[30] ?? '';
+                $payment->save();
+            }
+
+            if (!empty($row[31])) {
+                $receipt = new Receipt();
+                $receipt->paymentId = $payment->id;
+                $receipt->details = $row[32] ?? '';
+                $receipt->issuedAt = $row[33] ?? '';
+                $receipt->save();
+            }
         }
     }
 }
