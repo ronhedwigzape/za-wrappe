@@ -145,4 +145,23 @@ class Payment extends App {
         $stmt->close();
         return null; // Return null if no receipt is found
     }
+
+    public function createPayment($orderId, $amount, $paymentMethod, $transactionId) {
+        $this->orderId = $orderId;
+        $this->amount = $amount;
+        $this->paymentMethod = $paymentMethod;
+        $this->transactionId = $transactionId;
+        $this->transactionStatus = 'Completed';
+        $this->processedAt = date('Y-m-d H:i:s');
+
+        $stmt = $this->conn->prepare("INSERT INTO payments (order_id, amount, transaction_status, payment_method, transaction_id, processed_at) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("idssss", $this->orderId, $this->amount, $this->transactionStatus, $this->paymentMethod, $this->transactionId, $this->processedAt);
+        $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            throw new Exception("Failed to create payment.");
+        }
+        $this->id = $this->conn->insert_id;
+        $stmt->close();
+        return $this->id;
+    }
 }

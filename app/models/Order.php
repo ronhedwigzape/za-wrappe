@@ -150,4 +150,79 @@ class Order extends App {
         $stmt->close();
         return $payments;
     }
+
+    public function processPaymentAndGenerateReceipt($amount, $paymentMethod, $transactionId) {
+        // Check if the payment amount matches the order's total price
+        if ($this->totalPrice != $amount) {
+            throw new Exception("Payment amount does not match the order total.");
+        }
+
+        // Start transaction
+        $this->conn->begin_transaction();
+
+        try {
+            // Update order status to 'Payment Received'
+            $this->status = 'Payment Received';
+            $this->paymentStatus = 'Paid';
+            $this->updateStatus();
+
+            // Create payment record
+            $payment = new Payment();
+            $paymentId = $payment->createPayment($this->id, $amount, $paymentMethod, $transactionId);
+
+            // Generate receipt
+            $receipt = new Receipt();
+            $receiptDetails = "Receipt for Order #" . $this->id;
+            $receiptId = $receipt->generateReceipt($paymentId, $receiptDetails);
+
+            // Commit transaction
+            $this->conn->commit();
+
+            return [
+                "paymentId" => $paymentId,
+                "receiptId" => $receiptId
+            ];
+        } catch (Exception $e) {
+            // Rollback transaction in case of error
+            $this->conn->rollback();
+            throw $e;
+        }
+    }
+
+    public function markAsCancelled() {
+        if ($this->status !== 'Payment Received') {
+            $this->status = 'Cancelled';
+            $this->updateStatus();
+        } else {
+            throw new Exception("Cannot cancel order after payment has been received.");
+        }
+    }
+
+    public function markAsPreparing() {
+        if ($this->status === 'Payment Received') {
+            $this->status = 'Preparing Order';
+            $this->updateStatus();
+        } else {
+            throw new Exception("Order must be marked as 'Payment Received' before it can be set to 'Preparing Order'.");
+        }
+    }
+
+    public function markAsReadyForPickup() {
+        if ($this->status === 'Preparing Order') {
+            $this->status = 'Ready for Pickup';
+            $this->updateStatus();
+        } else {
+            throw new Exception("Order must be in 'Preparing Order' status before it can be set to 'Ready for Pickup'.");
+        }
+    }
+
+    private function updateStatus() {
+        $stmt = $this->conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
+        $stmt->bind_param("si", $this->status, $this->id);
+        $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            throw new Exception("Update failed or no changes made.");
+        }
+        $stmt->close();
+    }
 }

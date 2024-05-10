@@ -120,4 +120,20 @@ class Receipt extends App {
         require_once 'Payment.php';
         return new Payment($this->paymentId);
     }
+
+    public function generateReceipt($paymentId, $details) {
+        $this->paymentId = $paymentId;
+        $this->issuedAt = date('Y-m-d H:i:s'); // Current timestamp
+        $this->details = $details;
+
+        $stmt = $this->conn->prepare("INSERT INTO receipts (payment_id, issued_at, details) VALUES (?, ?, ?)");
+        $stmt->bind_param("iss", $this->paymentId, $this->issuedAt, $this->details);
+        $stmt->execute();
+        if ($stmt->affected_rows === 0) {
+            throw new Exception("Failed to create receipt.");
+        }
+        $this->id = $this->conn->insert_id;
+        $stmt->close();
+        return $this->id;
+    }
 }

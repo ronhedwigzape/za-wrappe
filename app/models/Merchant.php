@@ -285,7 +285,9 @@ class Merchant extends User
             o.id as order_id, o.status, o.customer_contact, o.total_price, o.verification_code, o.payment_status, o.created_at, o.updated_at,
             oi.id as order_item_id, oi.product_id, oi.quantity, oi.subtotal, oi.add_on_ids, oi.flavor_id,
             p.id as product_id, p.name, p.category_id, p.description, p.price, p.image_url, p.active, p.created_at as product_created_at, p.updated_at as product_updated_at,
-            i.id as inventory_id, i.count, i.low_stock_threshold, i.created_at as inventory_created_at, i.updated_at as inventory_updated_at
+            i.id as inventory_id, i.count, i.low_stock_threshold, i.created_at as inventory_created_at, i.updated_at as inventory_updated_at,
+            pay.id as payment_id, pay.transaction_id, pay.amount as payment_amount, pay.payment_method, pay.transaction_status, pay.processed_at,
+            r.id as receipt_id, r.details as receipt_details, r.issued_at
         FROM 
             orders o
         LEFT JOIN 
@@ -294,6 +296,10 @@ class Merchant extends User
             products p ON oi.product_id = p.id
         LEFT JOIN 
             inventories i ON p.id = i.product_id
+        LEFT JOIN 
+            payments pay ON o.id = pay.order_id
+        LEFT JOIN 
+            receipts r ON pay.id = r.payment_id
         ORDER BY
             o.created_at DESC
     ");
@@ -314,7 +320,9 @@ class Merchant extends User
                     'payment_status' => $row['payment_status'],
                     'created_at' => $row['created_at'],
                     'updated_at' => $row['updated_at'],
-                    'order_items' => []
+                    'order_items' => [],
+                    'payment' => null,
+                    'receipt' => null
                 ];
             }
 
@@ -322,7 +330,6 @@ class Merchant extends User
                 $orders[$orderId]['order_items'][] = [
                     'id' => $row['order_item_id'],
                     'product_id' => $row['product_id'],
-                    'order_id' => $row['order_id'],
                     'quantity' => $row['quantity'],
                     'subtotal' => $row['subtotal'],
                     'add_on_ids' => $row['add_on_ids'],
@@ -335,17 +342,36 @@ class Merchant extends User
                         'price' => $row['price'],
                         'image_url' => $row['image_url'],
                         'active' => $row['active'],
-                        'created_at' => $row['created_at'],
-                        'updated_at' => $row['updated_at']
+                        'created_at' => $row['product_created_at'],
+                        'updated_at' => $row['product_updated_at']
                     ],
                     'inventory' => [
                         'id' => $row['inventory_id'],
                         'count' => $row['count'],
                         'product_id' => $row['product_id'],
                         'low_stock_threshold' => $row['low_stock_threshold'],
-                        'created_at' => $row['created_at'],
-                        'updated_at' => $row['updated_at']
+                        'created_at' => $row['inventory_created_at'],
+                        'updated_at' => $row['inventory_updated_at']
                     ]
+                ];
+            }
+
+            if ($row['payment_id'] && !$orders[$orderId]['payment']) {
+                $orders[$orderId]['payment'] = [
+                    'id' => $row['payment_id'],
+                    'transaction_id' => $row['transaction_id'],
+                    'amount' => $row['payment_amount'],
+                    'payment_method' => $row['payment_method'],
+                    'transaction_status' => $row['transaction_status'],
+                    'processed_at' => $row['processed_at']
+                ];
+            }
+
+            if ($row['receipt_id'] && !$orders[$orderId]['receipt']) {
+                $orders[$orderId]['receipt'] = [
+                    'id' => $row['receipt_id'],
+                    'details' => $row['receipt_details'],
+                    'issued_at' => $row['issued_at']
                 ];
             }
         }
@@ -685,26 +711,6 @@ class Merchant extends User
     }
 
     /***************************************************************************
-     * Cancels an order, changing its status in the database to 'Cancelled'.
-     *
-     * This function updates the status of an order to 'Cancelled', reflecting changes such as halted processing or shipping.
-     *
-     * @param int $orderId The ID of the order to cancel.
-     * @return array Returns a message indicating the success or failure of the cancellation.
-     */
-    public function cancelOrder($orderId) {
-        $stmt = $this->conn->prepare("UPDATE orders SET status = 'Cancelled' WHERE id = ?");
-        $stmt->bind_param("i", $orderId);
-        $success = $stmt->execute();
-
-        if ($success) {
-            return ["message" => "Order canceled successfully."];
-        } else {
-            return ["error" => "Failed to cancel order."];
-        }
-    }
-
-    /***************************************************************************
      * Generates a sales report based on a specified time frame.
      *
      * This function fetches aggregated order and payment data within a given time frame, such as daily, weekly, or monthly.
@@ -802,5 +808,64 @@ class Merchant extends User
         return $notifications;
     }
 
+    public function receivePayment($orderId) {
+        $order = new Order($orderId);
+        try {
+            $order->markAsPaymentReceived();
+            echo "Order status updated to Payment Received.";
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
 
+    /***************************************************************************
+     * Cancels an order, changing its status in the database to 'Cancelled'.
+     *
+     * This function updates the status of an order to 'Cancelled', reflecting changes such as halted processing or shipping.
+     *
+     * @param int $orderId The ID of the order to cancel.
+     * @return void
+     */
+    public function cancelOrder($orderId) {
+        $order = new Order($orderId);
+        try {
+            $order->markAsCancelled();
+            echo "Order status updated to Cancelled.";
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
+    public function prepareOrder($orderId) {
+        $order = new Order($orderId);
+        try {
+            $order->markAsPreparing();
+            echo "Order status updated to Preparing Order.";
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
+    public function setOrderReadyForPickup($orderId) {
+        $order = new Order($orderId);
+        try {
+            $order->markAsReadyForPickup();
+            echo "Order status updated to Ready for Pickup.";
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
+    public function processPaymentAndGenerateReceipt($orderId, $amount, $paymentMethod, $transactionId) {
+        $order = new Order($orderId);
+        try {
+            $result = $order->processPaymentAndGenerateReceipt($amount, $paymentMethod, $transactionId);
+            return [
+                "message" => "Payment processed and receipt generated successfully.",
+                "details" => $result
+            ];
+        } catch (Exception $e) {
+            return ["error" => $e->getMessage()];
+        }
+    }
 }

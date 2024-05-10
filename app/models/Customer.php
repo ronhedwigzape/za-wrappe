@@ -528,6 +528,18 @@ class Customer extends User
                 $addOns = isset($item['add_ons']) ? $item['add_ons'] : [];
                 $subtotal = $this->calculateSubtotal($item['product_id'], $item['quantity'], $addOns);
                 $totalPrice += $subtotal;
+
+                // Fetch and update inventory
+                $inventoryStmt = $this->conn->prepare("SELECT count FROM inventories WHERE product_id = ?");
+                $inventoryStmt->bind_param("i", $item['product_id']);
+                $inventoryStmt->execute();
+                $inventoryResult = $inventoryStmt->get_result();
+                if ($inventoryRow = $inventoryResult->fetch_assoc()) {
+                    $newCount = $inventoryRow['count'] - $item['quantity'];
+                    $updateInventoryStmt = $this->conn->prepare("UPDATE inventories SET count = ? WHERE product_id = ?");
+                    $updateInventoryStmt->bind_param("ii", $newCount, $item['product_id']);
+                    $updateInventoryStmt->execute();
+                }
             }
 
             // Insert the main order entry
