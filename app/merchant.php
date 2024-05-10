@@ -26,7 +26,7 @@ else {
 
         // fetch reports
         else if (isset($_GET['fetchSalesReport'])) {
-            echo json_encode($merchant->fetchSalesReport($_GET['fetchReports']));
+            echo json_encode($merchant->fetchSalesReport($_GET['fetchSalesReport']));
         }
 
         // fetch notifications
