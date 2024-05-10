@@ -50,6 +50,7 @@
                         <v-btn
                             class="hover:tw-bg-gray-700 tw-font-bold tw-px-4 tw-rounded"
                             size="large"
+							@click="clearAllSelections()"
                         >
                             <v-icon class="mr-1">mdi-arrow-left</v-icon>
                             Return to Home
@@ -197,6 +198,13 @@ const closeCartIfClicked = () => {
     if (useOrderStore().cartVisible === true) {
         useOrderStore().cartVisible = false;
     }
+}
+
+const clearAllSelections = () => {
+	useOrderStore().cartVisible = false;
+	useOrderStore().resetSelections();
+	useOrderStore().orders = null;
+	useOrderStore().clearCart()
 }
 
 // onMounted
