@@ -22,7 +22,7 @@
                     loading-text="Loading orders..."
                 >
                     <template v-slot:item.total_price="{ item }">
-                        ${{ item.total_price }}
+						₱{{ item.total_price }}
                     </template>
                     <template v-slot:item.created_at="{ item }">
                         {{ new Date(item.created_at).toLocaleString() }}
@@ -49,7 +49,7 @@ const loading = ref(true);
 const search = ref('');
 
 const headers = [
-    { title: 'Order ID', align: 'start', key: 'id' },
+    { title: 'Order #', align: 'start', key: 'id' },
     { title: 'Status', key: 'status' },
     { title: 'Customer Contact', key: 'customer_contact' },
     { title: 'Total Price', key: 'total_price' },
