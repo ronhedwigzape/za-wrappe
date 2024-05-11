@@ -15,10 +15,12 @@
         <v-row>
             <v-col cols="12">
                 <v-card>
-                    <v-card-title>
-                        Sales Report
-                    </v-card-title>
-                    <v-card-text>
+					<v-card-title>
+						Sales Report
+						<v-btn size="small" prepend-icon="mdi-file-export" color="primary" @click="exportToExcel">Export to XLS</v-btn>
+					</v-card-title>
+
+					<v-card-text>
                         <v-data-table :items="reportData">
                             <template v-slot:[`item.trend`]="{ item }">
                                 <v-sparkline
@@ -71,6 +73,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useOrderStore } from '@/stores/store-order.js';
+import * as XLSX from 'xlsx';
 
 const orderStore = useOrderStore();
 const selectedTimeFrame = ref('daily');
@@ -78,25 +81,30 @@ const timeFrames = ['daily', 'weekly', 'monthly'];
 const reportData = ref([]);
 
 const fetchReport = async () => {
-    try {
-        await orderStore.fetchSalesReport(selectedTimeFrame.value);
-        if (!orderStore.reports || !Array.isArray(orderStore.reports)) {
-            console.error('No reports or invalid format:', orderStore.reports);
-            return; // exit if no reports or if reports are not in expected format
-        }
-        reportData.value = orderStore.reports;
-        reportData.value.forEach(report => {
-            if (report) { // check if report is not null or undefined
-                report.revenueTrend = generateRandomTrendData();
-            }
-        });
-    } catch (error) {
-        console.error('Failed to fetch or process reports:', error);
-    }
+	try {
+		await orderStore.fetchSalesReport(selectedTimeFrame.value);
+		if (!orderStore.reports || !Array.isArray(orderStore.reports.sales_report)) {
+			console.error('No reports or invalid format:', orderStore.reports);
+			return;
+		}
+		reportData.value = orderStore.reports.sales_report.map(report => ({
+			...report,
+			revenueTrend: generateRandomTrendData()
+		}));
+	} catch (error) {
+		console.error('Failed to fetch or process reports:', error);
+	}
 };
 
 const generateRandomTrendData = () => {
-    return Array.from({ length: 5 }, () => Math.floor(Math.random() * 400) + 100);
+	return Array.from({ length: 5 }, () => Math.floor(Math.random() * 400) + 100);
+};
+
+const exportToExcel = () => {
+	const ws = XLSX.utils.json_to_sheet(reportData.value.map(({ revenueTrend, ...item }) => item));
+	const wb = XLSX.utils.book_new();
+	XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+	XLSX.writeFile(wb, `Sales_Report_${selectedTimeFrame.value}.xlsx`);
 };
 
 onMounted(fetchReport);

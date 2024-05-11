@@ -725,13 +725,24 @@ class Merchant extends User
     public function fetchSalesReport($timeFrame) {
         $dateInterval = $this->getDateInterval($timeFrame);
 
-        $query = "SELECT DATE(o.created_at) as date, COUNT(o.id) as order_count, SUM(o.total_price) as total_revenue, 
-                  p.payment_method, p.transaction_status
-                  FROM orders o
-                  LEFT JOIN payments p ON o.id = p.order_id
-                  WHERE o.created_at >= ?
-                  GROUP BY DATE(o.created_at), p.payment_method, p.transaction_status
-                  ORDER BY DATE(o.created_at)";
+        $query = "
+        SELECT 
+            DATE(o.created_at) as date, 
+            COUNT(o.id) as order_count, 
+            SUM(o.total_price) as total_revenue, 
+            p.payment_method, 
+            p.transaction_status
+        FROM 
+            orders o
+        LEFT JOIN 
+            payments p ON o.id = p.order_id
+        WHERE 
+            o.created_at >= ?
+        GROUP BY 
+            DATE(o.created_at), p.payment_method, p.transaction_status
+        ORDER BY 
+            DATE(o.created_at) DESC
+    ";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $dateInterval);
@@ -821,10 +832,18 @@ class Merchant extends User
      */
     public function cancelOrder($orderId) {
         require_once 'Order.php';
+        require_once 'Inventory.php';
         $order = new Order($orderId);
+        $order->conn = $this->conn;
         try {
             $order->markAsCancelled();
-            echo json_encode(["success" => true, "message" => "Order status updated to Cancelled."]);
+            $items = $order->getItems();
+            foreach ($items as $item) {
+                $inventory = new Inventory($item->productId);
+                $inventory->conn = $this->conn;
+                $inventory->increaseStock($item->quantity);
+            }
+            echo json_encode(["success" => true, "message" => "Order canceled and stock reverted."]);
         } catch (Exception $e) {
             echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
         }
@@ -858,6 +877,23 @@ class Merchant extends User
     public function processPaymentAndGenerateReceipt($orderId, $amount, $paymentMethod, $transactionId) {
         require_once 'Order.php';
         $order = new Order($orderId);
+
+        // Check if payment has already been processed
+        if ($order->paymentStatus == 'Completed') {
+            return [
+                "success" => false,
+                "message" => "Payment has already been processed for this order."
+            ];
+        }
+
+        // Check if the order is canceled
+        if ($order->status == 'Canceled') {
+            return [
+                "success" => false,
+                "message" => "Cannot process payment for a canceled order."
+            ];
+        }
+
         try {
             $result = $order->processPaymentAndGenerateReceipt($amount, $paymentMethod, $transactionId);
             return [
@@ -872,7 +908,6 @@ class Merchant extends User
             ];
         }
     }
-
 
     public function exportOrdersToXLS() {
         $orders = $this->fetchAllOrders(); // Fetch all orders including related data

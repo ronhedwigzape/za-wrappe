@@ -12,13 +12,17 @@
     "@mdi/font": "^7.4.47",
     "@storefront-ui/vue": "^2.6.3",
     "@vueuse/core": "^10.9.0",
+    "axios": "^1.6.8",
+    "html2canvas": "^1.4.1",
     "jquery": "^3.7.1",
+    "jspdf": "^2.5.1",
     "pinia": "^2.1.7",
     "vite-plugin-vuetify": "^2.0.3",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2",
     "vue3-carousel-3d": "^1.0.4",
-    "vuetify": "^3.6.4"
+    "vuetify": "^3.6.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

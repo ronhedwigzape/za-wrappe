@@ -120,4 +120,13 @@ class Inventory extends App {
         require_once 'Product.php';
         return new Product($this->productId);
     }
+
+    public function increaseStock($quantity) {
+        $this->count += $quantity;
+        $stmt = $this->conn->prepare("UPDATE inventories SET count = ? WHERE id = ?");
+        $stmt->bind_param("ii", $this->count, $this->id);
+        $stmt->execute();
+        $stmt->close();
+    }
+
 }

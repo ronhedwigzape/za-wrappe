@@ -29,7 +29,7 @@
                     />
                     <v-btn
                         text="Yes"
-                        @click="orderStore.cancelOrder"
+                        @click="orderStore.clearOrder"
                         color="red"
                     />
                 </v-card-actions>

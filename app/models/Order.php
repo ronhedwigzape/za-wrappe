@@ -227,4 +227,23 @@ class Order extends App {
         }
         $stmt->close();
     }
+
+    /**
+     * Retrieves all items associated with this order.
+     *
+     * @return array An array of OrderItem objects associated with the order.
+     */
+    public function getItems() {
+        require_once 'OrderItem.php';
+        $items = [];
+        $stmt = $this->conn->prepare("SELECT id, order_id, product_id, quantity, subtotal FROM order_items WHERE order_id = ?");
+        $stmt->bind_param("i", $this->id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $items[] = new OrderItem($row);
+        }
+        $stmt->close();
+        return $items;
+    }
 }

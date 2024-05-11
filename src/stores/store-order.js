@@ -196,6 +196,75 @@ export const useOrderStore = defineStore('order', {
                 },
             });
         },
+        async cancelOrder(orderId) {
+            try {
+                const response = await $.ajax({
+                    url: `${useStore().appURL}/merchant.php`,
+                    method: 'POST',
+                    data: { cancelOrder: true, orderId: orderId },
+                    xhrFields: { withCredentials: true }
+                });
+                console.log('Order cancelled:', response);
+                await this.fetchAllOrders(); // Refresh the orders list
+            } catch (error) {
+                console.error('Error cancelling order:', error);
+            }
+        },
+
+        async prepareOrder(orderId) {
+            try {
+                const response = await $.ajax({
+                    url: `${useStore().appURL}/merchant.php`,
+                    method: 'POST',
+                    data: { prepareOrder: true, orderId: orderId },
+                    xhrFields: { withCredentials: true }
+                });
+                console.log('Order prepared:', response);
+                await this.fetchAllOrders(); // Refresh the orders list
+            } catch (error) {
+                console.error('Error preparing order:', error);
+            }
+        },
+
+        async setOrderReadyForPickup(orderId) {
+            try {
+                const response = await $.ajax({
+                    url: `${useStore().appURL}/merchant.php`,
+                    method: 'POST',
+                    data: { setOrderReadyForPickup: true, orderId: orderId },
+                    xhrFields: { withCredentials: true }
+                });
+                console.log('Order ready for pickup:', response);
+                await this.fetchAllOrders(); // Refresh the orders list
+            } catch (error) {
+                console.error('Error setting order ready for pickup:', error);
+            }
+        },
+        async processPaymentAndGenerateReceipt(orderId, amount, paymentMethod, transactionId) {
+            try {
+                const response = await $.ajax({
+                    url: `${useStore().appURL}/merchant.php`,
+                    method: 'POST',
+                    data: {
+                        processPaymentAndGenerateReceipt: true,
+                        orderId: orderId,
+                        amount: amount,
+                        paymentMethod: paymentMethod,
+                        transactionId: transactionId
+                    },
+                    xhrFields: { withCredentials: true }
+                });
+                console.log('Payment processed:', response);
+                if (response.success) {
+                    alert(response.message);
+                } else {
+                    alert('Success');
+                }
+            } catch (error) {
+                console.error('Error processing payment:', error);
+            }
+        },
+
         async goBackToProducts() {
             if (this.selectedCategory && !this.selectedCategoryProducts.length) {
                 await this.selectProducts(this.selectedCategory);
@@ -373,7 +442,7 @@ export const useOrderStore = defineStore('order', {
             this.ordering = true;
             this.resetSelections();
         },
-        cancelOrder() {
+        clearOrder() {
             this.clearCart();
             this.resetSelections();
             this.ordering = true;
