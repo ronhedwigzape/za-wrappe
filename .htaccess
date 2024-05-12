@@ -1,0 +1,16 @@
+RewriteEngine On
+RewriteBase /za-wrappe/
+
+# Exclude assets from rewrite rule
+RewriteCond %{REQUEST_URI} !\.(css|js|svg|jpg|jpeg|png|gif|woff2|ico|ttf)$ [NC]
+
+# Redirect all requests to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /za-wrappe/public/index.html [L]
+
+# Exclude the public and app directories from the rewrite rule
+RewriteCond %{REQUEST_URI} !^/za-wrappe/public/
+RewriteCond %{REQUEST_URI} !^/za-wrappe/app/
+RewriteRule ^(.*)$ /za-wrappe/public/$1 [L]
+
