@@ -574,6 +574,7 @@ class Customer extends User
             return [
                 "message" => "Order created successfully.",
                 "order_id" => $orderId,
+                "customer_contact" => $orderData['customer_contact'],
                 "verification_code" => $verificationCode,
                 "total_price" => number_format($totalPrice, 2)
             ];
