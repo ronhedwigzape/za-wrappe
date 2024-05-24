@@ -373,6 +373,25 @@ class Merchant extends User
                         'active' => $row['flavor_active']
                     ];
                 }
+
+                if ($row['add_on_ids']) {
+                    $addOnIds = json_decode($row['add_on_ids'], true);
+                    if (!empty($addOnIds)) {
+                        $addOnStmt = $this->conn->prepare("SELECT id, name, description, image_url, price, active FROM add_ons WHERE id IN (" . implode(",", $addOnIds) . ")");
+                        $addOnStmt->execute();
+                        $addOnResult = $addOnStmt->get_result();
+                        while ($addOnRow = $addOnResult->fetch_assoc()) {
+                            $orders[$orderId]['order_items'][$orderItemId]['add_ons'][] = [
+                                'id' => $addOnRow['id'],
+                                'name' => $addOnRow['name'],
+                                'description' => $addOnRow['description'],
+                                'image_url' => $addOnRow['image_url'],
+                                'price' => $addOnRow['price'],
+                                'active' => $addOnRow['active']
+                            ];
+                        }
+                    }
+                }
             }
 
             if ($row['payment_id'] && !$orders[$orderId]['payment']) {
@@ -392,42 +411,6 @@ class Merchant extends User
                     'details' => $row['receipt_details'],
                     'issued_at' => $row['issued_at']
                 ];
-            }
-        }
-
-        // Fetch add-ons for each order item
-        foreach ($orders as &$order) {
-            foreach ($order['order_items'] as &$item) {
-                if (isset($item['add_on_ids']) && !empty($item['add_on_ids'])) {
-                    $addOnIds = json_decode($item['add_on_ids'], true);
-
-                    // Debug: Log the decoded add_on_ids
-                    error_log("Decoded add_on_ids for order item {$item['id']}: " . print_r($addOnIds, true));
-
-                    if (!empty($addOnIds)) {
-                        $placeholders = implode(',', array_fill(0, count($addOnIds), '?'));
-                        $types = str_repeat('i', count($addOnIds));
-                        $stmt = $this->conn->prepare("SELECT id, name, description, image_url, price, active FROM add_ons WHERE id IN ($placeholders)");
-                        $stmt->bind_param($types, ...$addOnIds);
-
-                        // Debug: Log the SQL query and parameters
-                        error_log("SQL Query: SELECT id, name, description, image_url, price, active FROM add_ons WHERE id IN ($placeholders)");
-                        error_log("Parameters: " . print_r($addOnIds, true));
-
-                        $stmt->execute();
-                        $addOnResult = $stmt->get_result();
-                        while ($addOnRow = $addOnResult->fetch_assoc()) {
-                            $item['add_ons'][] = [
-                                'id' => $addOnRow['id'],
-                                'name' => $addOnRow['name'],
-                                'description' => $addOnRow['description'],
-                                'image_url' => $addOnRow['image_url'],
-                                'price' => $addOnRow['price'],
-                                'active' => $addOnRow['active']
-                            ];
-                        }
-                    }
-                }
             }
         }
 
