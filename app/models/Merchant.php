@@ -957,7 +957,7 @@ class Merchant extends User
         // Headers
         $headers = [
             'Order ID', 'Status', 'Customer Contact', 'Total Price', 'Verification Code', 'Payment Status', 'Created At', 'Updated At',
-            'Item ID', 'Product ID', 'Quantity', 'Subtotal', 'Add-on IDs', 'Flavor ID', 'Product Name', 'Product Description', 'Product Price', 'Product Image URL', 'Product Active', 'Product Created At', 'Product Updated At',
+            'Item ID', 'Product ID', 'Quantity', 'Subtotal', 'Add-ons', 'Flavor', 'Product Name', 'Product Description', 'Product Price', 'Product Image URL', 'Product Active', 'Product Created At', 'Product Updated At',
             'Inventory Count', 'Low Stock Threshold', 'Inventory Created At', 'Inventory Updated At',
             'Payment ID', 'Transaction ID', 'Payment Amount', 'Payment Method', 'Payment Status', 'Payment Processed At',
             'Receipt ID', 'Receipt Details', 'Receipt Issued At'
@@ -988,8 +988,8 @@ class Merchant extends User
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product_id']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['quantity']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['subtotal']);
-                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['add_on_ids']);
-                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['flavor_id']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, json_encode($item['add_ons']));
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, json_encode($item['flavor']));
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['name']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['description']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['price']);
