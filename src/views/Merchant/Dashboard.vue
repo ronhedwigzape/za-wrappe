@@ -42,26 +42,30 @@
 	<v-dialog v-model="dialog" :fullscreen="$vuetify.display.mdAndDown" max-width="800px">
 		<v-card>
 			<div class="d-flex justify-space-between">
-				<v-card-title class="headline !tw-text-2xl font-weight-bold">Order #{{ selectedOrder.id }}</v-card-title>
+				<v-card-title class="headline !tw-text-2xl font-weight-bold">Order #{{ selectedOrder.id }} <p class="!tw-text-xs !tw-opacity-50">{{ selectedOrder.verification_code }}</p></v-card-title>
 				<v-btn elevation="0" icon="mdi-close" @click="dialog = false"></v-btn>
 			</div>
 			<v-card-text>
 				<v-container>
 					<v-row>
 						<v-col cols="12" md="6">
-							<div><strong>Customer Contact:</strong> {{ selectedOrder.customer_contact }}</div>
+							<div v-if="selectedOrder.customer_contact"><strong>Customer Contact:</strong> {{ selectedOrder.customer_contact }}</div>
 							<div><strong>Order Status:</strong> {{ selectedOrder.status }}</div>
 							<div><strong>Total Price:</strong> ₱{{ selectedOrder.total_price }}</div>
-							<div><strong>Created At:</strong> {{ new Date(selectedOrder.created_at).toLocaleString() }}</div>
 						</v-col>
 						<v-col cols="12" md="6">
 							<v-list-item-title class="!tw-font-bold">Ordered Items:</v-list-item-title>
 							<v-list dense>
 								<v-list-item v-for="item in selectedOrder.order_items" :key="item.id">
-									<v-list-img src="" :src="`../../../${useStore().assetsUrl}/img/${item.product.image_url}`"></v-list-img>
+									<v-list-img :src="`../../../${useStore().assetsUrl}/img/${item.product.image_url}`"></v-list-img>
 									<v-list-item>
 										<v-list-item-title>{{ item.product.name }} x{{ item.quantity }}</v-list-item-title>
 										<v-list-item-subtitle>₱{{ item.subtotal }}</v-list-item-subtitle>
+										<v-list-item-subtitle>Flavor: {{ item.flavor.name }}</v-list-item-subtitle>
+										<v-list-item-subtitle v-if="item.add_ons.length">Add-ons:</v-list-item-subtitle>
+										<v-list-item-subtitle v-for="addOn in item.add_ons" :key="addOn.id">
+											- {{ addOn.name }} (₱{{ addOn.price }})
+										</v-list-item-subtitle>
 									</v-list-item>
 								</v-list-item>
 							</v-list>
@@ -88,7 +92,6 @@
 							Print Receipt
 						</v-btn>
 					</v-col>
-
 				</v-row>
 			</v-card-actions>
 		</v-card>
@@ -242,6 +245,4 @@ const printOrderDetails = () => {
 		content.style.display = 'none'; // Hide the container again
 	});
 };
-
-
 </script>
