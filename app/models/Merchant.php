@@ -290,7 +290,8 @@ class Merchant extends User
             p.id as product_id, p.name, p.category_id, p.description, p.price, p.image_url, p.active, p.created_at as product_created_at, p.updated_at as product_updated_at,
             i.id as inventory_id, i.count, i.low_stock_threshold, i.created_at as inventory_created_at, i.updated_at as inventory_updated_at,
             pay.id as payment_id, pay.transaction_id, pay.amount as payment_amount, pay.payment_method, pay.transaction_status, pay.processed_at,
-            r.id as receipt_id, r.details as receipt_details, r.issued_at
+            r.id as receipt_id, r.details as receipt_details, r.issued_at,
+            f.id as flavor_id, f.name as flavor_name, f.description as flavor_description, f.image_url as flavor_image_url, f.active as flavor_active
         FROM 
             orders o
         LEFT JOIN 
@@ -303,6 +304,8 @@ class Merchant extends User
             payments pay ON o.id = pay.order_id
         LEFT JOIN 
             receipts r ON pay.id = r.payment_id
+        LEFT JOIN 
+            flavors f ON oi.flavor_id = f.id
         ORDER BY
             o.created_at DESC
     ");
@@ -330,33 +333,46 @@ class Merchant extends User
             }
 
             if ($row['order_item_id']) {
-                $orders[$orderId]['order_items'][] = [
-                    'id' => $row['order_item_id'],
-                    'product_id' => $row['product_id'],
-                    'quantity' => $row['quantity'],
-                    'subtotal' => $row['subtotal'],
-                    'add_on_ids' => $row['add_on_ids'],
-                    'flavor_id' => $row['flavor_id'],
-                    'product' => [
-                        'id' => $row['product_id'],
-                        'name' => $row['name'],
-                        'category_id' => $row['category_id'],
-                        'description' => $row['description'],
-                        'price' => $row['price'],
-                        'image_url' => $row['image_url'],
-                        'active' => $row['active'],
-                        'created_at' => $row['product_created_at'],
-                        'updated_at' => $row['product_updated_at']
-                    ],
-                    'inventory' => [
-                        'id' => $row['inventory_id'],
-                        'count' => $row['count'],
+                $orderItemId = $row['order_item_id'];
+                if (!isset($orders[$orderId]['order_items'][$orderItemId])) {
+                    $orders[$orderId]['order_items'][$orderItemId] = [
+                        'id' => $orderItemId,
                         'product_id' => $row['product_id'],
-                        'low_stock_threshold' => $row['low_stock_threshold'],
-                        'created_at' => $row['inventory_created_at'],
-                        'updated_at' => $row['inventory_updated_at']
-                    ]
-                ];
+                        'quantity' => $row['quantity'],
+                        'subtotal' => $row['subtotal'],
+                        'add_ons' => [],
+                        'flavor' => null,
+                        'product' => [
+                            'id' => $row['product_id'],
+                            'name' => $row['name'],
+                            'category_id' => $row['category_id'],
+                            'description' => $row['description'],
+                            'price' => $row['price'],
+                            'image_url' => $row['image_url'],
+                            'active' => $row['active'],
+                            'created_at' => $row['product_created_at'],
+                            'updated_at' => $row['product_updated_at']
+                        ],
+                        'inventory' => [
+                            'id' => $row['inventory_id'],
+                            'count' => $row['count'],
+                            'product_id' => $row['product_id'],
+                            'low_stock_threshold' => $row['low_stock_threshold'],
+                            'created_at' => $row['inventory_created_at'],
+                            'updated_at' => $row['inventory_updated_at']
+                        ]
+                    ];
+                }
+
+                if ($row['flavor_id'] && !$orders[$orderId]['order_items'][$orderItemId]['flavor']) {
+                    $orders[$orderId]['order_items'][$orderItemId]['flavor'] = [
+                        'id' => $row['flavor_id'],
+                        'name' => $row['flavor_name'],
+                        'description' => $row['flavor_description'],
+                        'image_url' => $row['flavor_image_url'],
+                        'active' => $row['flavor_active']
+                    ];
+                }
             }
 
             if ($row['payment_id'] && !$orders[$orderId]['payment']) {
@@ -377,6 +393,35 @@ class Merchant extends User
                     'issued_at' => $row['issued_at']
                 ];
             }
+        }
+
+        // Fetch add-ons separately
+        foreach ($orders as &$order) {
+            foreach ($order['order_items'] as &$item) {
+                if (isset($item['add_on_ids']) && !empty($item['add_on_ids'])) {
+                    $addOnIds = json_decode($item['add_on_ids'], true);
+                    if (!empty($addOnIds)) {
+                        $placeholders = implode(',', array_fill(0, count($addOnIds), '?'));
+                        $types = str_repeat('i', count($addOnIds));
+                        $stmt = $this->conn->prepare("SELECT id, name, description, image_url, price, active FROM add_ons WHERE id IN ($placeholders)");
+                        $stmt->bind_param($types, ...$addOnIds);
+                        $stmt->execute();
+                        if (!$stmt->execute()) {
+                            die('Execute failed: ' . $stmt->error);
+                        }
+
+                        $addOnResult = $stmt->get_result();
+                        while ($addOnRow = $addOnResult->fetch_assoc()) {
+                            $item['add_ons'][] = $addOnRow;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Convert order items from associative array to indexed array
+        foreach ($orders as &$order) {
+            $order['order_items'] = array_values($order['order_items']);
         }
 
         return array_values($orders);
