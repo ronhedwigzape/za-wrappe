@@ -2,7 +2,7 @@
 	<TopNavbar/>
 
 	<div v-if="$route.path === '/merchant'">
-		<v-card>
+		<v-card style="overflow-y: hidden !important;">
 			<v-card-title class="text-h5 !tw-font-bold">
 				Orders
 				<v-btn size="small" color="green" prepend-icon="mdi-file-export" @click="exportOrders">Export to XLS</v-btn>
@@ -41,17 +41,18 @@
 	<!-- Order Details Dialog -->
 	<v-dialog v-model="dialog" :fullscreen="$vuetify.display.mdAndDown" max-width="800px">
 		<v-card>
-			<v-card-title class="headline">Order Details - #{{ selectedOrder.id }}</v-card-title>
+			<div class="d-flex justify-space-between">
+				<v-card-title class="headline !tw-text-2xl font-weight-bold">Order #{{ selectedOrder.id }}</v-card-title>
+				<v-btn elevation="0" icon="mdi-close" @click="dialog = false"></v-btn>
+			</div>
 			<v-card-text>
 				<v-container>
 					<v-row>
 						<v-col cols="12" md="6">
 							<div><strong>Customer Contact:</strong> {{ selectedOrder.customer_contact }}</div>
-							<div><strong>Status:</strong> {{ selectedOrder.status }}</div>
+							<div><strong>Order Status:</strong> {{ selectedOrder.status }}</div>
 							<div><strong>Total Price:</strong> ₱{{ selectedOrder.total_price }}</div>
-							<div><strong>Verification Code:</strong> {{ selectedOrder.verification_code }}</div>
 							<div><strong>Created At:</strong> {{ new Date(selectedOrder.created_at).toLocaleString() }}</div>
-							<div><strong>Updated At:</strong> {{ new Date(selectedOrder.updated_at).toLocaleString() }}</div>
 						</v-col>
 						<v-col cols="12" md="6">
 							<v-list-item-title class="!tw-font-bold">Ordered Items:</v-list-item-title>
@@ -87,9 +88,7 @@
 							Print Receipt
 						</v-btn>
 					</v-col>
-					<v-col cols="12" md="auto">
-						<v-btn color="red darken-1" block text="Close" @click="dialog = false"></v-btn>
-					</v-col>
+
 				</v-row>
 			</v-card-actions>
 		</v-card>

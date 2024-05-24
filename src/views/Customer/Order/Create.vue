@@ -129,6 +129,7 @@
             <Success
                 v-if="useOrderStore().orderCreated"
                 :message="useOrderStore().order.message"
+				:customer-contact="useOrderStore().order.customer_contact"
                 :verification-code="useOrderStore().order.verification_code"
                 :order-id="useOrderStore().order.order_id"
                 :total-price="useOrderStore().order.total_price"

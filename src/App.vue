@@ -3,7 +3,7 @@
         <v-main>
             <!-- loader -->
             <div v-if="loading" class="tw-flex tw-flex-col tw-justify-center tw-items-center" style="height: 100vh;">
-                <za-wrappe-logo/>
+                <za-wrappe-logo :height="13"/>
                 <div class="loader tw-h-6">
                     <span class="hour"></span>
                     <span class="min"></span>
