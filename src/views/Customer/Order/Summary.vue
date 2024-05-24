@@ -97,6 +97,14 @@ const createOrder = async () => {
 		await useOrderStore().createOrder(orderTransactionNumber.value);
 		useOrderStore().orderCreated = true;
 		orderTransactionNumber.value = '';
+		// Trigger the print dialog
+		setTimeout(() => {
+			const printContent = document.getElementById('print-section').innerHTML;
+			const originalContent = document.body.innerHTML;
+			document.body.innerHTML = printContent;
+			window.print();
+			document.body.innerHTML = originalContent;
+		}, 500); // Delay to ensure the success message is rendered
 	} catch (error) {
 		console.error('Failed to create order:', error);
 		alert('Failed to process order.');
