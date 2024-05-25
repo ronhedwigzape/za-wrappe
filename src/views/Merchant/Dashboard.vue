@@ -2,10 +2,11 @@
 	<TopNavbar/>
 
 	<div v-if="$route.path === '/merchant'">
-		<v-card>
+		<v-card style="overflow-y: hidden !important;">
 			<v-card-title class="text-h5 !tw-font-bold">
 				Orders
 				<v-btn size="small" color="green" prepend-icon="mdi-file-export" @click="exportOrders">Export to XLS</v-btn>
+				<v-btn size="small" color="red" prepend-icon="mdi-delete" @click="confirmAndDeleteAllOrders">Delete All Orders</v-btn>
 			</v-card-title>
 			<v-card-title>
 				<v-text-field
@@ -41,26 +42,31 @@
 	<!-- Order Details Dialog -->
 	<v-dialog v-model="dialog" :fullscreen="$vuetify.display.mdAndDown" max-width="800px">
 		<v-card>
-			<v-card-title class="headline">Order Details - #{{ selectedOrder.id }}</v-card-title>
+			<div class="d-flex justify-space-between">
+				<v-card-title class="headline !tw-text-2xl font-weight-bold">Order #{{ selectedOrder.id }} <p class="!tw-text-xs !tw-opacity-50">{{ selectedOrder.verification_code }}</p></v-card-title>
+				<v-btn elevation="0" icon="mdi-close" @click="dialog = false"></v-btn>
+			</div>
 			<v-card-text>
 				<v-container>
 					<v-row>
 						<v-col cols="12" md="6">
-							<div><strong>Customer Contact:</strong> {{ selectedOrder.customer_contact }}</div>
-							<div><strong>Status:</strong> {{ selectedOrder.status }}</div>
+							<div v-if="selectedOrder.customer_contact"><strong>Customer Contact:</strong> {{ selectedOrder.customer_contact }}</div>
+							<div><strong>Order Status:</strong> {{ selectedOrder.status }}</div>
 							<div><strong>Total Price:</strong> ₱{{ selectedOrder.total_price }}</div>
-							<div><strong>Verification Code:</strong> {{ selectedOrder.verification_code }}</div>
-							<div><strong>Created At:</strong> {{ new Date(selectedOrder.created_at).toLocaleString() }}</div>
-							<div><strong>Updated At:</strong> {{ new Date(selectedOrder.updated_at).toLocaleString() }}</div>
 						</v-col>
 						<v-col cols="12" md="6">
 							<v-list-item-title class="!tw-font-bold">Ordered Items:</v-list-item-title>
 							<v-list dense>
 								<v-list-item v-for="item in selectedOrder.order_items" :key="item.id">
-									<v-list-img src="" :src="`../../../${useStore().assetsUrl}/img/${item.product.image_url}`"></v-list-img>
+									<v-list-img :src="`../../../${useStore().assetsUrl}/img/${item.product.image_url}`"></v-list-img>
 									<v-list-item>
 										<v-list-item-title>{{ item.product.name }} x{{ item.quantity }}</v-list-item-title>
 										<v-list-item-subtitle>₱{{ item.subtotal }}</v-list-item-subtitle>
+										<v-list-item-subtitle>Flavor: {{ item.flavor.name }}</v-list-item-subtitle>
+										<v-list-item-subtitle v-if="item.add_ons.length">Add-ons:</v-list-item-subtitle>
+										<v-list-item-subtitle v-for="addOn in item.add_ons" :key="addOn.id">
+											- {{ addOn.name }} (₱{{ addOn.price }})
+										</v-list-item-subtitle>
 									</v-list-item>
 								</v-list-item>
 							</v-list>
@@ -71,24 +77,21 @@
 			<v-card-actions>
 				<v-row class="flex-column flex-md-row">
 					<v-col cols="12" md="auto">
-						<v-btn color="blue" block @click="confirmAndProcessPayment(selectedOrder)">Pay</v-btn>
+						<v-btn color="blue" block @click="confirmAndProcessPayment(selectedOrder)" :disabled="payButtonDisabled">Pay</v-btn>
 					</v-col>
 					<v-col cols="12" md="auto">
-						<v-btn color="red" block @click="confirmAndCancelOrder(selectedOrder.id)">Cancel</v-btn>
+						<v-btn color="red" block @click="confirmAndCancelOrder(selectedOrder.id)" :disabled="cancelButtonDisabled">Cancel</v-btn>
 					</v-col>
 					<v-col cols="12" md="auto">
-						<v-btn color="orange" block @click="confirmAndPrepareOrder(selectedOrder.id)">Prepare</v-btn>
+						<v-btn color="orange" block @click="confirmAndPrepareOrder(selectedOrder.id)" :disabled="prepareButtonDisabled">Prepare</v-btn>
 					</v-col>
 					<v-col cols="12" md="auto">
-						<v-btn color="green" block @click="confirmAndSetReadyForPickup(selectedOrder.id)">Ready for Pickup</v-btn>
+						<v-btn color="green" block @click="confirmAndSetReadyForPickup(selectedOrder.id)" :disabled="readyForPickupButtonDisabled">Ready for Pickup</v-btn>
 					</v-col>
 					<v-col v-if="selectedOrder.payment" cols="12" md="auto">
 						<v-btn color="blue darken-1" block @click="printOrderDetails" v-if="selectedOrder.receipt">
 							Print Receipt
 						</v-btn>
-					</v-col>
-					<v-col cols="12" md="auto">
-						<v-btn color="red darken-1" block text="Close" @click="dialog = false"></v-btn>
 					</v-col>
 				</v-row>
 			</v-card-actions>
@@ -113,14 +116,13 @@
 		</div>
 	</div>
 </template>
-
 <script setup>
 import axios from 'axios';
-import {onMounted, ref, watch} from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import TopNavbar from "@/components/navbar/TopNavbar.vue";
-import {useOrderStore} from "@/stores/store-order.js";
-import {useNotificationStore} from "@/stores/store-notification.js";
-import {useStore} from "@/stores/index.js";
+import { useOrderStore } from "@/stores/store-order.js";
+import { useNotificationStore } from "@/stores/store-notification.js";
+import { useStore } from "@/stores/index.js";
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -140,6 +142,11 @@ const headers = [
 	{ title: 'Actions', key: 'actions', sortable: false },
 ];
 
+const payButtonDisabled = ref(true);
+const cancelButtonDisabled = ref(true);
+const prepareButtonDisabled = ref(true);
+const readyForPickupButtonDisabled = ref(true);
+
 watch(() => orderStore.orders, (newOrders) => {
 	orders.value = newOrders;
 }, { deep: true });
@@ -154,7 +161,15 @@ onMounted(async () => {
 const showDialog = (order) => {
 	selectedOrder.value = order;
 	dialog.value = true;
-	console.log(order)
+	updateButtonStates(order.status);
+	console.log(order);
+};
+
+const updateButtonStates = (status) => {
+	payButtonDisabled.value = status !== 'Awaiting Payment';
+	cancelButtonDisabled.value = status !== 'Payment Received';
+	prepareButtonDisabled.value = status !== 'Payment Received';
+	readyForPickupButtonDisabled.value = status !== 'Preparing Order';
 };
 
 const confirmAndProcessPayment = async (order) => {
@@ -185,6 +200,17 @@ const confirmAndSetReadyForPickup = async (orderId) => {
 	dialog.value = false;
 };
 
+// Function to delete all orders
+const confirmAndDeleteAllOrders = async () => {
+	if (confirm("Are you sure you want to delete all orders?")) {
+		await useOrderStore().deleteAllOrders();
+	}
+};
+
+// Watcher to update the UI based on the selected order's status
+watch(() => selectedOrder.value.status, (newStatus) => {
+	updateButtonStates(newStatus);
+}, { immediate: true }); // Use immediate option to run the watcher immediately after component mount
 
 const exportOrders = () => {
 	window.location.href = `${useStore().appURL}/merchant.php?exportOrdersToXLS=true`;
@@ -243,6 +269,4 @@ const printOrderDetails = () => {
 		content.style.display = 'none'; // Hide the container again
 	});
 };
-
-
 </script>

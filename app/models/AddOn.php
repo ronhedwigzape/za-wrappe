@@ -59,8 +59,16 @@ class AddOn extends App {
         $result = $stmt->get_result();
         $addOns = [];
         while ($row = $result->fetch_assoc()) {
-            $addOns[] = self::executeFind($stmt);
+            $addOn = new self();
+            $addOn->id = $row['id'];
+            $addOn->name = $row['name'];
+            $addOn->description = $row['description'];
+            $addOn->imageUrl = $row['image_url'];
+            $addOn->price = $row['price'];
+            $addOn->active = $row['active'];
+            $addOns[] = $addOn;
         }
+        $stmt->close();
         return $addOns;
     }
 

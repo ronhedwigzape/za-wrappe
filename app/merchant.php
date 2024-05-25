@@ -63,6 +63,21 @@ else {
             $filePath = $_FILES['orderFile']['tmp_name'];
             echo json_encode($merchant->importOrdersFromXLS($filePath));
         }
+
+        // Get Order status
+        else if (isset($_GET['orderStatus'])) {
+            $orderId = $_GET['orderStatus'];
+            $status = $merchant->getOrderStatus($orderId);
+            echo json_encode(['status' => $status]);
+        }
+
+
+        // Delete all orders
+        else if (isset($_POST['deleteAllOrders'])) {
+            $response = $merchant->deleteAllOrders();
+            echo json_encode($response);
+        }
+
         else {
             denyAccess();
         }

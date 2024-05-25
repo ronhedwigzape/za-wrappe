@@ -290,7 +290,8 @@ class Merchant extends User
             p.id as product_id, p.name, p.category_id, p.description, p.price, p.image_url, p.active, p.created_at as product_created_at, p.updated_at as product_updated_at,
             i.id as inventory_id, i.count, i.low_stock_threshold, i.created_at as inventory_created_at, i.updated_at as inventory_updated_at,
             pay.id as payment_id, pay.transaction_id, pay.amount as payment_amount, pay.payment_method, pay.transaction_status, pay.processed_at,
-            r.id as receipt_id, r.details as receipt_details, r.issued_at
+            r.id as receipt_id, r.details as receipt_details, r.issued_at,
+            f.id as flavor_id, f.name as flavor_name, f.description as flavor_description, f.image_url as flavor_image_url, f.active as flavor_active
         FROM 
             orders o
         LEFT JOIN 
@@ -303,6 +304,8 @@ class Merchant extends User
             payments pay ON o.id = pay.order_id
         LEFT JOIN 
             receipts r ON pay.id = r.payment_id
+        LEFT JOIN 
+            flavors f ON oi.flavor_id = f.id
         ORDER BY
             o.created_at DESC
     ");
@@ -330,33 +333,65 @@ class Merchant extends User
             }
 
             if ($row['order_item_id']) {
-                $orders[$orderId]['order_items'][] = [
-                    'id' => $row['order_item_id'],
-                    'product_id' => $row['product_id'],
-                    'quantity' => $row['quantity'],
-                    'subtotal' => $row['subtotal'],
-                    'add_on_ids' => $row['add_on_ids'],
-                    'flavor_id' => $row['flavor_id'],
-                    'product' => [
-                        'id' => $row['product_id'],
-                        'name' => $row['name'],
-                        'category_id' => $row['category_id'],
-                        'description' => $row['description'],
-                        'price' => $row['price'],
-                        'image_url' => $row['image_url'],
-                        'active' => $row['active'],
-                        'created_at' => $row['product_created_at'],
-                        'updated_at' => $row['product_updated_at']
-                    ],
-                    'inventory' => [
-                        'id' => $row['inventory_id'],
-                        'count' => $row['count'],
+                $orderItemId = $row['order_item_id'];
+                if (!isset($orders[$orderId]['order_items'][$orderItemId])) {
+                    $orders[$orderId]['order_items'][$orderItemId] = [
+                        'id' => $orderItemId,
                         'product_id' => $row['product_id'],
-                        'low_stock_threshold' => $row['low_stock_threshold'],
-                        'created_at' => $row['inventory_created_at'],
-                        'updated_at' => $row['inventory_updated_at']
-                    ]
-                ];
+                        'quantity' => $row['quantity'],
+                        'subtotal' => $row['subtotal'],
+                        'add_ons' => [],
+                        'flavor' => null,
+                        'product' => [
+                            'id' => $row['product_id'],
+                            'name' => $row['name'],
+                            'category_id' => $row['category_id'],
+                            'description' => $row['description'],
+                            'price' => $row['price'],
+                            'image_url' => $row['image_url'],
+                            'active' => $row['active'],
+                            'created_at' => $row['product_created_at'],
+                            'updated_at' => $row['product_updated_at']
+                        ],
+                        'inventory' => [
+                            'id' => $row['inventory_id'],
+                            'count' => $row['count'],
+                            'product_id' => $row['product_id'],
+                            'low_stock_threshold' => $row['low_stock_threshold'],
+                            'created_at' => $row['inventory_created_at'],
+                            'updated_at' => $row['inventory_updated_at']
+                        ]
+                    ];
+                }
+
+                if ($row['flavor_id'] && !$orders[$orderId]['order_items'][$orderItemId]['flavor']) {
+                    $orders[$orderId]['order_items'][$orderItemId]['flavor'] = [
+                        'id' => $row['flavor_id'],
+                        'name' => $row['flavor_name'],
+                        'description' => $row['flavor_description'],
+                        'image_url' => $row['flavor_image_url'],
+                        'active' => $row['flavor_active']
+                    ];
+                }
+
+                if ($row['add_on_ids']) {
+                    $addOnIds = json_decode($row['add_on_ids'], true);
+                    if (!empty($addOnIds)) {
+                        $addOnStmt = $this->conn->prepare("SELECT id, name, description, image_url, price, active FROM add_ons WHERE id IN (" . implode(",", $addOnIds) . ")");
+                        $addOnStmt->execute();
+                        $addOnResult = $addOnStmt->get_result();
+                        while ($addOnRow = $addOnResult->fetch_assoc()) {
+                            $orders[$orderId]['order_items'][$orderItemId]['add_ons'][] = [
+                                'id' => $addOnRow['id'],
+                                'name' => $addOnRow['name'],
+                                'description' => $addOnRow['description'],
+                                'image_url' => $addOnRow['image_url'],
+                                'price' => $addOnRow['price'],
+                                'active' => $addOnRow['active']
+                            ];
+                        }
+                    }
+                }
             }
 
             if ($row['payment_id'] && !$orders[$orderId]['payment']) {
@@ -377,6 +412,11 @@ class Merchant extends User
                     'issued_at' => $row['issued_at']
                 ];
             }
+        }
+
+        // Convert order items from associative array to indexed array
+        foreach ($orders as &$order) {
+            $order['order_items'] = array_values($order['order_items']);
         }
 
         return array_values($orders);
@@ -726,23 +766,33 @@ class Merchant extends User
         $dateInterval = $this->getDateInterval($timeFrame);
 
         $query = "
-        SELECT 
-            DATE(o.created_at) as date, 
-            COUNT(o.id) as order_count, 
-            SUM(o.total_price) as total_revenue, 
-            p.payment_method, 
-            p.transaction_status
-        FROM 
-            orders o
-        LEFT JOIN 
-            payments p ON o.id = p.order_id
-        WHERE 
-            o.created_at >= ?
-        GROUP BY 
-            DATE(o.created_at), p.payment_method, p.transaction_status
-        ORDER BY 
-            DATE(o.created_at) DESC
-    ";
+            SELECT 
+                o.id as order_id, o.status, o.customer_contact, o.total_price, o.verification_code, o.payment_status, o.created_at, o.updated_at,
+                oi.id as order_item_id, oi.product_id, oi.quantity, oi.subtotal, oi.add_on_ids, oi.flavor_id,
+                p.id as product_id, p.name as product_name, p.category_id, p.description as product_description, p.price as product_price, p.image_url as product_image_url, p.active as product_active, p.created_at as product_created_at, p.updated_at as product_updated_at,
+                i.id as inventory_id, i.count as inventory_count, i.low_stock_threshold, i.created_at as inventory_created_at, i.updated_at as inventory_updated_at,
+                pay.id as payment_id, pay.transaction_id, pay.amount as payment_amount, pay.payment_method, pay.transaction_status, pay.processed_at,
+                r.id as receipt_id, r.details as receipt_details, r.issued_at,
+                f.id as flavor_id, f.name as flavor_name, f.description as flavor_description, f.image_url as flavor_image_url, f.active as flavor_active
+            FROM 
+                orders o
+            LEFT JOIN 
+                order_items oi ON o.id = oi.order_id
+            LEFT JOIN 
+                products p ON oi.product_id = p.id
+            LEFT JOIN 
+                inventories i ON p.id = i.product_id
+            LEFT JOIN 
+                payments pay ON o.id = pay.order_id
+            LEFT JOIN 
+                receipts r ON pay.id = r.payment_id
+            LEFT JOIN 
+                flavors f ON oi.flavor_id = f.id
+            WHERE 
+                o.created_at >= ?
+            ORDER BY 
+                o.created_at DESC
+        ";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $dateInterval);
@@ -750,28 +800,116 @@ class Merchant extends User
         $result = $stmt->get_result();
 
         $salesData = [];
+        $totalRevenue = 0;
+
         while ($row = $result->fetch_assoc()) {
-            $date = $row['date'];
-            if (!isset($salesData[$date])) {
-                $salesData[$date] = [
-                    'date' => $date,
-                    'order_count' => 0,
-                    'total_revenue' => 0,
-                    'payments' => []
+            $orderId = $row['order_id'];
+            if (!isset($salesData[$orderId])) {
+                $salesData[$orderId] = [
+                    'order_id' => $orderId,
+                    'status' => $row['status'],
+                    'customer_contact' => $row['customer_contact'],
+                    'total_price' => $row['total_price'],
+                    'verification_code' => $row['verification_code'],
+                    'payment_status' => $row['payment_status'],
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'order_items' => [],
+                    'payment' => null,
+                    'receipt' => null
+                ];
+                $totalRevenue += $row['total_price'];
+            }
+
+            if ($row['order_item_id']) {
+                $orderItemId = $row['order_item_id'];
+                if (!isset($salesData[$orderId]['order_items'][$orderItemId])) {
+                    $salesData[$orderId]['order_items'][$orderItemId] = [
+                        'order_item_id' => $orderItemId,
+                        'product_id' => $row['product_id'],
+                        'quantity' => $row['quantity'],
+                        'subtotal' => $row['subtotal'],
+                        'add_ons' => [],
+                        'flavor' => null,
+                        'product' => [
+                            'product_id' => $row['product_id'],
+                            'name' => $row['product_name'],
+                            'category_id' => $row['category_id'],
+                            'description' => $row['product_description'],
+                            'price' => $row['product_price'],
+                            'image_url' => $row['product_image_url'],
+                            'active' => $row['product_active'],
+                            'created_at' => $row['product_created_at'],
+                            'updated_at' => $row['product_updated_at']
+                        ],
+                        'inventory' => [
+                            'inventory_id' => $row['inventory_id'],
+                            'count' => $row['inventory_count'],
+                            'low_stock_threshold' => $row['low_stock_threshold'],
+                            'created_at' => $row['inventory_created_at'],
+                            'updated_at' => $row['inventory_updated_at']
+                        ]
+                    ];
+                }
+
+                if ($row['flavor_id'] && !$salesData[$orderId]['order_items'][$orderItemId]['flavor']) {
+                    $salesData[$orderId]['order_items'][$orderItemId]['flavor'] = [
+                        'flavor_id' => $row['flavor_id'],
+                        'name' => $row['flavor_name'],
+                        'description' => $row['flavor_description'],
+                        'image_url' => $row['flavor_image_url'],
+                        'active' => $row['flavor_active']
+                    ];
+                }
+
+                if ($row['add_on_ids']) {
+                    $addOnIds = json_decode($row['add_on_ids'], true);
+                    if (!empty($addOnIds)) {
+                        $addOnStmt = $this->conn->prepare("SELECT id, name, description, image_url, price, active FROM add_ons WHERE id IN (" . implode(",", $addOnIds) . ")");
+                        $addOnStmt->execute();
+                        $addOnResult = $addOnStmt->get_result();
+                        while ($addOnRow = $addOnResult->fetch_assoc()) {
+                            $salesData[$orderId]['order_items'][$orderItemId]['add_ons'][] = [
+                                'id' => $addOnRow['id'],
+                                'name' => $addOnRow['name'],
+                                'description' => $addOnRow['description'],
+                                'image_url' => $addOnRow['image_url'],
+                                'price' => $addOnRow['price'],
+                                'active' => $addOnRow['active']
+                            ];
+                        }
+                    }
+                }
+            }
+
+            if ($row['payment_id'] && !$salesData[$orderId]['payment']) {
+                $salesData[$orderId]['payment'] = [
+                    'payment_id' => $row['payment_id'],
+                    'transaction_id' => $row['transaction_id'],
+                    'amount' => $row['payment_amount'],
+                    'payment_method' => $row['payment_method'],
+                    'transaction_status' => $row['transaction_status'],
+                    'processed_at' => $row['processed_at']
                 ];
             }
-            $salesData[$date]['order_count'] += $row['order_count'];
-            $salesData[$date]['total_revenue'] += $row['total_revenue'];
-            $salesData[$date]['payments'][] = [
-                'payment_method' => $row['payment_method'],
-                'transaction_status' => $row['transaction_status'],
-                'count' => $row['order_count'],
-                'revenue' => $row['total_revenue']
-            ];
+
+            if ($row['receipt_id'] && !$salesData[$orderId]['receipt']) {
+                $salesData[$orderId]['receipt'] = [
+                    'receipt_id' => $row['receipt_id'],
+                    'details' => $row['receipt_details'],
+                    'issued_at' => $row['issued_at']
+                ];
+            }
+        }
+
+        // Convert order items from associative array to indexed array
+        foreach ($salesData as &$order) {
+            $order['order_items'] = array_values($order['order_items']);
         }
 
         return [
             'time_frame' => $timeFrame,
+            'total_revenue' => $totalRevenue,
             'sales_report' => array_values($salesData)
         ];
     }
@@ -917,7 +1055,7 @@ class Merchant extends User
         // Headers
         $headers = [
             'Order ID', 'Status', 'Customer Contact', 'Total Price', 'Verification Code', 'Payment Status', 'Created At', 'Updated At',
-            'Item ID', 'Product ID', 'Quantity', 'Subtotal', 'Add-on IDs', 'Flavor ID', 'Product Name', 'Product Description', 'Product Price', 'Product Image URL', 'Product Active', 'Product Created At', 'Product Updated At',
+            'Item ID', 'Product ID', 'Quantity', 'Subtotal', 'Add-ons', 'Flavor', 'Product Name', 'Product Description', 'Product Price', 'Product Image URL', 'Product Active', 'Product Created At', 'Product Updated At',
             'Inventory Count', 'Low Stock Threshold', 'Inventory Created At', 'Inventory Updated At',
             'Payment ID', 'Transaction ID', 'Payment Amount', 'Payment Method', 'Payment Status', 'Payment Processed At',
             'Receipt ID', 'Receipt Details', 'Receipt Issued At'
@@ -948,8 +1086,8 @@ class Merchant extends User
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product_id']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['quantity']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['subtotal']);
-                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['add_on_ids']);
-                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['flavor_id']);
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, json_encode($item['add_ons']));
+                $sheet->setCellValue($itemColumnIndex++ . $rowIndex, json_encode($item['flavor']));
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['name']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['description']);
                 $sheet->setCellValue($itemColumnIndex++ . $rowIndex, $item['product']['price']);
@@ -1064,4 +1202,86 @@ class Merchant extends User
             }
         }
     }
+
+    public function deleteAllOrders() {
+        // Start a transaction
+        $this->conn->begin_transaction();
+        try {
+            // Delete all related records in receipts table
+            $stmt = $this->conn->prepare("DELETE FROM receipts");
+            $stmt->execute();
+            $stmt->close();
+
+            // Delete all related records in payments table
+            $stmt = $this->conn->prepare("DELETE FROM payments");
+            $stmt->execute();
+            $stmt->close();
+
+            // Delete all related records in customer_verifications table
+            $stmt = $this->conn->prepare("DELETE FROM customer_verifications");
+            $stmt->execute();
+            $stmt->close();
+
+            // Delete all order items first to maintain referential integrity
+            $stmt = $this->conn->prepare("DELETE FROM order_items");
+            $stmt->execute();
+            $stmt->close();
+
+            // Delete all orders
+            $stmt = $this->conn->prepare("DELETE FROM orders");
+            $stmt->execute();
+            $stmt->close();
+
+            // Reset the auto-increment value for the orders table
+            $stmt = $this->conn->prepare("ALTER TABLE orders AUTO_INCREMENT = 1");
+            $stmt->execute();
+            $stmt->close();
+
+            // Reset the auto-increment value for the order_items table
+            $stmt = $this->conn->prepare("ALTER TABLE order_items AUTO_INCREMENT = 1");
+            $stmt->execute();
+            $stmt->close();
+
+            // Reset the auto-increment value for the customer_verifications table
+            $stmt = $this->conn->prepare("ALTER TABLE customer_verifications AUTO_INCREMENT = 1");
+            $stmt->execute();
+            $stmt->close();
+
+            // Reset the auto-increment value for the payments table
+            $stmt = $this->conn->prepare("ALTER TABLE payments AUTO_INCREMENT = 1");
+            $stmt->execute();
+            $stmt->close();
+
+            // Reset the auto-increment value for the receipts table
+            $stmt = $this->conn->prepare("ALTER TABLE receipts AUTO_INCREMENT = 1");
+            $stmt->execute();
+            $stmt->close();
+
+            // Commit the transaction
+            $this->conn->commit();
+            return ["success" => true, "message" => "All orders deleted and auto-increment reset."];
+        } catch (Exception $e) {
+            // Rollback the transaction in case of error
+            $this->conn->rollback();
+            return ["success" => false, "message" => "Failed to delete all orders: " . $e->getMessage()];
+        }
+    }
+
+    public function getOrderStatus($orderId) {
+        $query = "SELECT status FROM orders WHERE id =?";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $orderId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['status'];
+        } else {
+            return null;
+        }
+    }
+
+
 }
