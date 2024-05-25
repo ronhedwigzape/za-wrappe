@@ -489,7 +489,39 @@ export const useOrderStore = defineStore('order', {
                 throw error;
             }
         },
-
+        async getOrderStatus(orderId) {
+            try {
+                const response = await $.ajax({
+                    url: `${useStore().appURL}/merchant.php`,
+                    type: 'GET',
+                    xhrFields: { withCredentials: true },
+                    data: { orderStatus: orderId },
+                });
+                console.log('Order status:', response);
+                return response;
+            } catch (error) {
+                console.error('Error fetching order status:', error);
+                throw error;
+            }
+        },
+        async deleteAllOrders() {
+            try {
+                const response = await $.ajax({
+                    url: `${useStore().appURL}/merchant.php`,
+                    type: 'POST',
+                    xhrFields: { withCredentials: true },
+                    data: { deleteAllOrders: true },
+                });
+                console.log('All orders deleted:', response);
+                if (response.success) {
+                    alert(response.message);
+                    await this.fetchAllOrders();
+                }
+            } catch (error) {
+                console.error('Error deleting all orders:', error);
+                alert('Failed to delete all orders.');
+            }
+        },
 
     }
 });

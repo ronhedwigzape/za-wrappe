@@ -6,6 +6,7 @@
 			<v-card-title class="text-h5 !tw-font-bold">
 				Orders
 				<v-btn size="small" color="green" prepend-icon="mdi-file-export" @click="exportOrders">Export to XLS</v-btn>
+				<v-btn size="small" color="red" prepend-icon="mdi-delete" @click="confirmAndDeleteAllOrders">Delete All Orders</v-btn>
 			</v-card-title>
 			<v-card-title>
 				<v-text-field
@@ -76,16 +77,16 @@
 			<v-card-actions>
 				<v-row class="flex-column flex-md-row">
 					<v-col cols="12" md="auto">
-						<v-btn color="blue" block @click="confirmAndProcessPayment(selectedOrder)">Pay</v-btn>
+						<v-btn color="blue" block @click="confirmAndProcessPayment(selectedOrder)" :disabled="payButtonDisabled">Pay</v-btn>
 					</v-col>
 					<v-col cols="12" md="auto">
-						<v-btn color="red" block @click="confirmAndCancelOrder(selectedOrder.id)">Cancel</v-btn>
+						<v-btn color="red" block @click="confirmAndCancelOrder(selectedOrder.id)" :disabled="cancelButtonDisabled">Cancel</v-btn>
 					</v-col>
 					<v-col cols="12" md="auto">
-						<v-btn color="orange" block @click="confirmAndPrepareOrder(selectedOrder.id)">Prepare</v-btn>
+						<v-btn color="orange" block @click="confirmAndPrepareOrder(selectedOrder.id)" :disabled="prepareButtonDisabled">Prepare</v-btn>
 					</v-col>
 					<v-col cols="12" md="auto">
-						<v-btn color="green" block @click="confirmAndSetReadyForPickup(selectedOrder.id)">Ready for Pickup</v-btn>
+						<v-btn color="green" block @click="confirmAndSetReadyForPickup(selectedOrder.id)" :disabled="readyForPickupButtonDisabled">Ready for Pickup</v-btn>
 					</v-col>
 					<v-col v-if="selectedOrder.payment" cols="12" md="auto">
 						<v-btn color="blue darken-1" block @click="printOrderDetails" v-if="selectedOrder.receipt">
@@ -115,14 +116,13 @@
 		</div>
 	</div>
 </template>
-
 <script setup>
 import axios from 'axios';
-import {onMounted, ref, watch} from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import TopNavbar from "@/components/navbar/TopNavbar.vue";
-import {useOrderStore} from "@/stores/store-order.js";
-import {useNotificationStore} from "@/stores/store-notification.js";
-import {useStore} from "@/stores/index.js";
+import { useOrderStore } from "@/stores/store-order.js";
+import { useNotificationStore } from "@/stores/store-notification.js";
+import { useStore } from "@/stores/index.js";
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -142,6 +142,11 @@ const headers = [
 	{ title: 'Actions', key: 'actions', sortable: false },
 ];
 
+const payButtonDisabled = ref(true);
+const cancelButtonDisabled = ref(true);
+const prepareButtonDisabled = ref(true);
+const readyForPickupButtonDisabled = ref(true);
+
 watch(() => orderStore.orders, (newOrders) => {
 	orders.value = newOrders;
 }, { deep: true });
@@ -156,7 +161,15 @@ onMounted(async () => {
 const showDialog = (order) => {
 	selectedOrder.value = order;
 	dialog.value = true;
-	console.log(order)
+	updateButtonStates(order.status);
+	console.log(order);
+};
+
+const updateButtonStates = (status) => {
+	payButtonDisabled.value = status !== 'Awaiting Payment';
+	cancelButtonDisabled.value = status !== 'Payment Received';
+	prepareButtonDisabled.value = status !== 'Payment Received';
+	readyForPickupButtonDisabled.value = status !== 'Preparing Order';
 };
 
 const confirmAndProcessPayment = async (order) => {
@@ -187,6 +200,17 @@ const confirmAndSetReadyForPickup = async (orderId) => {
 	dialog.value = false;
 };
 
+// Function to delete all orders
+const confirmAndDeleteAllOrders = async () => {
+	if (confirm("Are you sure you want to delete all orders?")) {
+		await useOrderStore().deleteAllOrders();
+	}
+};
+
+// Watcher to update the UI based on the selected order's status
+watch(() => selectedOrder.value.status, (newStatus) => {
+	updateButtonStates(newStatus);
+}, { immediate: true }); // Use immediate option to run the watcher immediately after component mount
 
 const exportOrders = () => {
 	window.location.href = `${useStore().appURL}/merchant.php?exportOrdersToXLS=true`;
