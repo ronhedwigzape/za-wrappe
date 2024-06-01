@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 25, 2024 at 03:01 AM
+-- Generation Time: Jun 01, 2024 at 05:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,8 +43,7 @@ CREATE TABLE `add_ons` (
 --
 
 INSERT INTO `add_ons` (`id`, `name`, `description`, `image_url`, `price`, `active`, `created_at`, `updated_at`) VALUES
-(1, 'Cheesy Dip', 'A Cheesy Dip add-ons for Shawarma', 'cheesy_dip.jpg', 7.00, 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(2, 'Spicy Dip', 'A Spicy Dip add-ons for Shawarma', 'spicy_dip.jpg', 7.00, 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
+(1, 'Garlic Sauce', 'A Garlic Sauce add-ons for Shawarma', 'cheesy_dip.jpg', 7.00, 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (3, 'Add Yakult', 'An additional Yakult to enrich your beverage.', 'add_yakult.jpg', 15.00, 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41');
 
 -- --------------------------------------------------------
@@ -85,7 +84,6 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` (`id`, `image_url`, `name`, `description`, `created_at`, `updated_at`) VALUES
 (1, 'shawarma.jpg', 'Shawarma', 'Delicious Shawarma wraps and more', '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(2, 'shawarma.jpg', 'Shawarma Rice', 'Delicious Shawarma served on a bed of rice', '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (3, 'shawarma.jpg', 'Shawarma Nachos', 'Crispy nachos topped with Shawarma', '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (4, 'fruit_soda_&_tea.jpg', 'Fruit Soda & Tea', 'Refreshing fruit soda and tea in various flavors', '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (5, 'yakult_series.jpg', 'Yakult Series', 'Healthy Yakult infused drinks', '2024-04-27 21:27:41', '2024-04-27 21:27:41');
@@ -109,11 +107,7 @@ CREATE TABLE `category_add_on` (
 
 INSERT INTO `category_add_on` (`category_id`, `add_on_id`, `created_at`, `updated_at`) VALUES
 (1, 1, NULL, NULL),
-(1, 2, NULL, NULL),
-(2, 1, NULL, NULL),
-(2, 2, NULL, NULL),
 (3, 1, NULL, NULL),
-(3, 2, NULL, NULL),
 (5, 3, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -137,23 +131,14 @@ INSERT INTO `category_flavor` (`category_id`, `flavor_id`, `created_at`, `update
 (1, 1, NULL, NULL),
 (1, 2, NULL, NULL),
 (1, 3, NULL, NULL),
-(2, 1, NULL, NULL),
-(2, 2, NULL, NULL),
-(2, 3, NULL, NULL),
 (3, 1, NULL, NULL),
 (3, 2, NULL, NULL),
 (3, 3, NULL, NULL),
 (4, 4, NULL, NULL),
-(4, 5, NULL, NULL),
-(4, 6, NULL, NULL),
-(4, 7, NULL, NULL),
 (4, 8, NULL, NULL),
 (4, 9, NULL, NULL),
 (4, 10, NULL, NULL),
 (5, 4, NULL, NULL),
-(5, 5, NULL, NULL),
-(5, 6, NULL, NULL),
-(5, 7, NULL, NULL),
 (5, 8, NULL, NULL),
 (5, 9, NULL, NULL),
 (5, 10, NULL, NULL);
@@ -223,7 +208,9 @@ INSERT INTO `customer_verifications` (`id`, `order_id`, `customer_contact`, `ver
 (72, 31, 'sheilabalbuena', 'f5390bf9c1', NULL, 0, NULL, NULL),
 (73, 32, 'Krizette', 'fca4c9285d', NULL, 0, NULL, NULL),
 (74, 33, 'earljames acal', 'c7368ee38f', NULL, 0, NULL, NULL),
-(75, 34, 'ron', '7e19e12b47', NULL, 0, NULL, NULL);
+(75, 34, 'ron', '7e19e12b47', NULL, 0, NULL, NULL),
+(76, 35, '', '2443b0fdfd', NULL, 0, NULL, NULL),
+(77, 36, '', '627dfa1360', NULL, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -274,9 +261,6 @@ INSERT INTO `flavors` (`id`, `name`, `description`, `image_url`, `active`, `crea
 (2, 'Chicken', 'A delicious Chicken flavor.', 'chicken.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (3, 'Tilapia', 'A delicious Tilapia flavor.', 'tilapia.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (4, 'Kiwi', 'A delicious Kiwi flavor.', 'kiwi.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(5, 'Green Apple', 'A delicious Green Apple flavor.', 'green_apple.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(6, 'Strawberry', 'A delicious Strawberry flavor.', 'strawberry.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(7, 'Lychee', 'A delicious Lychee flavor.', 'lychee.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (8, 'Lemon', 'A delicious Lemon flavor.', 'lemon.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (9, 'Mango', 'A delicious Mango flavor.', 'mango.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (10, 'Blueberry', 'A delicious Blueberry flavor.', 'blueberry.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41');
@@ -303,12 +287,8 @@ CREATE TABLE `inventories` (
 INSERT INTO `inventories` (`id`, `product_id`, `count`, `low_stock_threshold`, `created_at`, `updated_at`) VALUES
 (1, 1, 85, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
 (2, 2, 72, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
-(3, 3, 90, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
-(4, 4, 78, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
-(5, 5, 45, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
+(4, 4, 77, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
 (6, 6, 32, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
-(7, 7, 84, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
-(8, 8, 77, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
 (9, 9, 30, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43'),
 (10, 10, 42, 10, '2024-04-27 21:27:43', '2024-04-27 21:27:43');
 
@@ -377,7 +357,9 @@ INSERT INTO `notifications` (`id`, `type`, `receiver_id`, `sender_id`, `status`,
 (70, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 31\n\nOrder Details:\nCustomer Contact: sheilabalbuena\nTotal Price: 56.00\nVerification Code: f5390bf9c1\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Shawarma Nachos Single Order\n  Quantity: 1\n  Subtotal: 56.00\n  Add-ons: 2\n  Flavor: 1\n\n', '2024-05-24 20:40:37', '2024-05-24 20:40:37'),
 (71, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 32\n\nOrder Details:\nCustomer Contact: Krizette\nTotal Price: 54.00\nVerification Code: fca4c9285d\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Yakult Series - 16 oz\n  Quantity: 1\n  Subtotal: 54.00\n  Add-ons: 3\n  Flavor: 4\n\n', '2024-05-24 20:42:35', '2024-05-24 20:42:35'),
 (72, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 33\n\nOrder Details:\nCustomer Contact: earljames acal\nTotal Price: 29.00\nVerification Code: c7368ee38f\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Yakult Series - 12 oz\n  Quantity: 1\n  Subtotal: 29.00\n  Add-ons: None\n  Flavor: 4\n\n', '2024-05-24 20:44:31', '2024-05-24 20:44:31'),
-(73, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 34\n\nOrder Details:\nCustomer Contact: ron\nTotal Price: 54.00\nVerification Code: 7e19e12b47\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Yakult Series - 16 oz\n  Quantity: 1\n  Subtotal: 54.00\n  Add-ons: 3\n  Flavor: 6\n\n', '2024-05-24 20:47:03', '2024-05-24 20:47:03');
+(73, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 34\n\nOrder Details:\nCustomer Contact: ron\nTotal Price: 54.00\nVerification Code: 7e19e12b47\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Yakult Series - 16 oz\n  Quantity: 1\n  Subtotal: 54.00\n  Add-ons: 3\n  Flavor: 6\n\n', '2024-05-24 20:47:03', '2024-05-24 20:47:03'),
+(74, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 35\n\nOrder Details:\nCustomer Contact: \nTotal Price: 35.00\nVerification Code: 2443b0fdfd\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Fruit Soda - 16 oz\n  Quantity: 1\n  Subtotal: 35.00\n  Add-ons: None\n  Flavor: 4\n\n', '2024-05-25 03:33:04', '2024-05-25 03:33:04'),
+(75, 'customer_to_merchant', 1, 1, 'unread', 'New order received. Order ID: 36\n\nOrder Details:\nCustomer Contact: \nTotal Price: 25.00\nVerification Code: 627dfa1360\nPayment Status: Pending\nCreated At: 2024-04-28 05:27:43\n\nOrder Items:\n- Product: Fruit Soda - 12 oz\n  Quantity: 1\n  Subtotal: 25.00\n  Add-ons: None\n  Flavor: 4\n\n', '2024-05-25 03:37:01', '2024-05-25 03:37:01');
 
 -- --------------------------------------------------------
 
@@ -418,7 +400,9 @@ INSERT INTO `orders` (`id`, `status`, `customer_contact`, `total_price`, `verifi
 (31, 'Awaiting Payment', 'sheilabalbuena', 56.00, 'f5390bf9c1', 'Pending', '2024-05-24 20:40:37', '2024-05-24 20:40:37'),
 (32, 'Awaiting Payment', 'Krizette', 54.00, 'fca4c9285d', 'Pending', '2024-05-24 20:42:35', '2024-05-24 20:42:35'),
 (33, 'Awaiting Payment', 'earljames acal', 29.00, 'c7368ee38f', 'Pending', '2024-05-24 20:44:31', '2024-05-24 20:44:31'),
-(34, 'Awaiting Payment', 'ron', 54.00, '7e19e12b47', 'Pending', '2024-05-24 20:47:03', '2024-05-24 20:47:03');
+(34, 'Awaiting Payment', 'ron', 54.00, '7e19e12b47', 'Pending', '2024-05-24 20:47:03', '2024-05-24 20:47:03'),
+(35, 'Awaiting Payment', '', 35.00, '2443b0fdfd', 'Pending', '2024-05-25 03:33:04', '2024-05-25 03:33:04'),
+(36, 'Awaiting Payment', '', 25.00, '627dfa1360', 'Pending', '2024-05-25 03:37:01', '2024-05-25 03:37:01');
 
 -- --------------------------------------------------------
 
@@ -444,31 +428,25 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `add_on_ids`, `flavor_id`, `quantity`, `customizations`, `subtotal`, `created_at`, `updated_at`) VALUES
-(124, 17, 5, '[\"3\"]', 7, 2, NULL, 88.00, NULL, NULL),
 (125, 17, 9, '[\"2\",\"1\"]', 2, 1, NULL, 63.00, NULL, NULL),
 (126, 18, 9, '[\"1\",\"2\"]', 2, 4, NULL, 252.00, NULL, NULL),
-(127, 18, 5, '[\"3\"]', 6, 1, NULL, 44.00, NULL, NULL),
 (128, 19, 6, '[\"3\"]', 4, 1, NULL, 54.00, NULL, NULL),
 (129, 19, 1, '[\"1\"]', 1, 2, NULL, 112.00, NULL, NULL),
-(130, 20, 3, '[]', 4, 1, NULL, 25.00, NULL, NULL),
-(131, 21, 8, '[\"1\"]', 3, 1, NULL, 102.00, NULL, NULL),
 (132, 21, 2, '[\"2\"]', 1, 1, NULL, 102.00, NULL, NULL),
 (133, 22, 6, '[\"3\"]', 4, 1, NULL, 54.00, NULL, NULL),
 (134, 23, 4, '[]', 5, 1, NULL, 35.00, NULL, NULL),
 (135, 24, 6, '[\"3\"]', 7, 1, NULL, 54.00, NULL, NULL),
 (136, 24, 10, '[\"2\",\"1\"]', 1, 2, NULL, 218.00, NULL, NULL),
 (137, 24, 6, '[\"3\"]', 4, 1, NULL, 54.00, NULL, NULL),
-(138, 25, 8, '[\"2\"]', 1, 1, NULL, 102.00, NULL, NULL),
 (139, 26, 9, '[\"2\",\"1\"]', 1, 1, NULL, 63.00, NULL, NULL),
 (140, 27, 4, '[]', 4, 1, NULL, 35.00, NULL, NULL),
 (141, 27, 9, '[\"1\"]', 1, 1, NULL, 56.00, NULL, NULL),
 (142, 28, 9, '[\"1\"]', 3, 1, NULL, 56.00, NULL, NULL),
-(143, 29, 5, '[\"3\"]', 5, 1, NULL, 44.00, NULL, NULL),
 (144, 30, 9, '[\"2\"]', 2, 1, NULL, 56.00, NULL, NULL),
 (145, 31, 9, '[\"2\"]', 1, 1, NULL, 56.00, NULL, NULL),
 (146, 32, 6, '[\"3\"]', 4, 1, NULL, 54.00, NULL, NULL),
-(147, 33, 5, '[]', 4, 1, NULL, 29.00, NULL, NULL),
-(148, 34, 6, '[\"3\"]', 6, 1, NULL, 54.00, NULL, NULL);
+(148, 34, 6, '[\"3\"]', 6, 1, NULL, 54.00, NULL, NULL),
+(149, 35, 4, '[]', 4, 1, NULL, 35.00, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -525,12 +503,8 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `category_id`, `name`, `description`, `price`, `image_url`, `active`, `created_at`, `updated_at`) VALUES
 (1, 1, 'Shawarma Single Order', 'Enjoy our delicious shawarma single order with your favorite add-ons!', 49.00, 'shawarma_single_order.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (2, 1, 'Shawarma Buy One, Take One', 'Enjoy our delicious shawarma buy one, take one with your favorite add-ons!', 95.00, 'shawarma_buy_one,_take_one.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(3, 4, 'Fruit Soda - 12 oz', 'A delicious 12 oz Fruit Soda - 12 oz', 25.00, 'fruit_soda_-_12_oz.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (4, 4, 'Fruit Soda - 16 oz', 'A delicious 16 oz Fruit Soda - 16 oz', 35.00, 'fruit_soda_-_16_oz.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(5, 5, 'Yakult Series - 12 oz', 'A delicious 12 oz Yakult Series - 12 oz with added Yakult', 29.00, 'yakult_series_-_12_oz.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (6, 5, 'Yakult Series - 16 oz', 'A delicious 16 oz Yakult Series - 16 oz with added Yakult', 39.00, 'yakult_series_-_16_oz.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(7, 2, 'Shawarma Rice Single Order', 'Enjoy our shawarma rice single order with your favorite add-ons!', 49.00, 'shawarma_single_order.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
-(8, 2, 'Shawarma Rice Buy One, Take One', 'Enjoy our shawarma rice buy one, take one with your favorite add-ons!', 95.00, 'shawarma_buy_one,_take_one.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (9, 3, 'Shawarma Nachos Single Order', 'Enjoy our shawarma nachos single order with your favorite add-ons!', 49.00, 'shawarma_single_order.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41'),
 (10, 3, 'Shawarma Nachos Buy One, Take One', 'Enjoy our shawarma nachos buy one, take one with your favorite add-ons!', 95.00, 'shawarma_buy_one,_take_one.jpg', 1, '2024-04-27 21:27:41', '2024-04-27 21:27:41');
 
@@ -732,7 +706,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `customer_verifications`
 --
 ALTER TABLE `customer_verifications`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `feedbacks`
@@ -762,19 +736,19 @@ ALTER TABLE `merchants`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=149;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
 
 --
 -- AUTO_INCREMENT for table `payments`

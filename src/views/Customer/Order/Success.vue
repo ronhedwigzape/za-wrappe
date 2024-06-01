@@ -16,7 +16,7 @@ const closeAndReset = () => {
 	useOrderStore().orderCreated = false;
 	useOrderStore().order = null;
 	router.push('/customer/initialize');
-	window.location.reload();
+
 };
 
 const printReceipt = () => {
